@@ -1,0 +1,76 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+minecraft {
+    version = "1.12.2-14.23.5.2768"
+    runDir = "run"
+    mappings = "snapshot_20171007"
+    useDepAts = true
+    makeObfSourceJar = false
+}
+
+repositories {
+    mavenCentral()
+    ivy {
+        url "https://download.nodecdn.net/containers"
+        layout "pattern", {
+            artifact "/[organisation]/[module]/release/[revision]/[ext]"
+        }
+    }
+}
+
+dependencies {
+    compile project(":api")
+    compile project(":common")
+    compile project(":pixelmon")
+    shadow fileTree(dir: '../../../Impactor/build/allJars', include: 'Impactor*.jar')
+    shadow 'reforged:server:7.2.0@Pixelmon-1.12.2-7.2.0-server.jar'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'net.minecraftforge.gradle.forge'
+
+    group = "me.nickimpact.gts.pixelmon"
+
+    minecraft {
+        version = "1.12.2-14.23.5.2838"
+        runDir = "run"
+        mappings = "snapshot_20171007"
+        useDepAts = true
+        makeObfSourceJar = false
+    }
+
+    repositories {
+        mavenCentral()
+        ivy {
+            url "https://download.nodecdn.net/containers"
+            layout "pattern", {
+                artifact "/[organisation]/[module]/release/[revision]/[ext]"
+            }
+        }
+    }
+
+    dependencies {
+        compile project(":api")
+        compile project(":common")
+        testCompile group: 'junit', name: 'junit', version: '4.12'
+
+        shadow 'reforged:server:7.2.0@Pixelmon-1.12.2-7.2.0-server.jar'
+    }
+}
