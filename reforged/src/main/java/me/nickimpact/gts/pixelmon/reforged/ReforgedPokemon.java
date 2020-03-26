@@ -15,7 +15,7 @@ import com.pixelmonmod.pixelmon.enums.EnumNature;
 import com.pixelmonmod.pixelmon.enums.EnumSpecies;
 import com.pixelmonmod.pixelmon.enums.items.EnumPokeballs;
 import lombok.Getter;
-import me.nickimpact.gts.api.GtsService;
+import me.nickimpact.gts.api.GTSService;
 import me.nickimpact.gts.common.plugin.GTSPlugin;
 import me.nickimpact.gts.pixelmon.GTSPokemon;
 import net.minecraft.item.ItemStack;
@@ -26,7 +26,7 @@ import java.util.UUID;
 @Getter
 public class ReforgedPokemon implements GTSPokemon<Pokemon, EnumSpecies, EnumNature, EnumGrowth, Gender, EnumPokeballs, EnumSpecialTexture> {
 
-	public static final ExtraStatAdapter ADAPTER = new ExtraStatAdapter(GtsService.getInstance().getRegistry().get(GTSPlugin.class));
+	public static final ExtraStatAdapter ADAPTER = new ExtraStatAdapter(GTSService.getInstance().getRegistry().get(GTSPlugin.class));
 
 	private UUID id;
 	private EnumSpecies species;
