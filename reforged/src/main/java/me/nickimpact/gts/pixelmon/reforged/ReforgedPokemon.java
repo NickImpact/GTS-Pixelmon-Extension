@@ -1,101 +1,95 @@
 package me.nickimpact.gts.pixelmon.reforged;
 
-import com.nickimpact.impactor.api.json.Adapter;
-import com.nickimpact.impactor.api.json.Registry;
-import com.nickimpact.impactor.api.plugin.ImpactorPlugin;
-import com.pixelmonmod.pixelmon.Pixelmon;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
-import com.pixelmonmod.pixelmon.entities.pixelmon.EnumSpecialTexture;
-import com.pixelmonmod.pixelmon.entities.pixelmon.stats.BonusStats;
-import com.pixelmonmod.pixelmon.entities.pixelmon.stats.ExtraStats;
-import com.pixelmonmod.pixelmon.entities.pixelmon.stats.Gender;
-import com.pixelmonmod.pixelmon.entities.pixelmon.stats.Pokerus;
-import com.pixelmonmod.pixelmon.enums.EnumGrowth;
-import com.pixelmonmod.pixelmon.enums.EnumNature;
-import com.pixelmonmod.pixelmon.enums.EnumSpecies;
-import com.pixelmonmod.pixelmon.enums.items.EnumPokeballs;
-import lombok.Getter;
-import me.nickimpact.gts.api.GTSService;
-import me.nickimpact.gts.common.plugin.GTSPlugin;
 import me.nickimpact.gts.pixelmon.GTSPokemon;
-import net.minecraft.item.ItemStack;
+import me.nickimpact.gts.pixelmon.data.EggData;
+import me.nickimpact.gts.pixelmon.data.LevelData;
+import me.nickimpact.gts.pixelmon.data.TrainerData;
 
-import java.util.List;
+import java.lang.reflect.Type;
+import java.util.Optional;
 import java.util.UUID;
 
-@Getter
-public class ReforgedPokemon implements GTSPokemon<Pokemon, EnumSpecies, EnumNature, EnumGrowth, Gender, EnumPokeballs, EnumSpecialTexture> {
+public class ReforgedPokemon implements GTSPokemon<Pokemon> {
 
-	public static final ExtraStatAdapter ADAPTER = new ExtraStatAdapter(GTSService.getInstance().getRegistry().get(GTSPlugin.class));
+    private transient Pokemon delegate;
 
-	private UUID id;
-	private EnumSpecies species;
-	private int level;
-	private int form;
-	private boolean shiny;
-	private String nickname;
-	private String ability;
-	private int abilitySlot;
-	private EnumPokeballs pokeball;
-	private EnumNature nature;
-	private EnumGrowth growth;
-	private Gender gender;
-	private StatWrapper stats;
-	private StatWrapper EVs;
-	private StatWrapper IVs;
-	private short status;
-	private EnumSpecialTexture specialTexture;
-	private String customTexture;
-	private int health;
-	private List<Integer> relearnableMoves;
-	private boolean doesLevel;
-	private EggData eggData;
-	private ItemStack heldItem;
-	private UUID originalTrainerID;
-	private String originalTrainerName;
-	private AttackWrapper[] moveset;
+    @Override
+    public Pokemon construct() {
+        return null;
+    }
 
-	/** Reforged Specific Fields */
-	private List<String> specFlags;
-	private Pokerus pokerus;
-	private BonusStats bonus;
-	private ExtraStats extras;
+    @Override
+    public UUID getID() {
+        return null;
+    }
 
-	private ReforgedPokemon(Pokemon pokemon) {
+    @Override
+    public LevelData getLevelData() {
+        return null;
+    }
 
-	}
+    @Override
+    public int getFormID() {
+        return 0;
+    }
 
-	public static ReforgedPokemon from(Pokemon pokemon) {
-		return new ReforgedPokemon(pokemon);
-	}
+    @Override
+    public boolean isShiny() {
+        return false;
+    }
 
-	@Override
-	public Pokemon construct() {
-		Pokemon pokemon = Pixelmon.pokemonFactory.create(this.id);
-		pokemon.setSpecies(this.species);
+    @Override
+    public String getAbility() {
+        return null;
+    }
 
+    @Override
+    public int getAbilitySlot() {
+        return 0;
+    }
 
-		return pokemon;
-	}
+    @Override
+    public String getNature() {
+        return null;
+    }
 
-	@Override
-	public boolean doesLevel() {
-		return this.doesLevel;
-	}
+    @Override
+    public String getGender() {
+        return null;
+    }
 
-	private static class ExtraStatAdapter extends Adapter<ExtraStats> {
+    @Override
+    public Optional<EggData> getEggData() {
+        return Optional.empty();
+    }
 
-		private Registry<ExtraStats> registry;
+    @Override
+    public boolean doesLevel() {
+        return false;
+    }
 
-		ExtraStatAdapter(ImpactorPlugin plugin) {
-			super(plugin);
-			this.registry = new Registry<>(plugin);
-		}
+    @Override
+    public TrainerData getTrainerData() {
+        return null;
+    }
 
-		@Override
-		protected Registry<ExtraStats> getRegistry() {
-			return this.registry;
-		}
-	}
+    @Override
+    public String getNickname() {
+        return null;
+    }
 
+    @Override
+    public GTSPokemon<Pokemon> deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+        return null;
+    }
+
+    @Override
+    public JsonElement serialize(GTSPokemon<Pokemon> pokemonGTSPokemon, Type type, JsonSerializationContext jsonSerializationContext) {
+        return null;
+    }
 }

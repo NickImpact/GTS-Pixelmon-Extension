@@ -1,10 +1,12 @@
 package me.nickimpact.gts.pixelmon;
 
-import lombok.Builder;
-import lombok.Getter;
-import net.minecraft.item.ItemStack;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializer;
+import me.nickimpact.gts.pixelmon.data.EggData;
+import me.nickimpact.gts.pixelmon.data.LevelData;
+import me.nickimpact.gts.pixelmon.data.TrainerData;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -15,87 +17,35 @@ import java.util.UUID;
  * of pokemon safely via desirable means. So if a user were to use GSON, you can successfully serialize a pokemon
  * converted into this type.</p>
  *
- * @param <Pokemon> The actual implementation of a pokemon. This is what either reforged or generations uses to handle the
- *                 data storage of the pokemon
- * @param <Species> The species of the pokemon
- * @param <Nature> The nature of the pokemon
- * @param <Growth> The growth of the pokemon
- * @param <Gender> The gender of the pokemon
- * @param <Pokeball> The pokeball the pokemon was captured in / inherited
- * @param <SpecialTexture> The special texture set on this pokemon
+ * <p>Due to the differences between Pokemon mods, this interface will only implement the typical details
+ * that are object independent.</p>
  */
-public interface GTSPokemon<Pokemon, Species, Nature, Growth, Gender, Pokeball, SpecialTexture> {
+public interface GTSPokemon<T> extends JsonSerializer<GTSPokemon<T>>, JsonDeserializer<GTSPokemon<T>> {
 
-	Pokemon construct();
+	T construct();
 
-	Species getSpecies();
-	int getLevel();
-	int getForm();
+	UUID getID();
+
+	LevelData getLevelData();
+
+	int getFormID();
+
 	boolean isShiny();
 
-	String getNickname();
-
 	String getAbility();
+
 	int getAbilitySlot();
 
-	Pokeball getPokeball();
-	Nature getNature();
-	Growth getGrowth();
-	Gender getGender();
+	String getNature();
 
-	StatWrapper getStats();
-	StatWrapper getEVs();
-	StatWrapper getIVs();
+	String getGender();
 
-	short getStatus();
-
-	SpecialTexture getSpecialTexture();
-	String getCustomTexture();
-
-	int getHealth();
-	List<Integer> getRelearnableMoves();
+	Optional<EggData> getEggData();
 
 	boolean doesLevel();
-	EggData getEggData();
 
-	ItemStack getHeldItem();
+	TrainerData getTrainerData();
 
-	UUID getOriginalTrainerID();
-	String getOriginalTrainerName();
-
-	AttackWrapper[] getMoveset();
-
-	@Getter
-	@Builder
-	class StatWrapper {
-
-		private int hp;
-		private int attack;
-		private int defence;
-		private int spatk;
-		private int spdef;
-		private int speed;
-
-	}
-
-	@Getter
-	@Builder
-	class EggData {
-
-		private Integer eggCycles;
-		private Integer eggSteps;
-
-	}
-
-	@Getter
-	@Builder
-	class AttackWrapper {
-
-		private int moveID;
-		private int pp;
-		private int ppLevel;
-
-	}
-
+	String getNickname();
 
 }

@@ -32,11 +32,10 @@ repositories {
 }
 
 dependencies {
-    compile project(":api")
-    compile project(":common")
+    shadow project(":api")
+    shadow project(":common")
     compile project(":pixelmon")
-    shadow fileTree(dir: '../../../Impactor/build/allJars', include: 'Impactor*.jar')
-    shadow 'reforged:server:7.2.0@Pixelmon-1.12.2-7.2.0-server.jar'
+    shadow 'reforged:server:8.0.2@Pixelmon-1.12.2-8.0.2-server.jar'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
@@ -67,10 +66,10 @@ subprojects {
     }
 
     dependencies {
-        compile project(":api")
-        compile project(":common")
+        shadow project(":api")
+        shadow project(":common")
         testCompile group: 'junit', name: 'junit', version: '4.12'
 
-        shadow 'reforged:server:7.2.0@Pixelmon-1.12.2-7.2.0-server.jar'
+        shadow 'reforged:server:8.0.2@Pixelmon-1.12.2-8.0.2-server.jar'
     }
 }

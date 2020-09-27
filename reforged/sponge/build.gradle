@@ -1,0 +1,8 @@
+dependencies {
+    shadow 'com.nickimpact.impactor:sponge:3.0.0-SNAPSHOT'
+    shadow 'org.slf4j:slf4j-api:1.7.25'
+}
+
+shadowJar {
+    archiveName = "GTS-Extension-Reforged-6.0.0.jar"
+}
