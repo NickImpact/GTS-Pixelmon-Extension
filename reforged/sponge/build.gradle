@@ -1,8 +1,26 @@
 dependencies {
-    shadow 'com.nickimpact.impactor:sponge:3.0.0-SNAPSHOT'
+    shadow 'net.impactdev.impactor:sponge:3.0.0-SNAPSHOT'
     shadow 'org.slf4j:slf4j-api:1.7.25'
+
+    shadow 'net.impactdev.pixelmonbridge:reforged:1.0.0-SNAPSHOT'
 }
 
 shadowJar {
-    archiveName = "GTS-Extension-Reforged-6.0.0.jar"
+    archiveName = "GTS-Extension-Reforged-${project.version}.jar"
+
+    relocate ('net.impactdev.pixelmonbridge', 'net.impactdev.impactor.relocations.pixelmonbridge')
+    relocate ('net.kyori.text', 'net.impactdev.impactor.relocations.text')
+
+}
+
+sourceMainJava.finalizedBy(blossomSourceReplacementJava)
+blossom {
+    blossomSourceReplacementJava.output = file("$buildDir/sources/main/java")
+    replaceToken '@version@', version
+}
+
+reobf {
+    shadowJar {
+        mappingType = 'SEARGE'
+    }
 }

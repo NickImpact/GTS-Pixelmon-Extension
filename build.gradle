@@ -32,7 +32,7 @@ repositories {
 dependencies {
     shadow project(":api")
     shadow project(":common")
-    shadow "com.nickimpact.impactor:api:2.2.0-SNAPSHOT"
+    shadow "net.impactdev.impactor:api:2.2.0-SNAPSHOT"
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
@@ -62,7 +62,8 @@ subprojects {
     dependencies {
         shadow project(":api")
         shadow project(":common")
-        shadow "com.nickimpact.impactor:api:2.2.0-SNAPSHOT"
+        shadow "net.impactdev.impactor:api:3.0.0-SNAPSHOT"
+        shadow 'net.impactdev:pixelmonbridge:1.0.0-SNAPSHOT'
         testCompile group: 'junit', name: 'junit', version: '4.12'
     }
 }

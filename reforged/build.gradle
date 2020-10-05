@@ -34,6 +34,7 @@ repositories {
 dependencies {
     shadow project(":api")
     shadow project(":common")
+    shadow project(":sponge")
     compile project(":pixelmon")
     shadow 'reforged:server:8.0.2@Pixelmon-1.12.2-8.0.2-server.jar'
 
@@ -63,13 +64,35 @@ subprojects {
                 artifact "/[organisation]/[module]/release/[revision]/[ext]"
             }
         }
+
+        maven {
+            name 'sponge-repo'
+            url 'https://repo.spongepowered.org/maven'
+        }
     }
 
     dependencies {
         shadow project(":api")
         shadow project(":common")
+        shadow project(":sponge")
+        shadow project(":plugin:plugin-sponge")
         testCompile group: 'junit', name: 'junit', version: '4.12'
 
-        shadow 'reforged:server:8.0.2@Pixelmon-1.12.2-8.0.2-server.jar'
+        shadow 'reforged:server:8.1.0@Pixelmon-1.12.2-8.1.0-server.jar'
+        shadow 'org.spongepowered:spongeapi:7.3.0'
+        shadow('net.kyori:text-api:3.0.3') {
+            exclude(module: 'checker-qual')
+        }
+        shadow('net.kyori:text-serializer-legacy:3.0.3') {
+            exclude(module: 'text-api')
+        }
+        shadow('net.kyori:text-serializer-gson:3.0.3') {
+            exclude(module: 'text-api')
+            exclude(module: 'gson')
+        }
+        shadow('net.kyori:text-adapter-spongeapi:3.0.3') {
+            exclude(module: 'text-api')
+            exclude(module: 'gson')
+        }
     }
 }
