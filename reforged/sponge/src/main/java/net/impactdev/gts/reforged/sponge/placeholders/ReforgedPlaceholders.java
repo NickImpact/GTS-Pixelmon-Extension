@@ -47,7 +47,10 @@ public class ReforgedPlaceholders {
         event.register(new PokemonPlaceholder(
                 "ability",
                 "Pokemon's Ability",
-                pokemon -> Text.of(pokemon.getAbility().getLocalizedName())
+                pokemon -> Text.of(pokemon.getAbility().getLocalizedName()
+                        .replaceAll("[\u00a7][r]", "")
+                        .replaceAll("[\u00a7][k].", "")
+                )
         ));
         event.register(new PokemonPlaceholder(
                 "gender",

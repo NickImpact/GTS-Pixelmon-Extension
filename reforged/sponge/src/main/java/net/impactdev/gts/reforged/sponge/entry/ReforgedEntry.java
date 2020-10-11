@@ -1,6 +1,7 @@
 package net.impactdev.gts.reforged.sponge.entry;
 
 import com.google.common.collect.Lists;
+import com.pixelmonmod.pixelmon.api.storage.PCStorage;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
 import net.impactdev.impactor.api.json.factory.JObject;
@@ -105,6 +106,13 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> {
     @Override
     public boolean give(UUID receiver) {
         PlayerPartyStorage storage = Pixelmon.storageManager.getParty(receiver);
+        if(!storage.hasSpace()) {
+            PCStorage pc = Pixelmon.storageManager.getPCForPlayer(receiver);
+            if(pc.hasSpace()) {
+                return false;
+            }
+        }
+
         return storage.add(this.pokemon.getOrCreate());
     }
 
