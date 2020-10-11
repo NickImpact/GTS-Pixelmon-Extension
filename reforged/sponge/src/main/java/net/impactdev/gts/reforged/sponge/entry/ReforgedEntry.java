@@ -68,29 +68,10 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> {
 
     @Override
     public Display<ItemStack> getDisplay(UUID viewer, Listing listing) {
-        final Config lang = GTSPlugin.getInstance().getMsgConfig();
         final MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
 
         List<Text> lore = Lists.newArrayList();
         lore.addAll(service.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig().get(ReforgedLangConfigKeys.POKEMON_DETAILS), Lists.newArrayList(() -> this.pokemon)));
-        lore.addAll(service.parse(Utilities.readMessageConfigOption(MsgConfigKeys.UI_LISTING_DETAIL_SEPARATOR)));
-        if(listing instanceof Auction) {
-            Auction auction = (Auction) listing;
-            List<String> input;
-            if(auction.getBids().size() > 1) {
-                input = lang.get(MsgConfigKeys.UI_AUCTION_DETAILS_WITH_BIDS);
-            } else {
-                input = lang.get(MsgConfigKeys.UI_AUCTION_DETAILS_NO_BIDS);
-            }
-            List<Supplier<Object>> sources = Lists.newArrayList(() -> auction);
-            lore.addAll(service.parse(input, sources));
-        } else if(listing instanceof BuyItNow) {
-            BuyItNow bin = (BuyItNow) listing;
-
-            List<String> input = lang.get(MsgConfigKeys.UI_BIN_DETAILS);
-            List<Supplier<Object>> sources = Lists.newArrayList(() -> bin);
-            lore.addAll(service.parse(input, sources));
-        }
 
         ItemStack rep = ItemStack.builder()
                 .from(this.getPicture(this.pokemon.getOrCreate()))
