@@ -31,6 +31,14 @@ public class ReforgedLangConfigKeys implements ConfigKeyHolder {
             "  &7IVs: &e{{pokemon:iv_hp}}&7/&e{{pokemon:iv_attack}}&7/&e{{pokemon:iv_defence}}&7/&e{{pokemon:iv_specialattack}}&7/&e{{pokemon:iv_specialdefence}}&7/&e{{pokemon:iv_speed}} &7(&b{{pokemon:iv_percentage}}&7)"
     ));
 
+    //------------------------------------------------------------------------------------------------------------------
+    //
+    //  UI Based Language Options
+    //
+    //------------------------------------------------------------------------------------------------------------------
+
+    public static ConfigKey<String> UI_PRICE_TITLE = stringKey("ui.menu.pricing.title", "&cGTS &7\u00bb &3Specify your price");
+
     private static final Map<String, ConfigKey<?>> KEYS;
     private static final int SIZE;
 

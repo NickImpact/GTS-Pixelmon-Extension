@@ -3,9 +3,12 @@ package net.impactdev.gts.reforged.sponge.ui;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.Lists;
 import com.pixelmonmod.pixelmon.enums.EnumSpecies;
+import net.impactdev.gts.reforged.sponge.GTSSpongeReforgedPlugin;
+import net.impactdev.gts.reforged.sponge.config.ReforgedLangConfigKeys;
 import net.impactdev.gts.reforged.sponge.price.ReforgedPrice;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.gui.signs.SignQuery;
+import net.impactdev.impactor.api.services.text.MessageService;
 import net.impactdev.impactor.sponge.ui.SpongeIcon;
 import net.impactdev.impactor.sponge.ui.SpongeLayout;
 import net.impactdev.impactor.sponge.ui.SpongeUI;
@@ -40,8 +43,10 @@ public class ReforgedPriceCreatorMenu {
         this.viewer = viewer;
         this.callback = callback;
 
+        final MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
+
         this.display = SpongeUI.builder()
-                .title(Text.EMPTY)
+                .title(service.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig().get(ReforgedLangConfigKeys.UI_PRICE_TITLE)))
                 .dimension(InventoryDimension.of(9, 5))
                 .build()
                 .define(this.design());
