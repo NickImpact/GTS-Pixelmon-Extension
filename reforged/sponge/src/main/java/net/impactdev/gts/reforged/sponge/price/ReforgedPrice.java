@@ -1,20 +1,26 @@
 package net.impactdev.gts.reforged.sponge.price;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.gson.JsonObject;
 import com.pixelmonmod.pixelmon.Pixelmon;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
+import com.pixelmonmod.pixelmon.api.storage.PCStorage;
 import com.pixelmonmod.pixelmon.api.storage.StoragePosition;
 import com.pixelmonmod.pixelmon.enums.EnumSpecies;
 import com.pixelmonmod.pixelmon.enums.forms.EnumNoForm;
 import com.pixelmonmod.pixelmon.enums.forms.IEnumForm;
 import com.pixelmonmod.pixelmon.items.ItemPixelmonSprite;
 import com.pixelmonmod.pixelmon.storage.PlayerPartyStorage;
+import net.impactdev.gts.api.data.registry.GTSKeyMarker;
 import net.impactdev.gts.api.listings.makeup.Display;
+import net.impactdev.gts.api.listings.prices.Price;
+import net.impactdev.gts.api.listings.prices.PriceManager;
+import net.impactdev.gts.api.listings.ui.EntryUI;
+import net.impactdev.gts.api.util.TriConsumer;
 import net.impactdev.gts.reforged.sponge.GTSSpongeReforgedPlugin;
 import net.impactdev.gts.reforged.sponge.config.ReforgedLangConfigKeys;
+import net.impactdev.gts.reforged.sponge.converter.JObjectConverter;
+import net.impactdev.gts.reforged.sponge.ui.ReforgedPriceCreatorMenu;
 import net.impactdev.gts.sponge.listings.makeup.SpongeDisplay;
 import net.impactdev.gts.sponge.pricing.SpongePrice;
 import net.impactdev.impactor.api.Impactor;
@@ -25,19 +31,24 @@ import net.impactdev.pixelmonbridge.details.components.Level;
 import net.impactdev.pixelmonbridge.reforged.ReforgedPokemon;
 import net.kyori.text.TextComponent;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
+@GTSKeyMarker("reforged-price")
 public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpecs, StoragePosition> {
 
     private PokemonPriceSpecs price;
 
     /** The pokemon the payer pays to buy the represented Listing */
-    private ReforgedPokemon out;
+    private ReforgedPokemon payment;
 
     public ReforgedPrice(PokemonPriceSpecs price) {
         this.price = price;
@@ -77,7 +88,7 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
         // TODO - Add lore
 
         ItemStack rep = ItemStack.builder()
-                .from(this.getPicture(this.price.getSpecies()))
+                .from(getPicture(this.price.getSpecies(), this.price.getSpecies().getFormEnum(this.price.getForm())))
                 .add(Keys.DISPLAY_NAME, service.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig()
                         .get(ReforgedLangConfigKeys.POKEMON_TITLE), Lists.newArrayList(() -> pokemon))
                 )
@@ -90,7 +101,7 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
     @Override
     public boolean canPay(UUID payer) {
         PlayerPartyStorage storage = Pixelmon.storageManager.getParty(payer);
-        for(Pokemon pokemon : storage.getTeam()) {
+        for(Pokemon pokemon : this.price.doesAllowEggs() ? storage.getTeam() : Arrays.asList(storage.getAll())) {
             if(this.price.matches(pokemon)) {
                 return true;
             }
@@ -100,19 +111,28 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
     }
 
     @Override
-    public void pay(UUID payer, StoragePosition source) {
+    public void pay(UUID payer, Object source) {
         PlayerPartyStorage storage = Pixelmon.storageManager.getParty(payer);
-        Pokemon pokemon = storage.get(source);
-        this.out = ReforgedPokemon.from(pokemon);
+        Pokemon pokemon = storage.get(this.getSourceType().cast(source));
+        this.payment = ReforgedPokemon.from(pokemon);
         storage.set(pokemon.getPosition(), null);
     }
 
     @Override
     public boolean reward(UUID recipient) {
-        // TODO - Consider how we handle this with cross server
-        // Perhaps we write it as a secondary field to the JSON of this price, and that will be carried
-        // across when populated, indicating a user has paid for the listing
-        return false;
+        PlayerPartyStorage storage = Pixelmon.storageManager.getParty(recipient);
+        if(storage.hasSpace()) {
+            storage.add(this.payment.getOrCreate());
+            return true;
+        }
+
+        PCStorage pc = Pixelmon.storageManager.getPCForPlayer(recipient);
+        return pc.add(this.payment.getOrCreate());
+    }
+
+    @Override
+    public Class<StoragePosition> getSourceType() {
+        return StoragePosition.class;
     }
 
     @Override
@@ -127,16 +147,46 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
                         .add("species", this.price.getSpecies().getPokemonName())
                         .add("form", this.price.getForm())
                         .add("level", this.price.getLevel())
+                        .add("allowEggs", this.price.doesAllowEggs())
                 )
+                .consume(o -> {
+                    if(this.payment != null) {
+                        o.add("payment", JObjectConverter.convert(GTSSpongeReforgedPlugin.getInstance()
+                                .getManager()
+                                .getInternalManager()
+                                .serialize(this.payment)
+                        ));
+                    }
+                })
                 .add("version", this.getVersion());
+    }
+
+    private static ReforgedPrice deserialize(JsonObject json) {
+        JsonObject price = json.getAsJsonObject("price");
+
+        PokemonPriceSpecs specs = new PokemonPriceSpecs(
+                EnumSpecies.getFromNameAnyCase(price.get("species").getAsString()),
+                price.get("form").getAsInt(),
+                price.get("level").getAsInt(),
+                price.get("allowEggs").getAsBoolean()
+        );
+
+        ReforgedPrice result = new ReforgedPrice(specs);
+        if(json.has("payment")) {
+            result.payment = GTSSpongeReforgedPlugin.getInstance().getManager()
+                    .getDeserializer()
+                    .deserialize(json.getAsJsonObject("payment"))
+                    .getOrCreateElement();
+        }
+        return result;
     }
 
     public static class PokemonPriceSpecs {
 
-        private EnumSpecies species;
-        private int form;
-        private int level;
-        private boolean allowEggs;
+        private final EnumSpecies species;
+        private final int form;
+        private final int level;
+        private final boolean allowEggs;
 
         public PokemonPriceSpecs(EnumSpecies species, int form, int level, boolean allowEggs) {
             this.species = species;
@@ -162,6 +212,10 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
         }
 
         public boolean matches(Pokemon pokemon) {
+            if(pokemon == null) {
+                return false;
+            }
+
             if(!this.allowEggs) {
                 if(pokemon.isEgg()) {
                     return false;
@@ -175,7 +229,7 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
 
     }
 
-    private ItemStack getPicture(EnumSpecies species) {
+    public static ItemStack getPicture(EnumSpecies species, IEnumForm form) {
         Calendar calendar = Calendar.getInstance();
 
         boolean aprilFools = false;
@@ -183,6 +237,36 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
             aprilFools = true;
         }
 
-        return (ItemStack) (Object) (ItemPixelmonSprite.getPhoto(Pixelmon.pokemonFactory.create(aprilFools ? EnumSpecies.Bidoof : species)));
+        Pokemon rep = Pixelmon.pokemonFactory.create(species);
+        rep.setForm(form);
+        return (ItemStack) (Object) (ItemPixelmonSprite.getPhoto(
+                aprilFools ? Pixelmon.pokemonFactory.create(EnumSpecies.Bidoof) : rep
+        ));
+    }
+
+    public static class ReforgedPriceManager implements PriceManager<ReforgedPrice, Player> {
+
+        @Override
+        public TriConsumer<Player, EntryUI<?, ?, ?>, BiConsumer<EntryUI<?, ?, ?>, Price<?, ?, ?>>> process() {
+            return (viewer, ui, callback) -> {
+                Consumer<ReforgedPrice> processor = price -> callback.accept(ui, price);
+                new ReforgedPriceCreatorMenu(viewer, processor).open();
+            };
+        }
+
+        @Override
+        public String getName() {
+            return "Pokemon";
+        }
+
+        @Override
+        public String getItemID() {
+            return "pixelmon:gs_ball";
+        }
+
+        @Override
+        public Deserializer<ReforgedPrice> getDeserializer() {
+            return ReforgedPrice::deserialize;
+        }
     }
 }
