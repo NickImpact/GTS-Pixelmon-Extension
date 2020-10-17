@@ -144,6 +144,7 @@ public class ReforgedPriceCreatorMenu {
                             return true;
                         }
 
+                        this.display.open(this.viewer);
                         return false;
                     })
                     .build();

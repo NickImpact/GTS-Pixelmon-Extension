@@ -38,6 +38,7 @@ public class ReforgedLangConfigKeys implements ConfigKeyHolder {
     //------------------------------------------------------------------------------------------------------------------
 
     public static ConfigKey<String> UI_PRICE_TITLE = stringKey("ui.menu.pricing.title", "&cGTS &7\u00bb &3Specify your price");
+    public static ConfigKey<String> UI_PRICE_SELECTOR_TITLE = stringKey("ui.menu.price-selector.title", "&cGTS &7\u00bb Select your Payment");
 
     private static final Map<String, ConfigKey<?>> KEYS;
     private static final int SIZE;

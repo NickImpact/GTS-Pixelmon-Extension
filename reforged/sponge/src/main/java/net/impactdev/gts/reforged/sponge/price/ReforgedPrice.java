@@ -1,5 +1,6 @@
 package net.impactdev.gts.reforged.sponge.price;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.pixelmonmod.pixelmon.Pixelmon;
@@ -24,6 +25,7 @@ import net.impactdev.gts.reforged.sponge.ui.ReforgedPriceCreatorMenu;
 import net.impactdev.gts.sponge.listings.makeup.SpongeDisplay;
 import net.impactdev.gts.sponge.pricing.SpongePrice;
 import net.impactdev.impactor.api.Impactor;
+import net.impactdev.impactor.api.gui.UI;
 import net.impactdev.impactor.api.json.factory.JObject;
 import net.impactdev.impactor.api.services.text.MessageService;
 import net.impactdev.pixelmonbridge.details.SpecKeys;
@@ -38,6 +40,7 @@ import org.spongepowered.api.text.Text;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -61,19 +64,20 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
 
     @Override
     public TextComponent getText() {
-        TextComponent.Builder formComponent = TextComponent.builder();
+        TextComponent.Builder builder = TextComponent.builder();
+        this.tryAppend(builder, b -> {
+            if(this.price.getLevel() > 0) {
+                b.append("Level " + this.price.getLevel()).append(TextComponent.space());
+            }
+        });
+        this.tryAppend(builder, b -> {
+            IEnumForm form = this.price.getSpecies().getFormEnum(this.price.getForm());
+            if(!form.equals(EnumNoForm.NoForm)) {
+                b.append(form.getLocalizedName()).append(TextComponent.space());
+            }
+        });
 
-        IEnumForm form = this.price.getSpecies().getFormEnum(this.price.getForm());
-        if(!form.equals(EnumNoForm.NoForm)) {
-            formComponent.append(form.getLocalizedName()).append(TextComponent.space());
-        }
-
-        return TextComponent.builder()
-                .append("Level " + this.price.getLevel())
-                .append(TextComponent.space())
-                .append(formComponent.build())
-                .append(this.price.getSpecies().getPokemonName())
-                .build();
+        return builder.append(this.price.getSpecies().getPokemonName()).build();
     }
 
     @Override
@@ -181,6 +185,25 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
         return result;
     }
 
+    private void tryAppend(TextComponent.Builder builder, Consumer<TextComponent.Builder> consumer) {
+        consumer.accept(builder);
+    }
+
+    public static ItemStack getPicture(EnumSpecies species, IEnumForm form) {
+        Calendar calendar = Calendar.getInstance();
+
+        boolean aprilFools = false;
+        if(calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
+            aprilFools = true;
+        }
+
+        Pokemon rep = Pixelmon.pokemonFactory.create(species);
+        rep.setForm(form);
+        return (ItemStack) (Object) (ItemPixelmonSprite.getPhoto(
+                aprilFools ? Pixelmon.pokemonFactory.create(EnumSpecies.Bidoof) : rep
+        ));
+    }
+
     public static class PokemonPriceSpecs {
 
         private final EnumSpecies species;
@@ -223,25 +246,10 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
             }
 
             return pokemon.getSpecies().equals(this.species) &&
-                    pokemon.getForm() == this.form &&
-                    pokemon.getLevel() == this.level;
+                    pokemon.getSpecies().getFormEnum(pokemon.getForm()).equals(this.species.getFormEnum(this.form)) &&
+                    pokemon.getLevel() >= this.level;
         }
 
-    }
-
-    public static ItemStack getPicture(EnumSpecies species, IEnumForm form) {
-        Calendar calendar = Calendar.getInstance();
-
-        boolean aprilFools = false;
-        if(calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
-            aprilFools = true;
-        }
-
-        Pokemon rep = Pixelmon.pokemonFactory.create(species);
-        rep.setForm(form);
-        return (ItemStack) (Object) (ItemPixelmonSprite.getPhoto(
-                aprilFools ? Pixelmon.pokemonFactory.create(EnumSpecies.Bidoof) : rep
-        ));
     }
 
     public static class ReforgedPriceManager implements PriceManager<ReforgedPrice, Player> {
@@ -252,6 +260,14 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
                 Consumer<ReforgedPrice> processor = price -> callback.accept(ui, price);
                 new ReforgedPriceCreatorMenu(viewer, processor).open();
             };
+        }
+
+        @Override
+        public <U extends UI<?, ?, ?, ?>> Optional<PriceSelectorUI<U>> getSelector(Player viewer, Price<?, ?, ?> price, Consumer<Object> callback) {
+            Preconditions.checkArgument(price instanceof ReforgedPrice, "Received invalid price option");
+
+            PriceSelectorUI<U> selector = (PriceSelectorUI<U>) new ReforgedPriceSelector(viewer, ((ReforgedPrice) price).price, callback);
+            return Optional.of(selector);
         }
 
         @Override
@@ -269,4 +285,5 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
             return ReforgedPrice::deserialize;
         }
     }
+
 }
