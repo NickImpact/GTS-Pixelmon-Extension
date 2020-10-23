@@ -33,7 +33,7 @@ repositories {
 
 dependencies {
     shadow project(":api")
-    shadow project(":common")
+    //shadow project(":common")
     shadow project(":sponge")
     compile project(":pixelmon")
     shadow 'reforged:server:8.0.2@Pixelmon-1.12.2-8.0.2-server.jar'
@@ -73,7 +73,6 @@ subprojects {
 
     dependencies {
         shadow project(":api")
-        shadow project(":common")
         shadow project(":sponge")
         shadow project(":plugin:plugin-sponge")
         testCompile group: 'junit', name: 'junit', version: '4.12'

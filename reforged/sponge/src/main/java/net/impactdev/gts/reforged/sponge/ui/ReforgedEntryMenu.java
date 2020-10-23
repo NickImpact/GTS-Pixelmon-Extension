@@ -41,7 +41,6 @@ import org.spongepowered.api.text.format.TextColors;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static net.impactdev.gts.sponge.utils.Utilities.PARSER;

@@ -178,9 +178,8 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
         ReforgedPrice result = new ReforgedPrice(specs);
         if(json.has("payment")) {
             result.payment = GTSSpongeReforgedPlugin.getInstance().getManager()
-                    .getDeserializer()
-                    .deserialize(json.getAsJsonObject("payment"))
-                    .getOrCreateElement();
+                    .getInternalManager()
+                    .deserialize(json.getAsJsonObject("payment"));
         }
         return result;
     }
