@@ -89,7 +89,7 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> {
         PlayerPartyStorage storage = Pixelmon.storageManager.getParty(receiver);
         if(!storage.hasSpace()) {
             PCStorage pc = Pixelmon.storageManager.getPCForPlayer(receiver);
-            if(pc.hasSpace()) {
+            if(!pc.hasSpace()) {
                 return false;
             }
         }
