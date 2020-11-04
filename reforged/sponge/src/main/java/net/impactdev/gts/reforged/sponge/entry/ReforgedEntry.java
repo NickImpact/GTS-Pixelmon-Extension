@@ -117,6 +117,13 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> {
             return false;
         }
 
+        // Check party size. Ensure we aren't less than 1 because who knows whether Reforged or another plugin
+        // will break something
+        if(party.getTeam().size() <= 1) {
+            // TODO - Feedback
+            return false;
+        }
+
         party.retrieveAll();
         party.set(party.getPosition(this.pokemon.getOrCreate()), null);
         return true;
