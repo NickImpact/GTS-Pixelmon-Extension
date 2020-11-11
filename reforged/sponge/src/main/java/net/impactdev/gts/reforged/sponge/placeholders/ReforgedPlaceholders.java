@@ -3,10 +3,12 @@ package net.impactdev.gts.reforged.sponge.placeholders;
 import com.google.common.collect.Lists;
 import com.pixelmonmod.pixelmon.entities.pixelmon.specs.UnbreedableFlag;
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.EVStore;
+import com.pixelmonmod.pixelmon.entities.pixelmon.stats.Gender;
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.IVStore;
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.StatsType;
 import org.spongepowered.api.event.game.GameRegistryEvent;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.placeholder.PlaceholderParser;
 
@@ -55,7 +57,13 @@ public class ReforgedPlaceholders {
         event.register(new PokemonPlaceholder(
                 "gender",
                 "Pokemon's Gender",
-                pokemon -> Text.of(pokemon.getGender().getLocalizedName())
+                pokemon -> {
+                    Gender gender = pokemon.getGender();
+                    TextColor color = gender == Gender.Male ? TextColors.AQUA :
+                            gender == Gender.Female ? TextColors.LIGHT_PURPLE : TextColors.GRAY;
+
+                    return Text.of(color, pokemon.getGender().getLocalizedName());
+                }
         ));
         event.register(new PokemonPlaceholder(
                 "nature",
