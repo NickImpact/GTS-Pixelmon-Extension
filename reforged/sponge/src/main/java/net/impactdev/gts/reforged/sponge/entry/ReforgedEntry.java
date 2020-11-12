@@ -146,7 +146,10 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> {
 
     @Override
     public List<String> getDetails() {
-        return Lists.newArrayList();
+        return Lists.newArrayList(
+                "Testing",
+                "123"
+        );
     }
 
     @Override
