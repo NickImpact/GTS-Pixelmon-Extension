@@ -2,8 +2,14 @@ package net.impactdev.gts.reforged.sponge.entry;
 
 import com.google.common.collect.Lists;
 import com.pixelmonmod.pixelmon.api.storage.PCStorage;
+import net.impactdev.gts.api.listings.prices.PriceControlled;
+import net.impactdev.gts.api.util.TriFunction;
+import net.impactdev.gts.common.config.updated.ConfigKeys;
+import net.impactdev.gts.reforged.sponge.config.ReforgedConfigKeys;
+import net.impactdev.gts.reforged.sponge.config.mappings.ReforgedPriceControls;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
+import net.impactdev.impactor.api.configuration.ConfigKey;
 import net.impactdev.impactor.api.json.factory.JObject;
 import net.impactdev.impactor.api.services.text.MessageService;
 import com.pixelmonmod.pixelmon.Pixelmon;
@@ -17,17 +23,13 @@ import com.pixelmonmod.pixelmon.storage.PlayerPartyStorage;
 import net.impactdev.gts.api.blacklist.Blacklist;
 import net.impactdev.gts.api.data.registry.GTSKeyMarker;
 import net.impactdev.gts.api.listings.Listing;
-import net.impactdev.gts.api.listings.auctions.Auction;
-import net.impactdev.gts.api.listings.buyitnow.BuyItNow;
 import net.impactdev.gts.api.listings.makeup.Display;
-import net.impactdev.gts.common.config.MsgConfigKeys;
 import net.impactdev.gts.common.plugin.GTSPlugin;
 import net.impactdev.gts.reforged.sponge.GTSSpongeReforgedPlugin;
 import net.impactdev.gts.reforged.sponge.config.ReforgedLangConfigKeys;
 import net.impactdev.gts.reforged.sponge.converter.JObjectConverter;
 import net.impactdev.gts.sponge.listings.makeup.SpongeDisplay;
 import net.impactdev.gts.sponge.listings.makeup.SpongeEntry;
-import net.impactdev.gts.sponge.utils.Utilities;
 import net.impactdev.pixelmonbridge.details.SpecKeys;
 import net.impactdev.pixelmonbridge.reforged.ReforgedPokemon;
 import net.kyori.text.TextComponent;
@@ -40,10 +42,9 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 @GTSKeyMarker("reforged-pokemon")
-public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> {
+public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements PriceControlled {
 
     public ReforgedPokemon pokemon;
 
@@ -195,6 +196,89 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> {
             return (ItemStack) (Object) item;
         } else {
             return (ItemStack) (Object) (aprilFools ? ItemPixelmonSprite.getPhoto(Pixelmon.pokemonFactory.create(EnumSpecies.Bidoof)) : ItemPixelmonSprite.getPhoto(pokemon));
+        }
+    }
+
+    @Override
+    public double getMin() {
+        Optional<ReforgedPriceControls.Control> control = GTSSpongeReforgedPlugin.getInstance().getConfiguration()
+                .get(ReforgedConfigKeys.PRICE_CONTROLS)
+                .get(this.getOrCreateElement().getOrCreate().getSpecies());
+
+        double calculated = control.map(ReforgedPriceControls.Control::getMin)
+                .orElse(0.0);
+
+        for(MinimumPriceCalculator calculator : MinimumPriceCalculator.values()) {
+            calculated = calculator.calculate(this.getOrCreateElement().getOrCreate(), calculated);
+        }
+
+        return Math.max(0, Math.max(
+                GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LISTINGS_MIN_PRICE),
+                calculated
+        ));
+    }
+
+    @Override
+    public double getMax() {
+        Optional<ReforgedPriceControls.Control> control = GTSSpongeReforgedPlugin.getInstance().getConfiguration()
+                .get(ReforgedConfigKeys.PRICE_CONTROLS)
+                .get(this.getOrCreateElement().getOrCreate().getSpecies());
+
+        return Math.max(1, Math.min(
+                GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LISTINGS_MAX_PRICE),
+                control.map(ReforgedPriceControls.Control::getMax).orElse(Double.MAX_VALUE)
+        ));
+    }
+
+    private enum MinimumPriceCalculator {
+        LEGENDARY(ReforgedConfigKeys.MIN_PRICING_LEGEND_ENABLED, ReforgedConfigKeys.MIN_PRICING_LEGEND_PRICE, (pokemon, key, current) -> {
+            if(EnumSpecies.legendaries.contains(pokemon.getSpecies().getPokemonName())) {
+                return GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(key) + current;
+            }
+
+            return current;
+        }),
+        SHINY(ReforgedConfigKeys.MIN_PRICING_SHINY_ENABLED, ReforgedConfigKeys.MIN_PRICING_SHINY_PRICE, (pokemon, key, current) -> {
+            if(pokemon.isShiny()) {
+                return GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(key) + current;
+            }
+
+            return current;
+        }),
+        HIDDEN_ABILITY(ReforgedConfigKeys.MIN_PRICING_HA_ENABLED, ReforgedConfigKeys.MIN_PRICING_HA_PRICE, (pokemon, key, current) -> {
+            if(pokemon.getAbilitySlot() == 2) {
+                return GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(key) + current;
+            }
+
+            return current;
+        }),
+        IV(ReforgedConfigKeys.MIN_PRICING_IVS_ENABLED, ReforgedConfigKeys.MIN_PRICING_IVS_PRICE, (pokemon, key, current) -> {
+            int required = GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(ReforgedConfigKeys.MIN_PRICING_IVS_REQUIRE);
+            for(int iv : pokemon.getStats().ivs.getArray()) {
+                if(iv >= required) {
+                    current += GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(key);
+                }
+            }
+
+            return current;
+        }),;
+
+        private final ConfigKey<Boolean> enableKey;
+        private final ConfigKey<Double> priceKey;
+        private final TriFunction<Pokemon, ConfigKey<Double>, Double, Double> priceApplier;
+
+        MinimumPriceCalculator(ConfigKey<Boolean> enableKey, ConfigKey<Double> priceKey, TriFunction<Pokemon, ConfigKey<Double>, Double, Double> priceApplier) {
+            this.enableKey = enableKey;
+            this.priceKey = priceKey;
+            this.priceApplier = priceApplier;
+        }
+
+        public double calculate(Pokemon source, double current) {
+            if(GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(this.enableKey)) {
+                return this.priceApplier.apply(source, this.priceKey, current);
+            }
+
+            return current;
         }
     }
 }
