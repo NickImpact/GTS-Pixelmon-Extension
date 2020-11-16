@@ -13,6 +13,7 @@ import com.pixelmonmod.pixelmon.enums.forms.IEnumForm;
 import com.pixelmonmod.pixelmon.items.ItemPixelmonSprite;
 import com.pixelmonmod.pixelmon.storage.PlayerPartyStorage;
 import net.impactdev.gts.api.data.registry.GTSKeyMarker;
+import net.impactdev.gts.api.listings.Listing;
 import net.impactdev.gts.api.listings.makeup.Display;
 import net.impactdev.gts.api.listings.prices.Price;
 import net.impactdev.gts.api.listings.prices.PriceManager;
@@ -137,6 +138,11 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
     @Override
     public Class<StoragePosition> getSourceType() {
         return StoragePosition.class;
+    }
+
+    @Override
+    public long calculateFee(boolean listingType) {
+        return Math.max(0, 0);
     }
 
     @Override
