@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.pixelmonmod.pixelmon.api.storage.PCStorage;
 import net.impactdev.gts.api.listings.prices.PriceControlled;
 import net.impactdev.gts.api.util.TriFunction;
-import net.impactdev.gts.common.config.updated.ConfigKeys;
+import net.impactdev.gts.common.config.ConfigKeys;
 import net.impactdev.gts.reforged.sponge.config.ReforgedConfigKeys;
 import net.impactdev.gts.reforged.sponge.config.mappings.ReforgedPriceControls;
 import net.impactdev.impactor.api.Impactor;

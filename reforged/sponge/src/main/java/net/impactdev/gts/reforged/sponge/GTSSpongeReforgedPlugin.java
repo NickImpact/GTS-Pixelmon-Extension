@@ -16,7 +16,7 @@ import net.impactdev.impactor.sponge.logging.SpongeLogger;
 import net.impactdev.gts.api.GTSService;
 import net.impactdev.gts.api.events.extension.PlaceholderRegistryEvent;
 import net.impactdev.gts.api.extension.Extension;
-import net.impactdev.gts.common.config.updated.ConfigKeys;
+import net.impactdev.gts.common.config.ConfigKeys;
 import net.impactdev.gts.common.plugin.GTSPlugin;
 import net.impactdev.gts.reforged.sponge.config.ReforgedConfigKeys;
 import net.impactdev.gts.reforged.sponge.config.ReforgedLangConfigKeys;
