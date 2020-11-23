@@ -40,6 +40,35 @@ public class ReforgedLangConfigKeys implements ConfigKeyHolder {
     public static ConfigKey<String> UI_PRICE_TITLE = stringKey("ui.menu.pricing.title", "&cGTS &7\u00bb &3Specify your price");
     public static ConfigKey<String> UI_PRICE_SELECTOR_TITLE = stringKey("ui.menu.price-selector.title", "&cGTS &7\u00bb Select your Payment");
 
+    public static ConfigKey<String> UI_FORM_SELECT_TITLE = stringKey("", "&cGTS &7\u00bb &3Select a Form");
+
+    public static ConfigKey<String> UI_PRICE_SPECIES_SELECT_TITLE = stringKey("ui.menu.price-selector.icons.species.title", "&aSelect Species");
+    public static ConfigKey<List<String>> UI_PRICE_SPECIES_SELECT_LORE = listKey("ui.menu.price-selector.icons.species.lore", Lists.newArrayList(
+            "&7Sets the species of the",
+            "&7pokemon you are asking to",
+            "&7receive!",
+            "",
+            "&eClick to set pokemon species!"
+    ));
+
+    public static ConfigKey<String> UI_PRICE_LEVEL_SELECT_TITLE = stringKey("ui.menu.price-selector.icons.level.title", "&aSelect Level");
+    public static ConfigKey<List<String>> UI_PRICE_LEVEL_SELECT_LORE = listKey("ui.menu.price-selector.icons.level.lore", Lists.newArrayList(
+            "&7Sets the minimum level of",
+            "&7the pokemon you are asking",
+            "&7to receive!",
+            "",
+            "&eClick to set minimum level!"
+    ));
+
+    public static ConfigKey<String> UI_PRICE_FORM_SELECT_TITLE = stringKey("ui.menu.price-selector.icons.form.title", "&aSelect Form");
+    public static ConfigKey<List<String>> UI_PRICE_FORM_SELECT_LORE = listKey("ui.menu.price-selector.icons.form.lore", Lists.newArrayList(
+            "&7Sets the minimum level of",
+            "&7the pokemon you are asking",
+            "&7to receive!",
+            "",
+            "&eClick to set minimum level!"
+    ));
+
     private static final Map<String, ConfigKey<?>> KEYS;
     private static final int SIZE;
 

@@ -14,13 +14,12 @@ import net.impactdev.gts.api.listings.ui.EntrySelection;
 import net.impactdev.gts.common.config.MsgConfigKeys;
 import net.impactdev.gts.reforged.sponge.GTSSpongeReforgedPlugin;
 import net.impactdev.gts.reforged.sponge.config.ReforgedLangConfigKeys;
-import net.impactdev.gts.sponge.ui.Displayable;
 import net.impactdev.gts.common.ui.Historical;
 import net.impactdev.gts.reforged.sponge.entry.ReforgedEntry;
 import net.impactdev.gts.sponge.listings.makeup.SpongeEntry;
 import net.impactdev.gts.sponge.listings.ui.AbstractSpongeEntryUI;
+import net.impactdev.gts.sponge.listings.ui.SpongeMainPageProvider;
 import net.impactdev.gts.sponge.utils.Utilities;
-import net.impactdev.gts.ui.SpongeMainMenu;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.services.text.MessageService;
 import net.impactdev.impactor.sponge.ui.SpongeIcon;
@@ -46,7 +45,7 @@ import java.util.function.Supplier;
 import static net.impactdev.gts.sponge.utils.Utilities.PARSER;
 import static net.impactdev.gts.sponge.utils.Utilities.readMessageConfigOption;
 
-public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.Chosen> implements Historical<Displayable> {
+public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.Chosen> implements Historical<SpongeMainPageProvider> {
 
     public ReforgedEntryMenu(Player viewer) {
         super(viewer);
@@ -100,7 +99,7 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.C
                 .build()
         );
         back.addListener(clickable -> {
-            this.getParent().ifPresent(parent -> parent.get().open(this.viewer));
+            this.getParent().ifPresent(parent -> parent.get().open());
         });
         builder.slot(back, 45);
 
@@ -138,8 +137,8 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.C
     }
 
     @Override
-    public Optional<Supplier<Displayable>> getParent() {
-        return Optional.of(() -> new SpongeMainMenu(this.viewer));
+    public Optional<Supplier<SpongeMainPageProvider>> getParent() {
+        return Optional.of(() -> SpongeMainPageProvider.creator().viewer(this.viewer).build());
     }
 
     @Getter

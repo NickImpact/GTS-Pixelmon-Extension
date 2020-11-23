@@ -66,6 +66,7 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
     @Override
     public TextComponent getText() {
         TextComponent.Builder builder = TextComponent.builder();
+
         this.tryAppend(builder, b -> {
             if(this.price.getLevel() > 0) {
                 b.append("Level " + this.price.getLevel()).append(TextComponent.space());
@@ -73,12 +74,14 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
         });
         this.tryAppend(builder, b -> {
             IEnumForm form = this.price.getSpecies().getFormEnum(this.price.getForm());
-            if(!form.equals(EnumNoForm.NoForm)) {
+            if(form.getForm() > 0) {
                 b.append(form.getLocalizedName()).append(TextComponent.space());
             }
         });
 
-        return builder.append(this.price.getSpecies().getPokemonName()).build();
+        builder.append(this.price.getSpecies().getPokemonName());
+
+        return builder.build();
     }
 
     @Override

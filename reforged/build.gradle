@@ -33,8 +33,6 @@ repositories {
 
 dependencies {
     shadow project(":api")
-    //shadow project(":common")
-    shadow project(":sponge")
     compile project(":pixelmon")
     shadow 'reforged:server:8.0.2@Pixelmon-1.12.2-8.0.2-server.jar'
 
@@ -74,10 +72,8 @@ subprojects {
     dependencies {
         shadow project(":api")
         shadow project(":sponge")
-        shadow project(":plugin:plugin-sponge")
-        testCompile group: 'junit', name: 'junit', version: '4.12'
 
-        shadow 'reforged:server:8.1.0@Pixelmon-1.12.2-8.1.0-server.jar'
+        shadow 'reforged:server:8.1.2@Pixelmon-1.12.2-8.1.2-server.jar'
         shadow 'org.spongepowered:spongeapi:7.3.0'
         shadow('net.kyori:text-api:3.0.3') {
             exclude(module: 'checker-qual')
@@ -93,5 +89,7 @@ subprojects {
             exclude(module: 'text-api')
             exclude(module: 'gson')
         }
+
+        testCompile group: 'junit', name: 'junit', version: '4.12'
     }
 }
