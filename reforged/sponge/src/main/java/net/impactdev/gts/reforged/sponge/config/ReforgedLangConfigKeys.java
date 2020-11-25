@@ -62,11 +62,11 @@ public class ReforgedLangConfigKeys implements ConfigKeyHolder {
 
     public static ConfigKey<String> UI_PRICE_FORM_SELECT_TITLE = stringKey("ui.menu.price-selector.icons.form.title", "&aSelect Form");
     public static ConfigKey<List<String>> UI_PRICE_FORM_SELECT_LORE = listKey("ui.menu.price-selector.icons.form.lore", Lists.newArrayList(
-            "&7Sets the minimum level of",
-            "&7the pokemon you are asking",
-            "&7to receive!",
+            "&7Sets the form of the",
+            "&7pokemon you are asking to",
+            "&7receive!",
             "",
-            "&eClick to set minimum level!"
+            "&eClick to set requested form!"
     ));
 
     private static final Map<String, ConfigKey<?>> KEYS;

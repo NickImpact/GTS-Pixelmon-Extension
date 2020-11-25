@@ -2,6 +2,7 @@ package net.impactdev.gts.reforged.sponge;
 
 import com.google.common.collect.Lists;
 import net.impactdev.gts.reforged.sponge.entry.ReforgedEntry;
+import net.impactdev.gts.reforged.sponge.entry.ReforgedListingSearcher;
 import net.impactdev.gts.reforged.sponge.price.ReforgedPrice;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
@@ -67,6 +68,7 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
         service.getGTSComponentManager().registerLegacyEntryDeserializer("pokemon", new LegacyReforgedPokemonDeserializer());
         service.getGTSComponentManager().registerEntryManager(ReforgedEntry.class, this.manager = new ReforgedPokemonDataManager());
         service.getGTSComponentManager().registerPriceManager(ReforgedPrice.class, new ReforgedPrice.ReforgedPriceManager());
+        service.addSearcher(new ReforgedListingSearcher());
 
         Impactor.getInstance().getEventBus().subscribe(this);
     }

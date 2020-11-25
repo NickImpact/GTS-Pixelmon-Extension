@@ -1,7 +1,11 @@
 package net.impactdev.gts.reforged.sponge.ui.secondary;
 
+import com.pixelmonmod.pixelmon.Pixelmon;
 import com.pixelmonmod.pixelmon.enums.EnumSpecies;
+import com.pixelmonmod.pixelmon.enums.forms.EnumNoForm;
 import com.pixelmonmod.pixelmon.enums.forms.IEnumForm;
+import com.pixelmonmod.pixelmon.storage.extras.PixelExtrasData;
+import com.pixelmonmod.pixelmon.storage.extras.PlayerExtraDataStore;
 import net.impactdev.gts.reforged.sponge.GTSSpongeReforgedPlugin;
 import net.impactdev.gts.reforged.sponge.config.ReforgedLangConfigKeys;
 import net.impactdev.gts.reforged.sponge.price.ReforgedPrice;
@@ -21,12 +25,15 @@ import org.spongepowered.api.text.format.TextColors;
 
 public class ReforgedFormSelectionMenu {
 
+    private Player viewer;
+
     private EnumSpecies species;
     private ReforgedPriceCreatorMenu parent;
 
     private SpongePage<IEnumForm> display;
 
     public ReforgedFormSelectionMenu(Player viewer, EnumSpecies species, ReforgedPriceCreatorMenu parent) {
+        this.viewer = viewer;
         this.species = species;
         this.parent = parent;
 
@@ -62,6 +69,7 @@ public class ReforgedFormSelectionMenu {
                 .from(ReforgedPrice.getPicture(this.species, form))
                 .add(Keys.DISPLAY_NAME, Text.of(TextColors.GREEN, form.getLocalizedName()))
                 .build();
+
         SpongeIcon icon = new SpongeIcon(display);
         icon.addListener(clickable -> {
             this.parent.setForm(form.getForm());

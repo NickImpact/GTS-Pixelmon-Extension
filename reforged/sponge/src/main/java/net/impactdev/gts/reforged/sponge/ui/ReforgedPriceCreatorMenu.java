@@ -10,6 +10,7 @@ import net.impactdev.gts.reforged.sponge.config.ReforgedLangConfigKeys;
 import net.impactdev.gts.reforged.sponge.price.ReforgedPrice;
 import net.impactdev.gts.reforged.sponge.ui.secondary.ReforgedFormSelectionMenu;
 import net.impactdev.gts.sponge.listings.ui.SpongeMainPageProvider;
+import net.impactdev.gts.sponge.utils.Utilities;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.ConfigKey;
 import net.impactdev.impactor.api.gui.signs.SignQuery;
@@ -83,13 +84,11 @@ public class ReforgedPriceCreatorMenu {
 
         SpongeIcon confirm = new SpongeIcon(ItemStack.builder()
                 .itemType(ItemTypes.CONCRETE)
-                .add(Keys.DISPLAY_NAME, Text.of(TextColors.GREEN, "Confirm"))
+                .add(Keys.DYE_COLOR, DyeColors.RED)
+                .add(Keys.DISPLAY_NAME, service.parse(Utilities.readMessageConfigOption(MsgConfigKeys.AWAITING_SELECT_PRICE_TITLE)))
+                .add(Keys.ITEM_LORE, service.parse(Utilities.readMessageConfigOption(MsgConfigKeys.AWAITING_SELECT_PRICE_LORE)))
                 .build()
         );
-        confirm.addListener(clickable -> {
-            this.display.close(this.viewer);
-            this.callback.accept(new ReforgedPrice(new ReforgedPrice.PokemonPriceSpecs(this.species, this.form, this.level, this.allowEggs)));
-        });
         builder.slot(confirm, 44);
 
         SpongeIcon back = new SpongeIcon(ItemStack.builder()
@@ -128,11 +127,7 @@ public class ReforgedPriceCreatorMenu {
         }
         picture.offer(Keys.ITEM_LORE, lore);
 
-        SpongeIcon icon = new SpongeIcon(picture);
-        icon.addListener(clickable -> {
-
-        });
-        return icon;
+        return new SpongeIcon(picture);
     }
 
     private SpongeIcon speciesSelector() {
@@ -164,6 +159,20 @@ public class ReforgedPriceCreatorMenu {
 
                                 this.display.setSlot(38, this.formSelector());
                                 this.display.setSlot(42, this.levelSelector());
+
+                                final MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
+                                SpongeIcon confirm = new SpongeIcon(ItemStack.builder()
+                                        .itemType(ItemTypes.CONCRETE)
+                                        .add(Keys.DYE_COLOR, DyeColors.LIME)
+                                        .add(Keys.DISPLAY_NAME, service.parse(Utilities.readMessageConfigOption(MsgConfigKeys.CONFIRM_SELECT_PRICE_TITLE)))
+                                        .add(Keys.ITEM_LORE, service.parse(Utilities.readMessageConfigOption(MsgConfigKeys.CONFIRM_SELECT_PRICE_LORE)))
+                                        .build()
+                                );
+                                confirm.addListener(c -> {
+                                    this.display.close(this.viewer);
+                                    this.callback.accept(new ReforgedPrice(new ReforgedPrice.PokemonPriceSpecs(this.species, this.form, this.level, this.allowEggs)));
+                                });
+                                this.display.setSlot(44, confirm);
 
                                 this.display.open(this.viewer);
                             });

@@ -11,6 +11,7 @@ import net.impactdev.gts.api.listings.prices.PriceManager;
 import net.impactdev.gts.common.config.MsgConfigKeys;
 import net.impactdev.gts.reforged.sponge.GTSSpongeReforgedPlugin;
 import net.impactdev.gts.reforged.sponge.config.ReforgedLangConfigKeys;
+import net.impactdev.gts.sponge.listings.ui.SpongeMainPageProvider;
 import net.impactdev.gts.sponge.utils.Utilities;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.services.text.MessageService;
@@ -33,6 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import static net.impactdev.gts.sponge.utils.Utilities.PARSER;
+import static net.impactdev.gts.sponge.utils.Utilities.readMessageConfigOption;
 
 public class ReforgedPriceSelector implements PriceManager.PriceSelectorUI<SpongeUI> {
 
@@ -112,14 +114,21 @@ public class ReforgedPriceSelector implements PriceManager.PriceSelectorUI<Spong
 
         SpongeIcon confirm = new SpongeIcon(ItemStack.builder()
                 .itemType(ItemTypes.CONCRETE)
-                .add(Keys.DYE_COLOR, DyeColors.LIME)
-                .add(Keys.DISPLAY_NAME, PARSER.parse(Utilities.readMessageConfigOption(MsgConfigKeys.CONFIRM_SELECTION)))
+                .add(Keys.DYE_COLOR, DyeColors.RED)
+                .add(Keys.DISPLAY_NAME, PARSER.parse(Utilities.readMessageConfigOption(MsgConfigKeys.AWAITING_SELECTION_TITLE)))
+                .add(Keys.ITEM_LORE, PARSER.parse(Utilities.readMessageConfigOption(MsgConfigKeys.AWAITING_SELECTION_LORE)))
                 .build());
-        confirm.addListener(clickable -> {
-            this.display.close(this.viewer);
-            this.callback.accept(this.selection.getPosition());
-        });
         builder.slot(confirm, 51);
+
+        SpongeIcon back = new SpongeIcon(ItemStack.builder()
+                .itemType(ItemTypes.BARRIER)
+                .add(Keys.DISPLAY_NAME, PARSER.parse(readMessageConfigOption(MsgConfigKeys.UI_GENERAL_BACK), Lists.newArrayList(() -> this.viewer)))
+                .build()
+        );
+        back.addListener(clickable -> {
+            SpongeMainPageProvider.creator().viewer(this.viewer).build().open();
+        });
+        builder.slot(back, 47);
 
         return builder.build();
     }
@@ -155,6 +164,18 @@ public class ReforgedPriceSelector implements PriceManager.PriceSelectorUI<Spong
             icon.addListener(clickable -> {
                 this.selection = pokemon;
                 this.display.setSlot(13, this.getSelected());
+
+                SpongeIcon confirmer = new SpongeIcon(ItemStack.builder()
+                        .itemType(ItemTypes.CONCRETE)
+                        .add(Keys.DYE_COLOR, DyeColors.GREEN)
+                        .add(Keys.DISPLAY_NAME, PARSER.parse(Utilities.readMessageConfigOption(MsgConfigKeys.CONFIRM_SELECTION_TITLE)))
+                        .add(Keys.ITEM_LORE, PARSER.parse(Utilities.readMessageConfigOption(MsgConfigKeys.CONFIRM_SELECTION_LORE)))
+                        .build());
+
+                confirmer.addListener(c -> {
+                    this.display.close(this.viewer);
+                    this.callback.accept(this.selection);
+                });
             });
         }
         return icon;
