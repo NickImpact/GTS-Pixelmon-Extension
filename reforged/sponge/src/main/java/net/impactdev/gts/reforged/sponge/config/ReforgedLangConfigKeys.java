@@ -17,18 +17,18 @@ import static net.impactdev.impactor.api.configuration.ConfigKeyTypes.listKey;
 
 public class ReforgedLangConfigKeys implements ConfigKeyHolder {
 
-    public static final ConfigKey<String> POKEMON_TITLE = stringKey("listing.details.title", "&3{{pokemon:species}} {{pokemon:shiny_special:s}}&7| &bLvl {{pokemon:level}}");
+    public static final ConfigKey<String> POKEMON_TITLE = stringKey("listing.details.title", "&3{{gts-reforged:species}} {{gts-reforged:shiny_special:s}}&7| &bLvl {{gts-reforged:level}}");
     public static final ConfigKey<List<String>> POKEMON_DETAILS = listKey("listing.details.info", Lists.newArrayList(
             "&aGeneric Information:",
-            "  &7Ability: &e{{pokemon:ability}}",
-            "  &7Gender: {{pokemon:gender}}",
-            "  &7Nature: &e{{pokemon:nature}}",
-            "  &7Size: &e{{pokemon:size}}",
-            "  &7Breed Status: {{pokemon:unbreedable}}",
+            "  &7Ability: &e{{gts-reforged:ability}}",
+            "  &7Gender: {{gts-reforged:gender}}",
+            "  &7Nature: &e{{gts-reforged:nature}}",
+            "  &7Size: &e{{gts-reforged:size}}",
+            "  &7Breed Status: {{gts-reforged:unbreedable}}",
             "",
             "&aStats:",
-            "  &7EVs: &e{{pokemon:ev_hp}}&7/&e{{pokemon:ev_attack}}&7/&e{{pokemon:ev_defence}}&7/&e{{pokemon:ev_specialattack}}&7/&e{{pokemon:ev_specialdefence}}&7/&e{{pokemon:ev_speed}} &7(&b{{pokemon:ev_percentage}}&7)",
-            "  &7IVs: &e{{pokemon:iv_hp}}&7/&e{{pokemon:iv_attack}}&7/&e{{pokemon:iv_defence}}&7/&e{{pokemon:iv_specialattack}}&7/&e{{pokemon:iv_specialdefence}}&7/&e{{pokemon:iv_speed}} &7(&b{{pokemon:iv_percentage}}&7)"
+            "  &7EVs: &e{{gts-reforged:ev_hp}}&7/&e{{gts-reforged:ev_attack}}&7/&e{{gts-reforged:ev_defence}}&7/&e{{gts-reforged:ev_specialattack}}&7/&e{{gts-reforged:ev_specialdefence}}&7/&e{{gts-reforged:ev_speed}} &7(&b{{gts-reforged:ev_percentage}}&7)",
+            "  &7IVs: &e{{gts-reforged:iv_hp}}&7/&e{{gts-reforged:iv_attack}}&7/&e{{gts-reforged:iv_defence}}&7/&e{{gts-reforged:iv_specialattack}}&7/&e{{gts-reforged:iv_specialdefence}}&7/&e{{gts-reforged:iv_speed}} &7(&b{{gts-reforged:iv_percentage}}&7)"
     ));
 
     //------------------------------------------------------------------------------------------------------------------
@@ -68,6 +68,10 @@ public class ReforgedLangConfigKeys implements ConfigKeyHolder {
             "",
             "&eClick to set requested form!"
     ));
+
+    public static final ConfigKey<String> ERROR_UNTRADEABLE = stringKey("general.errors.untradeable", "{{gts:error}} That pokemon is marked as &cuntradeable&7, and cannot be sold...");
+    public static final ConfigKey<String> ERROR_IN_BATTLE = stringKey("general.errors.in-battle", "{{gts:error}} You are in battle, so you can't sell any pokemon currently...");
+    public static final ConfigKey<String> ERROR_LAST_ABLE_MEMBER = stringKey("general.errors.last-able-member", "{{gts:error}} You can't sell your last non-egg member!");
 
     private static final Map<String, ConfigKey<?>> KEYS;
     private static final int SIZE;

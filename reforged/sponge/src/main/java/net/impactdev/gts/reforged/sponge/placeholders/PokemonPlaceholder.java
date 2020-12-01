@@ -37,7 +37,7 @@ public class PokemonPlaceholder implements PlaceholderParser {
 
     @Override
     public String getId() {
-        return "pokemon:" + this.id;
+        return "gts-reforged:" + this.id;
     }
 
     @Override

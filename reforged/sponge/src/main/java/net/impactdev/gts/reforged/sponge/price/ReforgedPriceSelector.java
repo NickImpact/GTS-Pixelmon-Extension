@@ -174,8 +174,10 @@ public class ReforgedPriceSelector implements PriceManager.PriceSelectorUI<Spong
 
                 confirmer.addListener(c -> {
                     this.display.close(this.viewer);
-                    this.callback.accept(this.selection);
+                    this.callback.accept(this.selection.getPosition());
                 });
+
+                this.display.setSlot(51, confirmer);
             });
         }
         return icon;

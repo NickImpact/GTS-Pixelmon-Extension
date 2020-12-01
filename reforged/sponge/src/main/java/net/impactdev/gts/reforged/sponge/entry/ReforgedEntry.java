@@ -5,8 +5,10 @@ import com.pixelmonmod.pixelmon.api.storage.PCStorage;
 import net.impactdev.gts.api.listings.prices.PriceControlled;
 import net.impactdev.gts.api.util.TriFunction;
 import net.impactdev.gts.common.config.ConfigKeys;
+import net.impactdev.gts.common.config.MsgConfigKeys;
 import net.impactdev.gts.reforged.sponge.config.ReforgedConfigKeys;
 import net.impactdev.gts.reforged.sponge.config.mappings.ReforgedPriceControls;
+import net.impactdev.gts.reforged.sponge.flags.ReforgedSpecFlags;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
 import net.impactdev.impactor.api.configuration.ConfigKey;
@@ -34,7 +36,9 @@ import net.impactdev.pixelmonbridge.details.SpecKeys;
 import net.impactdev.pixelmonbridge.reforged.ReforgedPokemon;
 import net.kyori.text.TextComponent;
 import net.minecraft.nbt.NBTTagCompound;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 
@@ -100,28 +104,35 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
     @Override
     public boolean take(UUID depositor) {
+        Optional<Player> user = Sponge.getServer().getPlayer(depositor);
         Config mainLang = GTSPlugin.getInstance().getMsgConfig();
+        Config reforgedLang = GTSSpongeReforgedPlugin.getInstance().getMsgConfig();
 
         MessageService<Text> parser = Impactor.getInstance().getRegistry().get(MessageService.class);
 
         PlayerPartyStorage party = Pixelmon.storageManager.getParty(depositor);
         if(BattleRegistry.getBattle(party.getPlayer()) != null) {
+            user.ifPresent(player -> player.sendMessages(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_IN_BATTLE))));
             return false;
         }
 
-        // TODO - Flag checks
+        if(ReforgedSpecFlags.UNTRADABLE.matches(this.getOrCreateElement().getOrCreate())) {
+            user.ifPresent(player -> player.sendMessages(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_UNTRADEABLE))));
+            return false;
+        }
 
         boolean blacklisted = Impactor.getInstance().getRegistry()
                 .get(Blacklist.class)
                 .isBlacklisted(EnumSpecies.class, this.pokemon.getOrCreate().getSpecies().name);
         if(blacklisted) {
+            user.ifPresent(player -> player.sendMessages(parser.parse(mainLang.get(MsgConfigKeys.GENERAL_FEEDBACK_BLACKLISTED))));
             return false;
         }
 
         // Check party size. Ensure we aren't less than 1 because who knows whether Reforged or another plugin
         // will break something
         if(party.getTeam().size() <= 1) {
-            // TODO - Feedback
+            user.ifPresent(player -> player.sendMessages(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_LAST_ABLE_MEMBER))));
             return false;
         }
 

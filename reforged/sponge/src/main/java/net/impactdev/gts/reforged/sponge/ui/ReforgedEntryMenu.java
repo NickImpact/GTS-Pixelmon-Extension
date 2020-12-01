@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import net.impactdev.gts.api.blacklist.Blacklist;
 import net.impactdev.gts.api.listings.ui.EntrySelection;
 import net.impactdev.gts.common.config.MsgConfigKeys;
+import net.impactdev.gts.common.plugin.GTSPlugin;
 import net.impactdev.gts.reforged.sponge.GTSSpongeReforgedPlugin;
 import net.impactdev.gts.reforged.sponge.config.ReforgedLangConfigKeys;
 import net.impactdev.gts.common.ui.Historical;
@@ -21,6 +22,7 @@ import net.impactdev.gts.sponge.listings.ui.AbstractSpongeEntryUI;
 import net.impactdev.gts.sponge.listings.ui.SpongeMainPageProvider;
 import net.impactdev.gts.sponge.utils.Utilities;
 import net.impactdev.impactor.api.Impactor;
+import net.impactdev.impactor.api.configuration.Config;
 import net.impactdev.impactor.api.services.text.MessageService;
 import net.impactdev.impactor.sponge.ui.SpongeIcon;
 import net.impactdev.impactor.sponge.ui.SpongeLayout;
@@ -153,6 +155,10 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.C
     }
 
     private SpongeIcon createIconForPokemon(ReforgedPokemon pokemon, boolean click) {
+        Config mainLang = GTSPlugin.getInstance().getMsgConfig();
+        MessageService<Text> parser = Impactor.getInstance().getRegistry().get(MessageService.class);
+
+
         ItemStack item = ItemStack.builder()
                 .fromItemStack(this.getPicture(pokemon.getOrCreate()))
                 .add(Keys.DISPLAY_NAME, PARSER.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig().get(ReforgedLangConfigKeys.POKEMON_TITLE), Lists.newArrayList(() -> pokemon)))
@@ -162,8 +168,8 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.C
         if(click) {
             icon.addListener(clickable -> {
                 Blacklist blacklist = Impactor.getInstance().getRegistry().get(Blacklist.class);
-                if(blacklist.isBlacklisted(EnumSpecies.class, pokemon.get(SpecKeys.SPECIES).orElseThrow(() -> new RuntimeException("Pokemon data withut species")))) {
-                    this.viewer.sendMessage(Text.of(TextColors.RED, "Blacklisted"));
+                if(blacklist.isBlacklisted(EnumSpecies.class, pokemon.get(SpecKeys.SPECIES).orElseThrow(() -> new RuntimeException("Pokemon data without species")))) {
+                    this.viewer.sendMessage(parser.parse(mainLang.get(MsgConfigKeys.GENERAL_FEEDBACK_BLACKLISTED)));
                     this.viewer.playSound(SoundTypes.BLOCK_ANVIL_LAND, this.viewer.getPosition(), 1, 1);
                     return;
                 }

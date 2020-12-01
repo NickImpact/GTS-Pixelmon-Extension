@@ -91,7 +91,7 @@ public class ReforgedPlaceholders {
             for (StatsType type : Lists.newArrayList(StatsType.HP, StatsType.Attack, StatsType.Defence, StatsType.SpecialAttack, StatsType.SpecialDefence, StatsType.Speed)) {
                 event.register(new PokemonPlaceholder(
                         stat + "_" + type.name().toLowerCase(),
-                        "A Pokemon's " + type.getLocalizedName() + stat.toUpperCase() + " Stat",
+                        "A Pokemon's " + type.getLocalizedName() + " " + stat.toUpperCase() + " Stat",
                         pokemon -> {
                             if(stat.equals("ev")) {
                                 return Text.of(pokemon.getStats().evs.get(type));
