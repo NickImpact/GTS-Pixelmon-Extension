@@ -10,7 +10,7 @@ public class ReforgedListingSearcher implements Searcher {
     public boolean parse(Listing listing, String input) {
         PokemonSpec spec = new PokemonSpec(input.split(" "));
         if(listing.getEntry() instanceof ReforgedEntry) {
-            return spec.matches(((ReforgedEntry) listing.getEntry()).getOrCreateElement().getOrCreate());
+            return spec.name != null && spec.matches(((ReforgedEntry) listing.getEntry()).getOrCreateElement().getOrCreate());
         }
 
         return false;

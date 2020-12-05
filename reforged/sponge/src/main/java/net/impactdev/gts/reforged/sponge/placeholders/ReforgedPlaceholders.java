@@ -68,7 +68,15 @@ public class ReforgedPlaceholders {
         event.register(new PokemonPlaceholder(
                 "nature",
                 "Pokemon's Nature",
-                pokemon -> Text.of(pokemon.getBaseNature().getLocalizedName())
+                pokemon -> {
+                    Text result = Text.of(pokemon.getBaseNature().getLocalizedName());
+                    if(pokemon.getMintNature() != null) {
+                        result = Text.of(result, TextColors.GRAY, " (", TextColors.GOLD,
+                                pokemon.getMintNature().getLocalizedName(), TextColors.GRAY, ")");
+                    }
+
+                    return result;
+                }
         ));
         event.register(new PokemonPlaceholder(
                 "size",
