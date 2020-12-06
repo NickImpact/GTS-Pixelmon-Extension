@@ -28,7 +28,11 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.api.event.game.GameRegistryEvent;
 import org.spongepowered.api.text.placeholder.PlaceholderParser;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -62,8 +66,10 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
         this.logger = new SpongeLogger(this, LoggerFactory.getLogger(this.getMetadata().getName()));
         this.logger.debug("Initializing extension...");
 
-        this.extended = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("reforged").resolve("main.conf").toFile()), new ReforgedConfigKeys());
-        this.lang = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("reforged").resolve(GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LANGUAGE) + ".conf").toFile(), true), new ReforgedLangConfigKeys());
+        this.copyResource(Paths.get("reforged.conf"), dataDir.resolve("reforged"));
+        this.extended = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("reforged").resolve("reforged.conf").toFile()), new ReforgedConfigKeys());
+
+        this.lang = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("reforged").resolve("lang").resolve(GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LANGUAGE) + ".conf").toFile(), true), new ReforgedLangConfigKeys());
 
         service.getGTSComponentManager().registerLegacyEntryDeserializer("pokemon", new LegacyReforgedPokemonDeserializer());
         service.getGTSComponentManager().registerEntryManager(ReforgedEntry.class, this.manager = new ReforgedPokemonDataManager());
@@ -125,6 +131,17 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
     public void onPlaceholderRegistrationEvent(PlaceholderRegistryEvent<GameRegistryEvent.Register<PlaceholderParser>> event) {
         ReforgedPlaceholders placeholders = new ReforgedPlaceholders();
         placeholders.register(event.getManager());
+    }
+
+    private void copyResource(Path path, Path destination) {
+        if(!Files.exists(destination.resolve(path))) {
+            try (InputStream resource = this.getClass().getClassLoader().getResourceAsStream(path.toString())) {
+                Files.createDirectories(destination.resolve(path).getParent());
+                Files.copy(resource, destination.resolve(path));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
 }
