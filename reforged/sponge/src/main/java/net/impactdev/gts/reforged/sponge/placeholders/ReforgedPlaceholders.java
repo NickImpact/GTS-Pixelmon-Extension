@@ -33,7 +33,12 @@ public class ReforgedPlaceholders {
         event.register(new PokemonPlaceholder(
                 "form",
                 "Pokemon's Form",
-                pokemon -> Optional.ofNullable(pokemon.getFormEnum()).map(form -> (Text) Text.of(form.getLocalizedName())).orElse(Text.EMPTY)
+                pokemon -> {
+                    return Optional.ofNullable(pokemon.getFormEnum())
+                            .filter(form -> form.getForm() != 0)
+                            .map(form -> (Text) Text.of(form.getLocalizedName()))
+                            .orElse(Text.of("N/A"));
+                }
         ));
         event.register(new PokemonPlaceholder(
                 "shiny_special",

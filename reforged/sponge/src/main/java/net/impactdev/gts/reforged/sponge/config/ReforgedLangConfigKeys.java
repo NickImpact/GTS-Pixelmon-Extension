@@ -20,6 +20,7 @@ public class ReforgedLangConfigKeys implements ConfigKeyHolder {
     public static final ConfigKey<String> POKEMON_TITLE = stringKey("listing.details.title", "&3{{gts-reforged:species}} {{gts-reforged:shiny_special:s}}&7| &bLvl {{gts-reforged:level}}");
     public static final ConfigKey<List<String>> POKEMON_DETAILS = listKey("listing.details.info", Lists.newArrayList(
             "&aGeneric Information:",
+            "  &7Form: &e{{gts-reforged:form}}",
             "  &7Ability: &e{{gts-reforged:ability}}",
             "  &7Gender: {{gts-reforged:gender}}",
             "  &7Nature: &e{{gts-reforged:nature}}",

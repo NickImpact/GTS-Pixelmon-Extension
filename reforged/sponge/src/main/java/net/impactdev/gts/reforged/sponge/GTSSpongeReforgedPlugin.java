@@ -63,7 +63,7 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
         this.logger.debug("Initializing extension...");
 
         this.extended = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("reforged").resolve("main.conf").toFile()), new ReforgedConfigKeys());
-        this.lang = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("reforged").resolve(GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LANGUAGE) + ".conf").toFile()), new ReforgedLangConfigKeys());
+        this.lang = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("reforged").resolve(GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LANGUAGE) + ".conf").toFile(), true), new ReforgedLangConfigKeys());
 
         service.getGTSComponentManager().registerLegacyEntryDeserializer("pokemon", new LegacyReforgedPokemonDeserializer());
         service.getGTSComponentManager().registerEntryManager(ReforgedEntry.class, this.manager = new ReforgedPokemonDataManager());
