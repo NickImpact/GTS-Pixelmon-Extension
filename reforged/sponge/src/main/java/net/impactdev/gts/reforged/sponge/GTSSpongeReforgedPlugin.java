@@ -54,6 +54,7 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
 
     private ReforgedPokemonDataManager manager;
 
+    private Path configDir;
     private Config extended;
     private Config lang;
 
@@ -65,6 +66,8 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
     public void load(GTSService service, Path dataDir) {
         this.logger = new SpongeLogger(this, LoggerFactory.getLogger(this.getMetadata().getName()));
         this.logger.debug("Initializing extension...");
+
+        this.configDir = dataDir;
 
         this.copyResource(Paths.get("reforged.conf"), dataDir.resolve("reforged"));
         this.extended = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("reforged").resolve("reforged.conf").toFile()), new ReforgedConfigKeys());
@@ -104,7 +107,7 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
 
     @Override
     public Path getConfigDir() {
-        return null;
+        return this.configDir;
     }
 
     @Override

@@ -1,0 +1,87 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+minecraft {
+    version = "1.12.2-14.23.5.2768"
+    runDir = "run"
+    mappings = "snapshot_20171007"
+    useDepAts = true
+    makeObfSourceJar = false
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    shadow project(":api")
+    compile project(":pixelmon")
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'net.minecraftforge.gradle.forge'
+
+    group = "me.nickimpact.gts.pixelmon"
+
+    minecraft {
+        version = "1.12.2-14.23.5.2838"
+        runDir = "run"
+        mappings = "snapshot_20171007"
+        useDepAts = true
+        makeObfSourceJar = false
+    }
+
+    repositories {
+        mavenCentral()
+        ivy {
+            url "https://download.nodecdn.net/containers"
+            layout "pattern", {
+                artifact "/[organisation]/[module]/release/[revision]/[ext]"
+            }
+        }
+
+        maven {
+            name 'sponge-repo'
+            url 'https://repo.spongepowered.org/maven'
+        }
+    }
+
+    dependencies {
+        shadow project(":api")
+        shadow project(":sponge")
+
+        shadow 'org.spongepowered:spongeapi:7.3.0'
+        shadow('net.kyori:text-api:3.0.3') {
+            exclude(module: 'checker-qual')
+        }
+        shadow('net.kyori:text-serializer-legacy:3.0.3') {
+            exclude(module: 'text-api')
+        }
+        shadow('net.kyori:text-serializer-gson:3.0.3') {
+            exclude(module: 'text-api')
+            exclude(module: 'gson')
+        }
+        shadow('net.kyori:text-adapter-spongeapi:3.0.3') {
+            exclude(module: 'text-api')
+            exclude(module: 'gson')
+        }
+
+        testCompile group: 'junit', name: 'junit', version: '4.12'
+    }
+}
