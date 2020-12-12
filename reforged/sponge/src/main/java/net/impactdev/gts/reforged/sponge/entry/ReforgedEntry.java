@@ -217,13 +217,19 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
                 .get(this.getOrCreateElement().getOrCreate().getSpecies());
 
         double calculated = control.map(ReforgedPriceControls.Control::getMin)
-                .orElse(0.0);
+                .orElseGet(() -> {
+                    if(GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(ReforgedConfigKeys.MIN_PRICING_USE_CUSTOM_BASE)) {
+                        return GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(ReforgedConfigKeys.MIN_PRICING_CUSTOM_BASE);
+                    }
+
+                    return 0.0;
+                });
 
         for(MinimumPriceCalculator calculator : MinimumPriceCalculator.values()) {
             calculated = calculator.calculate(this.getOrCreateElement().getOrCreate(), calculated);
         }
 
-        return Math.max(0, Math.max(
+        return Math.max(1, Math.max(
                 GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LISTINGS_MIN_PRICE),
                 calculated
         ));

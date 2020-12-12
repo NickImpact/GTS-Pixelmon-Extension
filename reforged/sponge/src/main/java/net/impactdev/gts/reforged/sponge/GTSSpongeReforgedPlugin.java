@@ -1,6 +1,7 @@
 package net.impactdev.gts.reforged.sponge;
 
 import com.google.common.collect.Lists;
+import net.impactdev.gts.api.events.extension.PluginReloadEvent;
 import net.impactdev.gts.reforged.sponge.entry.ReforgedEntry;
 import net.impactdev.gts.reforged.sponge.entry.ReforgedListingSearcher;
 import net.impactdev.gts.reforged.sponge.price.ReforgedPrice;
@@ -134,6 +135,12 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
     public void onPlaceholderRegistrationEvent(PlaceholderRegistryEvent<GameRegistryEvent.Register<PlaceholderParser>> event) {
         ReforgedPlaceholders placeholders = new ReforgedPlaceholders();
         placeholders.register(event.getManager());
+    }
+
+    @Subscribe
+    public void onReloadEvent(PluginReloadEvent event) {
+        this.extended.reload();
+        this.lang.reload();
     }
 
     private void copyResource(Path path, Path destination) {

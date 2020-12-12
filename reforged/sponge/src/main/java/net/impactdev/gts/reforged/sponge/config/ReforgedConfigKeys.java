@@ -33,6 +33,9 @@ public class ReforgedConfigKeys implements ConfigKeyHolder {
         return controller;
     });
 
+    public static final ConfigKey<Boolean> MIN_PRICING_USE_CUSTOM_BASE = booleanKey("price-controls.minimuim.use-custom-minimum", false);
+    public static final ConfigKey<Double> MIN_PRICING_CUSTOM_BASE = doubleKey("price-controls.minimum.custom-minimum", 2500);
+
     public static final ConfigKey<Boolean> MIN_PRICING_IVS_ENABLED = booleanKey("price-controls.minimum.ivs.enabled", true);
     public static final ConfigKey<Integer> MIN_PRICING_IVS_REQUIRE = intKey("price-controls.minimum.ivs.required-to-apply", 31);
     public static final ConfigKey<Double> MIN_PRICING_IVS_PRICE = doubleKey("price-controls.minimum.ivs.price-per-match", 5000);
