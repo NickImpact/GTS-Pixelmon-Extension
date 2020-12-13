@@ -134,6 +134,11 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.C
     }
 
     @Override
+    protected double getMinimumMonetaryPrice(Chosen chosen) {
+        return new ReforgedEntry(chosen.getSelection()).getMin();
+    }
+
+    @Override
     public SpongeIcon createChosenIcon() {
         return this.createIconForPokemon(this.chosen.selection, false);
     }
@@ -174,8 +179,9 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.C
                     return;
                 }
 
-                this.chosen = new Chosen(pokemon);
+                this.setChosen(new Chosen(pokemon));
                 this.getDisplay().setSlot(13, this.createChosenIcon());
+                this.getDisplay().setSlot(this.getPriceSlot(), this.createPriceIcon());
                 this.getDisplay().setSlot(53, this.generateConfirmIcon());
                 this.style(true);
             });
