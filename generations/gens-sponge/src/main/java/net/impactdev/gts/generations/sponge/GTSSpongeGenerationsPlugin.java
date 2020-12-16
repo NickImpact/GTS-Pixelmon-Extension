@@ -1,14 +1,22 @@
 package net.impactdev.gts.generations.sponge;
 
+import com.google.common.collect.Lists;
 import net.impactdev.gts.api.GTSService;
 import net.impactdev.gts.api.events.extension.PlaceholderRegistryEvent;
 import net.impactdev.gts.api.extension.Extension;
+import net.impactdev.gts.common.config.ConfigKeys;
+import net.impactdev.gts.common.plugin.GTSPlugin;
+import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
 import net.impactdev.impactor.api.dependencies.Dependency;
 import net.impactdev.impactor.api.event.annotations.Subscribe;
 import net.impactdev.impactor.api.event.listener.ImpactorEventListener;
 import net.impactdev.impactor.api.logging.Logger;
 import net.impactdev.impactor.api.plugin.PluginMetadata;
+import net.impactdev.impactor.sponge.configuration.SpongeConfig;
+import net.impactdev.impactor.sponge.configuration.SpongeConfigAdapter;
+import net.impactdev.impactor.sponge.logging.SpongeLogger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.api.event.game.GameRegistryEvent;
 import org.spongepowered.api.text.placeholder.PlaceholderParser;
 
@@ -16,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class GTSSpongeGenerationsPlugin implements Extension, ImpactorEventListener {
@@ -41,8 +50,17 @@ public class GTSSpongeGenerationsPlugin implements Extension, ImpactorEventListe
 
     @Override
     public void load(GTSService service, Path dataDir) {
+        this.logger = new SpongeLogger(this, LoggerFactory.getLogger(this.getMetadata().getName()));
+        this.logger.debug("Initializing Generations Extension...");
 
         this.configDir = dataDir;
+
+//        this.copyResource(Paths.get("reforged.conf"), dataDir.resolve("reforged"));
+//        this.extended = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("reforged").resolve("reforged.conf").toFile()), new ReforgedConfigKeys());
+//
+//        this.lang = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("reforged").resolve("lang").resolve(GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LANGUAGE) + ".conf").toFile(), true), new ReforgedLangConfigKeys());
+
+        Impactor.getInstance().getEventBus().subscribe(this);
     }
 
     @Override
@@ -52,7 +70,7 @@ public class GTSSpongeGenerationsPlugin implements Extension, ImpactorEventListe
 
     @Override
     public List<Dependency> getRequiredDependencies() {
-        return null;
+        return Lists.newArrayList();
     }
 
     @Override

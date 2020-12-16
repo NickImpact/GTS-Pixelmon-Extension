@@ -66,7 +66,7 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
     @Override
     public void load(GTSService service, Path dataDir) {
         this.logger = new SpongeLogger(this, LoggerFactory.getLogger(this.getMetadata().getName()));
-        this.logger.debug("Initializing extension...");
+        this.logger.debug("Initializing Reforged Extension...");
 
         this.configDir = dataDir;
 
@@ -90,7 +90,7 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
 
     @Override
     public List<Dependency> getRequiredDependencies() {
-        return Lists.newArrayList(Dependency.PIXELMON_BRIDGE_API, Dependency.PIXELMON_BRIDGE_REFORGED);
+        return Lists.newArrayList();
     }
 
     @Override
