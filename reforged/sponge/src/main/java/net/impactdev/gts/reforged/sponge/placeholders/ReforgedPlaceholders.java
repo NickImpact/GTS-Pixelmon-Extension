@@ -141,6 +141,11 @@ public class ReforgedPlaceholders {
                     return Text.of(PERCENTAGE.format(sum / 186.0 * 100) + "%");
                 }
         ));
+        event.register(new PokemonPlaceholder(
+                "dynamax_level",
+                "A Pokemon's Dynamax Level",
+                pokemon -> Text.of(pokemon.getDynamaxLevel())
+        ));
     }
 
 }
