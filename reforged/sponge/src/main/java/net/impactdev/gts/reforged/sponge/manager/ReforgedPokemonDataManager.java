@@ -30,6 +30,9 @@ public final class ReforgedPokemonDataManager implements EntryManager<ReforgedEn
     }
 
     @Override
+    public void supplyDeserializers() {}
+
+    @Override
     public String getName() {
         return "Pokemon";
     }
