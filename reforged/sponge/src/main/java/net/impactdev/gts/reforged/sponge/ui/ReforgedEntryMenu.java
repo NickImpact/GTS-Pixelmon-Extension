@@ -7,8 +7,6 @@ import com.pixelmonmod.pixelmon.config.PixelmonItems;
 import com.pixelmonmod.pixelmon.enums.EnumSpecies;
 import com.pixelmonmod.pixelmon.items.ItemPixelmonSprite;
 import com.pixelmonmod.pixelmon.storage.NbtKeys;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import net.impactdev.gts.api.blacklist.Blacklist;
 import net.impactdev.gts.api.listings.ui.EntrySelection;
 import net.impactdev.gts.common.config.MsgConfigKeys;
@@ -37,7 +35,6 @@ import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.property.InventoryDimension;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColors;
 
 import java.util.Calendar;
 import java.util.Optional;
@@ -148,10 +145,16 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.C
         return Optional.of(() -> SpongeMainPageProvider.creator().viewer(this.viewer).build());
     }
 
-    @Getter
-    @RequiredArgsConstructor
     protected static class Chosen implements EntrySelection<ReforgedEntry> {
         private final ReforgedPokemon selection;
+
+        public Chosen(ReforgedPokemon selection) {
+            this.selection = selection;
+        }
+
+        public ReforgedPokemon getSelection() {
+            return this.selection;
+        }
 
         @Override
         public ReforgedEntry createFromSelection() {

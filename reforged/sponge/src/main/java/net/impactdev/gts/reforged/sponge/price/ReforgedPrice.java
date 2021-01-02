@@ -8,12 +8,10 @@ import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import com.pixelmonmod.pixelmon.api.storage.PCStorage;
 import com.pixelmonmod.pixelmon.api.storage.StoragePosition;
 import com.pixelmonmod.pixelmon.enums.EnumSpecies;
-import com.pixelmonmod.pixelmon.enums.forms.EnumNoForm;
 import com.pixelmonmod.pixelmon.enums.forms.IEnumForm;
 import com.pixelmonmod.pixelmon.items.ItemPixelmonSprite;
 import com.pixelmonmod.pixelmon.storage.PlayerPartyStorage;
 import net.impactdev.gts.api.data.registry.GTSKeyMarker;
-import net.impactdev.gts.api.listings.Listing;
 import net.impactdev.gts.api.listings.makeup.Display;
 import net.impactdev.gts.api.listings.prices.Price;
 import net.impactdev.gts.api.listings.prices.PriceManager;
@@ -32,7 +30,8 @@ import net.impactdev.impactor.api.services.text.MessageService;
 import net.impactdev.pixelmonbridge.details.SpecKeys;
 import net.impactdev.pixelmonbridge.details.components.Level;
 import net.impactdev.pixelmonbridge.reforged.ReforgedPokemon;
-import net.kyori.text.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -65,21 +64,21 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
 
     @Override
     public TextComponent getText() {
-        TextComponent.Builder builder = TextComponent.builder();
+        TextComponent.Builder builder = Component.text();
 
         this.tryAppend(builder, b -> {
             if(this.price.getLevel() > 0) {
-                b.append("Level " + this.price.getLevel()).append(TextComponent.space());
+                b.append(Component.text("Level " + this.price.getLevel()).append(Component.space()));
             }
         });
         this.tryAppend(builder, b -> {
             IEnumForm form = this.price.getSpecies().getFormEnum(this.price.getForm());
             if(form.getForm() > 0) {
-                b.append(form.getLocalizedName()).append(TextComponent.space());
+                b.append(Component.text(form.getLocalizedName()).append(Component.space()));
             }
         });
 
-        builder.append(this.price.getSpecies().getPokemonName());
+        builder.append(Component.text(this.price.getSpecies().getPokemonName()));
 
         return builder.build();
     }

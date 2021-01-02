@@ -34,7 +34,8 @@ import net.impactdev.gts.sponge.listings.makeup.SpongeDisplay;
 import net.impactdev.gts.sponge.listings.makeup.SpongeEntry;
 import net.impactdev.pixelmonbridge.details.SpecKeys;
 import net.impactdev.pixelmonbridge.reforged.ReforgedPokemon;
-import net.kyori.text.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.minecraft.nbt.NBTTagCompound;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
@@ -63,7 +64,7 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
     @Override
     public TextComponent getName() {
-        return TextComponent.builder(this.pokemon.getOrCreate().getSpecies().getLocalizedName()).build();
+        return Component.text(this.pokemon.getOrCreate().getSpecies().getLocalizedName());
     }
 
     @Override
