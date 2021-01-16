@@ -32,6 +32,20 @@ public class ReforgedLangConfigKeys implements ConfigKeyHolder {
             "  &7IVs: &e{{gts-reforged:iv_hp}}&7/&e{{gts-reforged:iv_attack}}&7/&e{{gts-reforged:iv_defence}}&7/&e{{gts-reforged:iv_specialattack}}&7/&e{{gts-reforged:iv_specialdefence}}&7/&e{{gts-reforged:iv_speed}} &7(&b{{gts-reforged:iv_percentage}}&7)"
     ));
 
+    public static final ConfigKey<List<String>> DISCORD_DETAILS = listKey("listing.details.discord", Lists.newArrayList(
+            "Level: {{gts-reforged:level}}",
+            "Form: {{gts-reforged:form}}",
+            "Shiny: {{gts-reforged:shiny}}",
+            "",
+            "Ability: {{gts-reforged:ability}}",
+            "Gender: {{gts-reforged:gender}}",
+            "Nature: {{gts-reforged:nature}}",
+            "Held Item: {{gts-reforged:held_item}}",
+            "",
+            "EVs: {{gts-reforged:ev_hp}}/{{gts-reforged:ev_attack}}/{{gts-reforged:ev_defence}}/{{gts-reforged:ev_specialattack}}/{{gts-reforged:ev_specialdefence}}/{{gts-reforged:ev_speed}} ({{gts-reforged:ev_percentage}})",
+            "EVs: {{gts-reforged:iv_hp}}/{{gts-reforged:iv_attack}}/{{gts-reforged:iv_defence}}/{{gts-reforged:iv_specialattack}}/{{gts-reforged:iv_specialdefence}}/{{gts-reforged:iv_speed}} ({{gts-reforged:iv_percentage}})"
+    ));
+
     //------------------------------------------------------------------------------------------------------------------
     //
     //  UI Based Language Options
@@ -41,7 +55,7 @@ public class ReforgedLangConfigKeys implements ConfigKeyHolder {
     public static ConfigKey<String> UI_PRICE_TITLE = stringKey("ui.menu.pricing.title", "&cGTS &7\u00bb &3Specify your price");
     public static ConfigKey<String> UI_PRICE_SELECTOR_TITLE = stringKey("ui.menu.price-selector.title", "&cGTS &7\u00bb Select your Payment");
 
-    public static ConfigKey<String> UI_FORM_SELECT_TITLE = stringKey("", "&cGTS &7\u00bb &3Select a Form");
+    public static ConfigKey<String> UI_FORM_SELECT_TITLE = stringKey("ui.ui.menu.price-selector.forms.title", "&cGTS &7\u00bb &3Select a Form");
 
     public static ConfigKey<String> UI_PRICE_SPECIES_SELECT_TITLE = stringKey("ui.menu.price-selector.icons.species.title", "&aSelect Species");
     public static ConfigKey<List<String>> UI_PRICE_SPECIES_SELECT_LORE = listKey("ui.menu.price-selector.icons.species.lore", Lists.newArrayList(

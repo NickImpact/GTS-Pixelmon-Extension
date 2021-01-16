@@ -9,6 +9,7 @@ import net.impactdev.gts.common.config.MsgConfigKeys;
 import net.impactdev.gts.reforged.sponge.config.ReforgedConfigKeys;
 import net.impactdev.gts.reforged.sponge.config.mappings.ReforgedPriceControls;
 import net.impactdev.gts.reforged.sponge.flags.ReforgedSpecFlags;
+import net.impactdev.gts.sponge.utils.Utilities;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
 import net.impactdev.impactor.api.configuration.ConfigKey;
@@ -47,6 +48,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @GTSKeyMarker("reforged-pokemon")
 public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements PriceControlled {
@@ -159,10 +161,13 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
     @Override
     public List<String> getDetails() {
-        return Lists.newArrayList(
-                "Testing",
-                "123"
-        );
+        MessageService<Text> parser = Impactor.getInstance().getRegistry().get(MessageService.class);
+        Config reforgedLang = GTSSpongeReforgedPlugin.getInstance().getMsgConfig();
+
+        return parser.parse(reforgedLang.get(ReforgedLangConfigKeys.DISCORD_DETAILS), Lists.newArrayList(this::getOrCreateElement))
+                .stream()
+                .map(Text::toPlain)
+                .collect(Collectors.toList());
     }
 
     @Override

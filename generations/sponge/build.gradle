@@ -1,4 +1,5 @@
 dependencies {
+    shadow fileTree(dir: 'libs', include: '*.jar')
     shadow 'net.impactdev.impactor:sponge:3.0.0-SNAPSHOT'
     shadow 'org.slf4j:slf4j-api:1.7.25'
 
@@ -10,7 +11,10 @@ shadowJar {
     archiveName = "GTS-Extension-Generations-${project.version}.jar"
 
     relocate ('net.impactdev.pixelmonbridge', 'net.impactdev.gts.relocations.pixelmonbridge')
-    relocate ('net.kyori.text', 'net.impactdev.impactor.relocations.text')
+    relocate ('net.kyori.adventure', 'net.impactdev.impactor.relocations.adventure')
+    relocate ('net.kyori.examination', 'net.impactdev.impactor.relocations.examination')
+
+    exclude 'PixelmonGenerations*.jar'
 
 }
 

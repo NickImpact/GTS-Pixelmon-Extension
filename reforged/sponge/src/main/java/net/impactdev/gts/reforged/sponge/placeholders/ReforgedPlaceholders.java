@@ -6,6 +6,7 @@ import com.pixelmonmod.pixelmon.entities.pixelmon.stats.EVStore;
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.Gender;
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.IVStore;
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.StatsType;
+import net.minecraft.item.ItemStack;
 import org.spongepowered.api.event.game.GameRegistryEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
@@ -50,6 +51,11 @@ public class ReforgedPlaceholders {
 
                     return Text.EMPTY;
                 }
+        ));
+        event.register(new PokemonPlaceholder(
+                "shiny",
+                "Pokemon Shiny State",
+                pokemon -> Text.of(pokemon.isShiny())
         ));
         event.register(new PokemonPlaceholder(
                 "ability",
@@ -145,6 +151,18 @@ public class ReforgedPlaceholders {
                 "dynamax_level",
                 "A Pokemon's Dynamax Level",
                 pokemon -> Text.of(pokemon.getDynamaxLevel())
+        ));
+        event.register(new PokemonPlaceholder(
+                "held_item",
+                "A Pokemon's Held Item",
+                pokemon -> {
+                    ItemStack item = pokemon.getHeldItem();
+                    if(item == ItemStack.EMPTY) {
+                        return Text.EMPTY;
+                    }
+
+                    return Text.of(pokemon.getHeldItem().getDisplayName());
+                }
         ));
     }
 

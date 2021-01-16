@@ -6,7 +6,8 @@ import net.impactdev.gts.api.listings.prices.PriceControlled;
 import net.impactdev.gts.sponge.listings.makeup.SpongeEntry;
 import net.impactdev.impactor.api.json.factory.JObject;
 import net.impactdev.pixelmonbridge.generations.GenerationsPokemon;
-import net.kyori.text.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
 
     @Override
     public TextComponent getName() {
-        return TextComponent.builder(this.pokemon.getOrCreate().getSpecies().getPokemonName()).build();
+        return Component.text(this.pokemon.getOrCreate().getSpecies().getPokemonName());
     }
 
     @Override
