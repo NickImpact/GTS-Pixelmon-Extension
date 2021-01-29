@@ -6,6 +6,9 @@ import net.impactdev.gts.api.events.extension.PlaceholderRegistryEvent;
 import net.impactdev.gts.api.extension.Extension;
 import net.impactdev.gts.common.config.ConfigKeys;
 import net.impactdev.gts.common.plugin.GTSPlugin;
+import net.impactdev.gts.generations.sponge.config.GenerationsConfigKeys;
+import net.impactdev.gts.generations.sponge.config.GenerationsLangConfigKeys;
+import net.impactdev.gts.generations.sponge.manager.GenerationsPokemonDataManager;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
 import net.impactdev.impactor.api.dependencies.Dependency;
@@ -38,7 +41,7 @@ public class GTSSpongeGenerationsPlugin implements Extension, ImpactorEventListe
             .version("@version@")
             .build();
 
-    //private ReforgedPokemonDataManager manager;
+    private GenerationsPokemonDataManager manager;
 
     private Path configDir;
     private Config extended;
@@ -55,10 +58,9 @@ public class GTSSpongeGenerationsPlugin implements Extension, ImpactorEventListe
 
         this.configDir = dataDir;
 
-//        this.copyResource(Paths.get("reforged.conf"), dataDir.resolve("reforged"));
-//        this.extended = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("reforged").resolve("reforged.conf").toFile()), new ReforgedConfigKeys());
-//
-//        this.lang = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("reforged").resolve("lang").resolve(GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LANGUAGE) + ".conf").toFile(), true), new ReforgedLangConfigKeys());
+        this.copyResource(Paths.get("generations.conf"), dataDir.resolve("generations"));
+        this.extended = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("generations").resolve("generations.conf").toFile()), new GenerationsConfigKeys());
+        this.lang = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("generations").resolve("lang").resolve(GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LANGUAGE) + ".conf").toFile(), true), new GenerationsLangConfigKeys());
 
         Impactor.getInstance().getEventBus().subscribe(this);
     }
@@ -76,6 +78,14 @@ public class GTSSpongeGenerationsPlugin implements Extension, ImpactorEventListe
     @Override
     public void unload() {
 
+    }
+
+    public static GTSSpongeGenerationsPlugin getInstance() {
+        return instance;
+    }
+
+    public GenerationsPokemonDataManager getManager() {
+        return this.manager;
     }
 
     @Override

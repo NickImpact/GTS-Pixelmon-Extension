@@ -4,6 +4,7 @@ import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.Lists;
 import com.pixelmonmod.pixelmon.config.PixelmonConfig;
 import com.pixelmonmod.pixelmon.enums.EnumSpecies;
+import net.impactdev.gts.api.blacklist.Blacklist;
 import net.impactdev.gts.common.config.MsgConfigKeys;
 import net.impactdev.gts.reforged.sponge.GTSSpongeReforgedPlugin;
 import net.impactdev.gts.reforged.sponge.config.ReforgedLangConfigKeys;
@@ -150,32 +151,39 @@ public class ReforgedPriceCreatorMenu {
                     .response(submission -> {
                         Optional<EnumSpecies> species = EnumSpecies.getFromName(submission.get(0));
                         if(species.isPresent()) {
-                            this.species = species.get();
+                            if(!Impactor.getInstance().getRegistry().get(Blacklist.class).isBlacklisted(EnumSpecies.class, species.get().name)) {
+                                this.species = species.get();
 
-                            Impactor.getInstance().getScheduler().executeSync(() -> {
-                                this.form = -1;
+                                Impactor.getInstance().getScheduler().executeSync(() -> {
+                                    this.form = -1;
 
-                                this.display.setSlot(13, this.pokemon());
+                                    this.display.setSlot(13, this.pokemon());
 
-                                this.display.setSlot(38, this.formSelector());
-                                this.display.setSlot(42, this.levelSelector());
+                                    this.display.setSlot(38, this.formSelector());
+                                    this.display.setSlot(42, this.levelSelector());
 
-                                final MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
-                                SpongeIcon confirm = new SpongeIcon(ItemStack.builder()
-                                        .itemType(ItemTypes.CONCRETE)
-                                        .add(Keys.DYE_COLOR, DyeColors.LIME)
-                                        .add(Keys.DISPLAY_NAME, service.parse(Utilities.readMessageConfigOption(MsgConfigKeys.CONFIRM_SELECT_PRICE_TITLE)))
-                                        .add(Keys.ITEM_LORE, service.parse(Utilities.readMessageConfigOption(MsgConfigKeys.CONFIRM_SELECT_PRICE_LORE)))
-                                        .build()
-                                );
-                                confirm.addListener(c -> {
-                                    this.display.close(this.viewer);
-                                    this.callback.accept(new ReforgedPrice(new ReforgedPrice.PokemonPriceSpecs(this.species, this.form, this.level, this.allowEggs)));
+                                    final MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
+                                    SpongeIcon confirm = new SpongeIcon(ItemStack.builder()
+                                            .itemType(ItemTypes.CONCRETE)
+                                            .add(Keys.DYE_COLOR, DyeColors.LIME)
+                                            .add(Keys.DISPLAY_NAME, service.parse(Utilities.readMessageConfigOption(MsgConfigKeys.CONFIRM_SELECT_PRICE_TITLE)))
+                                            .add(Keys.ITEM_LORE, service.parse(Utilities.readMessageConfigOption(MsgConfigKeys.CONFIRM_SELECT_PRICE_LORE)))
+                                            .build()
+                                    );
+                                    confirm.addListener(c -> {
+                                        this.display.close(this.viewer);
+                                        this.callback.accept(new ReforgedPrice(new ReforgedPrice.PokemonPriceSpecs(this.species, this.form, this.level, this.allowEggs)));
+                                    });
+                                    this.display.setSlot(44, confirm);
+
+                                    this.display.open(this.viewer);
                                 });
-                                this.display.setSlot(44, confirm);
+                            } else {
+                                final MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
+                                this.viewer.sendMessage(service.parse(Utilities.readMessageConfigOption(MsgConfigKeys.GENERAL_FEEDBACK_BLACKLISTED)));
 
                                 this.display.open(this.viewer);
-                            });
+                            }
                             return true;
                         }
 

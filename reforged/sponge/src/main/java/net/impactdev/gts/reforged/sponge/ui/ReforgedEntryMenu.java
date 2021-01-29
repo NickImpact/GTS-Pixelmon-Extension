@@ -9,6 +9,7 @@ import com.pixelmonmod.pixelmon.items.ItemPixelmonSprite;
 import com.pixelmonmod.pixelmon.storage.NbtKeys;
 import net.impactdev.gts.api.blacklist.Blacklist;
 import net.impactdev.gts.api.listings.ui.EntrySelection;
+import net.impactdev.gts.common.config.ConfigKeys;
 import net.impactdev.gts.common.config.MsgConfigKeys;
 import net.impactdev.gts.common.plugin.GTSPlugin;
 import net.impactdev.gts.reforged.sponge.GTSSpongeReforgedPlugin;
@@ -103,7 +104,7 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.C
         builder.slot(back, 45);
 
         builder.slot(this.createPriceIcon(), 47);
-        builder.slot(this.createBINIcon(), 49);
+        builder.slot(GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.BINS_ENABLED).get() ? this.createBINIcon() : this.createAuctionIcon(), 49);
         builder.slot(this.createTimeIcon(), 51);
         builder.slot(this.generateWaitingIcon(false), 53);
 
