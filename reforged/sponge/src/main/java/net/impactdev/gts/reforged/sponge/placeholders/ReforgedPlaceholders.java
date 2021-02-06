@@ -8,6 +8,7 @@ import com.pixelmonmod.pixelmon.entities.pixelmon.stats.IVStore;
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.StatsType;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.api.event.game.GameRegistryEvent;
+import org.spongepowered.api.text.LiteralText;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
@@ -115,7 +116,12 @@ public class ReforgedPlaceholders {
                             if(stat.equals("ev")) {
                                 return Text.of(pokemon.getStats().evs.get(type));
                             } else {
-                                return Text.of(pokemon.getStats().ivs.get(type));
+                                boolean hyper = pokemon.getStats().ivs.isHyperTrained(type);
+                                Text result = Text.of(pokemon.getStats().ivs.get(type));
+                                if(hyper) {
+                                    return Text.of(TextColors.AQUA, result);
+                                }
+                                return result;
                             }
                         }
                 ));
@@ -163,6 +169,13 @@ public class ReforgedPlaceholders {
 
                     return Text.of(pokemon.getHeldItem().getDisplayName());
                 }
+        ));
+        event.register(new PokemonPlaceholder(
+                "texture",
+                "A Pokemon's Custom Texture",
+                pokemon -> Optional.ofNullable(pokemon.getCustomTexture())
+                        .map(Text::of)
+                        .orElse(Text.of("N/A"))
         ));
     }
 
