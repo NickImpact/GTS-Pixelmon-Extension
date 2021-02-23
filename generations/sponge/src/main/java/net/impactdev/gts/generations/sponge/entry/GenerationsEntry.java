@@ -102,13 +102,13 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
     public boolean take(UUID depositor) {
         Optional<Player> user = Sponge.getServer().getPlayer(depositor);
         Config mainLang = GTSPlugin.getInstance().getMsgConfig();
-        Config reforgedLang = GTSSpongeGenerationsPlugin.getInstance().getMsgConfig();
+        Config gensLang = GTSSpongeGenerationsPlugin.getInstance().getMsgConfig();
 
         MessageService<Text> parser = Impactor.getInstance().getRegistry().get(MessageService.class);
 
         PlayerStorage party = PixelmonStorage.pokeBallManager.getPlayerStorageFromUUID(depositor).get();
         if(BattleRegistry.getBattle(party.getPlayer()) != null) {
-            user.ifPresent(player -> player.sendMessages(parser.parse(reforgedLang.get(GenerationsLangConfigKeys.ERROR_IN_BATTLE))));
+            user.ifPresent(player -> player.sendMessages(parser.parse(gensLang.get(GenerationsLangConfigKeys.ERROR_IN_BATTLE))));
             return false;
         }
 
@@ -123,7 +123,7 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
         // Check party size. Ensure we aren't less than 1 because who knows whether Reforged or another plugin
         // will break something
         if(party.getTeam().size() <= 1) {
-            user.ifPresent(player -> player.sendMessages(parser.parse(reforgedLang.get(GenerationsLangConfigKeys.ERROR_LAST_ABLE_MEMBER))));
+            user.ifPresent(player -> player.sendMessages(parser.parse(gensLang.get(GenerationsLangConfigKeys.ERROR_LAST_ABLE_MEMBER))));
             return false;
         }
 
