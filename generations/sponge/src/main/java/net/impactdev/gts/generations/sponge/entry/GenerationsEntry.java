@@ -1,6 +1,7 @@
 package net.impactdev.gts.generations.sponge.entry;
 
 import com.google.common.collect.Lists;
+import com.pixelmongenerations.common.battle.BattleRegistry;
 import com.pixelmongenerations.common.entity.pixelmon.EntityPixelmon;
 import com.pixelmongenerations.common.item.ItemPixelmonSprite;
 import com.pixelmongenerations.core.Pixelmon;
@@ -8,17 +9,25 @@ import com.pixelmongenerations.core.config.PixelmonEntityList;
 import com.pixelmongenerations.core.config.PixelmonItems;
 import com.pixelmongenerations.core.enums.EnumSpecies;
 import com.pixelmongenerations.core.storage.NbtKeys;
+import com.pixelmongenerations.core.storage.PixelmonStorage;
+import com.pixelmongenerations.core.storage.PlayerStorage;
+import net.impactdev.gts.api.blacklist.Blacklist;
+import net.impactdev.gts.api.data.registry.GTSKeyMarker;
 import net.impactdev.gts.api.listings.Listing;
 import net.impactdev.gts.api.listings.makeup.Display;
 import net.impactdev.gts.api.listings.prices.PriceControlled;
+import net.impactdev.gts.common.config.MsgConfigKeys;
+import net.impactdev.gts.common.plugin.GTSPlugin;
 import net.impactdev.gts.generations.sponge.GTSSpongeGenerationsPlugin;
 import net.impactdev.gts.generations.sponge.config.GenerationsLangConfigKeys;
 import net.impactdev.gts.generations.sponge.converter.JObjectConverter;
 import net.impactdev.gts.sponge.listings.makeup.SpongeDisplay;
 import net.impactdev.gts.sponge.listings.makeup.SpongeEntry;
 import net.impactdev.impactor.api.Impactor;
+import net.impactdev.impactor.api.configuration.Config;
 import net.impactdev.impactor.api.json.factory.JObject;
 import net.impactdev.impactor.api.services.text.MessageService;
+import net.impactdev.pixelmonbridge.details.SpecKeys;
 import net.impactdev.pixelmonbridge.generations.GenerationsPokemon;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -26,6 +35,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 
@@ -33,7 +43,9 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+@GTSKeyMarker("generations-pokemon")
 public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements PriceControlled {
 
     private GenerationsPokemon pokemon;
@@ -77,22 +89,68 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
 
     @Override
     public boolean give(UUID receiver) {
-        return false;
+        PixelmonStorage.pokeBallManager.getPlayerStorageFromUUID(receiver).get().addToParty(this.pokemon.getOrCreate());
+        return true;
     }
 
     @Override
     public boolean take(UUID depositor) {
-        return false;
+        Optional<Player> user = Sponge.getServer().getPlayer(depositor);
+        Config mainLang = GTSPlugin.getInstance().getMsgConfig();
+        Config reforgedLang = GTSSpongeGenerationsPlugin.getInstance().getMsgConfig();
+
+        MessageService<Text> parser = Impactor.getInstance().getRegistry().get(MessageService.class);
+
+        PlayerStorage party = PixelmonStorage.pokeBallManager.getPlayerStorageFromUUID(depositor).get();
+        if(BattleRegistry.getBattle(party.getPlayer()) != null) {
+            user.ifPresent(player -> player.sendMessages(parser.parse(reforgedLang.get(GenerationsLangConfigKeys.ERROR_IN_BATTLE))));
+            return false;
+        }
+
+        boolean blacklisted = Impactor.getInstance().getRegistry()
+                .get(Blacklist.class)
+                .isBlacklisted(EnumSpecies.class, this.pokemon.getOrCreate().getSpecies().name);
+        if(blacklisted) {
+            user.ifPresent(player -> player.sendMessages(parser.parse(mainLang.get(MsgConfigKeys.GENERAL_FEEDBACK_BLACKLISTED))));
+            return false;
+        }
+
+        // Check party size. Ensure we aren't less than 1 because who knows whether Reforged or another plugin
+        // will break something
+        if(party.getTeam().size() <= 1) {
+            user.ifPresent(player -> player.sendMessages(parser.parse(reforgedLang.get(GenerationsLangConfigKeys.ERROR_LAST_ABLE_MEMBER))));
+            return false;
+        }
+
+        party.recallAllPokemon();
+        party.removeFromPartyPlayer(party.getPosition(this.pokemon.getOrCreate().getPokemonId()));
+        return true;
     }
 
     @Override
     public Optional<String> getThumbnailURL() {
-        return Optional.empty();
+        StringBuilder url = new StringBuilder("https://projectpokemon.org/images/");
+        if(this.pokemon.get(SpecKeys.SHINY).orElse(false)) {
+            url.append("shiny");
+        } else {
+            url.append("normal");
+        }
+
+        url.append("-sprite/");
+        url.append(this.pokemon.getOrCreate().getSpecies().name.toLowerCase());
+        url.append(".gif");
+        return Optional.of(url.toString());
     }
 
     @Override
     public List<String> getDetails() {
-        return null;
+        MessageService<Text> parser = Impactor.getInstance().getRegistry().get(MessageService.class);
+        Config reforgedLang = GTSSpongeGenerationsPlugin.getInstance().getMsgConfig();
+
+        return parser.parse(reforgedLang.get(GenerationsLangConfigKeys.DISCORD_DETAILS), Lists.newArrayList(this::getOrCreateElement))
+                .stream()
+                .map(Text::toPlain)
+                .collect(Collectors.toList());
     }
 
     @Override

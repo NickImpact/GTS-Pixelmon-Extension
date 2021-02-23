@@ -3,12 +3,17 @@ package net.impactdev.gts.generations.sponge;
 import com.google.common.collect.Lists;
 import net.impactdev.gts.api.GTSService;
 import net.impactdev.gts.api.events.extension.PlaceholderRegistryEvent;
+import net.impactdev.gts.api.events.extension.PluginReloadEvent;
 import net.impactdev.gts.api.extension.Extension;
 import net.impactdev.gts.common.config.ConfigKeys;
 import net.impactdev.gts.common.plugin.GTSPlugin;
 import net.impactdev.gts.generations.sponge.config.GenerationsConfigKeys;
 import net.impactdev.gts.generations.sponge.config.GenerationsLangConfigKeys;
+import net.impactdev.gts.generations.sponge.config.mappings.GenerationsPriceControls;
+import net.impactdev.gts.generations.sponge.entry.GenerationsEntry;
+import net.impactdev.gts.generations.sponge.legacy.LegacyGenerationsPokemonDeserializer;
 import net.impactdev.gts.generations.sponge.manager.GenerationsPokemonDataManager;
+import net.impactdev.gts.generations.sponge.ui.GenerationsEntryMenu;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
 import net.impactdev.impactor.api.dependencies.Dependency;
@@ -36,8 +41,8 @@ public class GTSSpongeGenerationsPlugin implements Extension, ImpactorEventListe
 
     private Logger logger;
     private final PluginMetadata metadata = PluginMetadata.builder()
-            .id("reforged_extension")
-            .name("GTS - Reforged Extension")
+            .id("generations_extension")
+            .name("GTS - Generations Extension")
             .version("@version@")
             .build();
 
@@ -62,12 +67,16 @@ public class GTSSpongeGenerationsPlugin implements Extension, ImpactorEventListe
         this.extended = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("generations").resolve("generations.conf").toFile()), new GenerationsConfigKeys());
         this.lang = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("generations").resolve("lang").resolve(GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LANGUAGE) + ".conf").toFile(), true), new GenerationsLangConfigKeys());
 
+        service.getGTSComponentManager().registerEntryManager(GenerationsEntry.class, this.manager = new GenerationsPokemonDataManager());
+        //service.getGTSComponentManager().registerPriceManager(ReforgedPrice.class, new ReforgedPrice.ReforgedPriceManager());
+        //service.addSearcher(new ReforgedListingSearcher());
+
         Impactor.getInstance().getEventBus().subscribe(this);
     }
 
     @Override
     public void enable(GTSService service) {
-
+        this.logger.debug("Enabling...");
     }
 
     @Override
@@ -115,8 +124,14 @@ public class GTSSpongeGenerationsPlugin implements Extension, ImpactorEventListe
 
     @Subscribe
     public void onPlaceholderRegistrationEvent(PlaceholderRegistryEvent<GameRegistryEvent.Register<PlaceholderParser>> event) {
-//        ReforgedPlaceholders placeholders = new ReforgedPlaceholders();
+//        GenerationsPlaceHolders placeholders = new GenerationsPlaceHolders();
 //        placeholders.register(event.getManager());
+    }
+
+    @Subscribe
+    public void onReloadEvent(PluginReloadEvent event) {
+        this.extended.reload();
+        this.lang.reload();
     }
 
     private void copyResource(Path path, Path destination) {

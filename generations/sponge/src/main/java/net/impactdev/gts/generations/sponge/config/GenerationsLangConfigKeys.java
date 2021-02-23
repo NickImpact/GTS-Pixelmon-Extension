@@ -17,33 +17,33 @@ import static net.impactdev.impactor.api.configuration.ConfigKeyTypes.stringKey;
 
 public class GenerationsLangConfigKeys implements ConfigKeyHolder {
 
-    public static final ConfigKey<String> POKEMON_TITLE = stringKey("listing.details.title", "&3{{gts-reforged:species}} {{gts-reforged:shiny_special:s}}&7| &bLvl {{gts-reforged:level}}");
+    public static final ConfigKey<String> POKEMON_TITLE = stringKey("listing.details.title", "&3{{gts-generations:species}} {{gts-generations:shiny_special:s}}&7| &bLvl {{gts-generations:level}}");
     public static final ConfigKey<List<String>> POKEMON_DETAILS = listKey("listing.details.info", Lists.newArrayList(
             "&aGeneric Information:",
-            "  &7Form: &e{{gts-reforged:form}}",
-            "  &7Ability: &e{{gts-reforged:ability}}",
-            "  &7Gender: {{gts-reforged:gender}}",
-            "  &7Nature: &e{{gts-reforged:nature}}",
-            "  &7Size: &e{{gts-reforged:size}}",
-            "  &7Breed Status: {{gts-reforged:unbreedable}}",
+            "  &7Form: &e{{gts-generations:form}}",
+            "  &7Ability: &e{{gts-generations:ability}}",
+            "  &7Gender: {{gts-generations:gender}}",
+            "  &7Nature: &e{{gts-generations:nature}}",
+            "  &7Size: &e{{gts-generations:size}}",
+            "  &7Breed Status: {{gts-generations:unbreedable}}",
             "",
             "&aStats:",
-            "  &7EVs: &e{{gts-reforged:ev_hp}}&7/&e{{gts-reforged:ev_attack}}&7/&e{{gts-reforged:ev_defence}}&7/&e{{gts-reforged:ev_specialattack}}&7/&e{{gts-reforged:ev_specialdefence}}&7/&e{{gts-reforged:ev_speed}} &7(&b{{gts-reforged:ev_percentage}}&7)",
-            "  &7IVs: &e{{gts-reforged:iv_hp}}&7/&e{{gts-reforged:iv_attack}}&7/&e{{gts-reforged:iv_defence}}&7/&e{{gts-reforged:iv_specialattack}}&7/&e{{gts-reforged:iv_specialdefence}}&7/&e{{gts-reforged:iv_speed}} &7(&b{{gts-reforged:iv_percentage}}&7)"
+            "  &7EVs: &e{{gts-generations:ev_hp}}&7/&e{{gts-generations:ev_attack}}&7/&e{{gts-generations:ev_defence}}&7/&e{{gts-generations:ev_specialattack}}&7/&e{{gts-generations:ev_specialdefence}}&7/&e{{gts-generations:ev_speed}} &7(&b{{gts-generations:ev_percentage}}&7)",
+            "  &7IVs: &e{{gts-generations:iv_hp}}&7/&e{{gts-generations:iv_attack}}&7/&e{{gts-generations:iv_defence}}&7/&e{{gts-generations:iv_specialattack}}&7/&e{{gts-generations:iv_specialdefence}}&7/&e{{gts-generations:iv_speed}} &7(&b{{gts-generations:iv_percentage}}&7)"
     ));
 
     public static final ConfigKey<List<String>> DISCORD_DETAILS = listKey("listing.details.discord", Lists.newArrayList(
-            "Level: {{gts-reforged:level}}",
-            "Form: {{gts-reforged:form}}",
-            "Shiny: {{gts-reforged:shiny}}",
+            "Level: {{gts-generations:level}}",
+            "Form: {{gts-generations:form}}",
+            "Shiny: {{gts-generations:shiny}}",
             "",
-            "Ability: {{gts-reforged:ability}}",
-            "Gender: {{gts-reforged:gender}}",
-            "Nature: {{gts-reforged:nature}}",
-            "Held Item: {{gts-reforged:held_item}}",
+            "Ability: {{gts-generations:ability}}",
+            "Gender: {{gts-generations:gender}}",
+            "Nature: {{gts-generations:nature}}",
+            "Held Item: {{gts-generations:held_item}}",
             "",
-            "EVs: {{gts-reforged:ev_hp}}/{{gts-reforged:ev_attack}}/{{gts-reforged:ev_defence}}/{{gts-reforged:ev_specialattack}}/{{gts-reforged:ev_specialdefence}}/{{gts-reforged:ev_speed}} ({{gts-reforged:ev_percentage}})",
-            "EVs: {{gts-reforged:iv_hp}}/{{gts-reforged:iv_attack}}/{{gts-reforged:iv_defence}}/{{gts-reforged:iv_specialattack}}/{{gts-reforged:iv_specialdefence}}/{{gts-reforged:iv_speed}} ({{gts-reforged:iv_percentage}})"
+            "EVs: {{gts-generations:ev_hp}}/{{gts-generations:ev_attack}}/{{gts-generations:ev_defence}}/{{gts-generations:ev_specialattack}}/{{gts-generations:ev_specialdefence}}/{{gts-generations:ev_speed}} ({{gts-generations:ev_percentage}})",
+            "EVs: {{gts-generations:iv_hp}}/{{gts-generations:iv_attack}}/{{gts-generations:iv_defence}}/{{gts-generations:iv_specialattack}}/{{gts-generations:iv_specialdefence}}/{{gts-generations:iv_speed}} ({{gts-generations:iv_percentage}})"
     ));
 
     //------------------------------------------------------------------------------------------------------------------
