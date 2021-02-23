@@ -9,12 +9,10 @@ import net.impactdev.gts.common.config.ConfigKeys;
 import net.impactdev.gts.common.plugin.GTSPlugin;
 import net.impactdev.gts.generations.sponge.config.GenerationsConfigKeys;
 import net.impactdev.gts.generations.sponge.config.GenerationsLangConfigKeys;
-import net.impactdev.gts.generations.sponge.config.mappings.GenerationsPriceControls;
 import net.impactdev.gts.generations.sponge.entry.GenerationsEntry;
 import net.impactdev.gts.generations.sponge.entry.GenerationsListingSearcher;
-import net.impactdev.gts.generations.sponge.legacy.LegacyGenerationsPokemonDeserializer;
 import net.impactdev.gts.generations.sponge.manager.GenerationsPokemonDataManager;
-import net.impactdev.gts.generations.sponge.ui.GenerationsEntryMenu;
+import net.impactdev.gts.generations.sponge.placeholders.GenerationsPlaceholder;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
 import net.impactdev.impactor.api.dependencies.Dependency;
@@ -125,8 +123,8 @@ public class GTSSpongeGenerationsPlugin implements Extension, ImpactorEventListe
 
     @Subscribe
     public void onPlaceholderRegistrationEvent(PlaceholderRegistryEvent<GameRegistryEvent.Register<PlaceholderParser>> event) {
-//        GenerationsPlaceHolders placeholders = new GenerationsPlaceHolders();
-//        placeholders.register(event.getManager());
+        GenerationsPlaceholder placeholders = new GenerationsPlaceholder();
+        placeholders.register(event.getManager());
     }
 
     @Subscribe
