@@ -11,6 +11,7 @@ import net.impactdev.gts.generations.sponge.config.GenerationsConfigKeys;
 import net.impactdev.gts.generations.sponge.config.GenerationsLangConfigKeys;
 import net.impactdev.gts.generations.sponge.config.mappings.GenerationsPriceControls;
 import net.impactdev.gts.generations.sponge.entry.GenerationsEntry;
+import net.impactdev.gts.generations.sponge.entry.GenerationsListingSearcher;
 import net.impactdev.gts.generations.sponge.legacy.LegacyGenerationsPokemonDeserializer;
 import net.impactdev.gts.generations.sponge.manager.GenerationsPokemonDataManager;
 import net.impactdev.gts.generations.sponge.ui.GenerationsEntryMenu;
@@ -69,7 +70,7 @@ public class GTSSpongeGenerationsPlugin implements Extension, ImpactorEventListe
 
         service.getGTSComponentManager().registerEntryManager(GenerationsEntry.class, this.manager = new GenerationsPokemonDataManager());
         //service.getGTSComponentManager().registerPriceManager(ReforgedPrice.class, new ReforgedPrice.ReforgedPriceManager());
-        //service.addSearcher(new ReforgedListingSearcher());
+        service.addSearcher(new GenerationsListingSearcher());
 
         Impactor.getInstance().getEventBus().subscribe(this);
     }
