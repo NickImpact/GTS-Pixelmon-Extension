@@ -16,15 +16,20 @@ import net.impactdev.gts.api.data.registry.GTSKeyMarker;
 import net.impactdev.gts.api.listings.Listing;
 import net.impactdev.gts.api.listings.makeup.Display;
 import net.impactdev.gts.api.listings.prices.PriceControlled;
+import net.impactdev.gts.api.util.TriFunction;
+import net.impactdev.gts.common.config.ConfigKeys;
 import net.impactdev.gts.common.config.MsgConfigKeys;
 import net.impactdev.gts.common.plugin.GTSPlugin;
 import net.impactdev.gts.generations.sponge.GTSSpongeGenerationsPlugin;
+import net.impactdev.gts.generations.sponge.config.GenerationsConfigKeys;
 import net.impactdev.gts.generations.sponge.config.GenerationsLangConfigKeys;
+import net.impactdev.gts.generations.sponge.config.mappings.GenerationsPriceControls;
 import net.impactdev.gts.generations.sponge.converter.JObjectConverter;
 import net.impactdev.gts.sponge.listings.makeup.SpongeDisplay;
 import net.impactdev.gts.sponge.listings.makeup.SpongeEntry;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
+import net.impactdev.impactor.api.configuration.ConfigKey;
 import net.impactdev.impactor.api.json.factory.JObject;
 import net.impactdev.impactor.api.services.text.MessageService;
 import net.impactdev.pixelmonbridge.details.SpecKeys;
@@ -173,12 +178,39 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
 
     @Override
     public double getMin() {
-        return 0;
+        Optional<GenerationsPriceControls.Control> control = GTSSpongeGenerationsPlugin.getInstance().getConfiguration()
+                .get(GenerationsConfigKeys.PRICE_CONTROLS)
+                .get(this.getOrCreateElement().getOrCreate().getSpecies());
+
+        double calculated = control.map(GenerationsPriceControls.Control::getMin)
+                .orElseGet(() -> {
+                    if(GTSSpongeGenerationsPlugin.getInstance().getConfiguration().get(GenerationsConfigKeys.MIN_PRICING_USE_CUSTOM_BASE)) {
+                        return GTSSpongeGenerationsPlugin.getInstance().getConfiguration().get(GenerationsConfigKeys.MIN_PRICING_CUSTOM_BASE);
+                    }
+
+                    return 0.0;
+                });
+
+        for(MinimumPriceCalculator calculator : MinimumPriceCalculator.values()) {
+            calculated = calculator.calculate(this.getOrCreateElement().getOrCreate(), calculated);
+        }
+
+        return Math.max(1, Math.max(
+                GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LISTINGS_MIN_PRICE),
+                calculated
+        ));
     }
 
     @Override
     public double getMax() {
-        return 0;
+        Optional<GenerationsPriceControls.Control> control = GTSSpongeGenerationsPlugin.getInstance().getConfiguration()
+                .get(GenerationsConfigKeys.PRICE_CONTROLS)
+                .get(this.getOrCreateElement().getOrCreate().getSpecies());
+
+        return Math.max(1, Math.min(
+                GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LISTINGS_MAX_PRICE),
+                control.map(GenerationsPriceControls.Control::getMax).orElse(Double.MAX_VALUE)
+        ));
     }
 
     private ItemStack getPicture(EntityPixelmon pokemon) {
@@ -207,6 +239,58 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
         } else {
             World world = (World) (Object) Sponge.getServer().getWorlds().iterator().next();
             return (ItemStack) (Object) (aprilFools ? ItemPixelmonSprite.getPhoto((EntityPixelmon) PixelmonEntityList.createEntityByName(EnumSpecies.Bidoof.name, world)) : ItemPixelmonSprite.getPhoto(pokemon));
+        }
+    }
+
+    private enum MinimumPriceCalculator {
+        LEGENDARY(GenerationsConfigKeys.MIN_PRICING_LEGEND_ENABLED, GenerationsConfigKeys.MIN_PRICING_LEGEND_PRICE, (pokemon, key, current) -> {
+            if(EnumSpecies.legendaries.contains(pokemon.getSpecies().getPokemonName())) {
+                return GTSSpongeGenerationsPlugin.getInstance().getConfiguration().get(key) + current;
+            }
+
+            return current;
+        }),
+        SHINY(GenerationsConfigKeys.MIN_PRICING_SHINY_ENABLED, GenerationsConfigKeys.MIN_PRICING_SHINY_PRICE, (pokemon, key, current) -> {
+            if(pokemon.isShiny()) {
+                return GTSSpongeGenerationsPlugin.getInstance().getConfiguration().get(key) + current;
+            }
+
+            return current;
+        }),
+        HIDDEN_ABILITY(GenerationsConfigKeys.MIN_PRICING_HA_ENABLED, GenerationsConfigKeys.MIN_PRICING_HA_PRICE, (pokemon, key, current) -> {
+            if(pokemon.getAbilitySlot() == 2) {
+                return GTSSpongeGenerationsPlugin.getInstance().getConfiguration().get(key) + current;
+            }
+
+            return current;
+        }),
+        IV(GenerationsConfigKeys.MIN_PRICING_IVS_ENABLED, GenerationsConfigKeys.MIN_PRICING_IVS_PRICE, (pokemon, key, current) -> {
+            int required = GTSSpongeGenerationsPlugin.getInstance().getConfiguration().get(GenerationsConfigKeys.MIN_PRICING_IVS_REQUIRE);
+            for(int iv : pokemon.stats.IVs.getArray()) {
+                if(iv >= required) {
+                    current += GTSSpongeGenerationsPlugin.getInstance().getConfiguration().get(key);
+                }
+            }
+
+            return current;
+        }),;
+
+        private final ConfigKey<Boolean> enableKey;
+        private final ConfigKey<Double> priceKey;
+        private final TriFunction<EntityPixelmon, ConfigKey<Double>, Double, Double> priceApplier;
+
+        MinimumPriceCalculator(ConfigKey<Boolean> enableKey, ConfigKey<Double> priceKey, TriFunction<EntityPixelmon, ConfigKey<Double>, Double, Double> priceApplier) {
+            this.enableKey = enableKey;
+            this.priceKey = priceKey;
+            this.priceApplier = priceApplier;
+        }
+
+        public double calculate(EntityPixelmon source, double current) {
+            if(GTSSpongeGenerationsPlugin.getInstance().getConfiguration().get(this.enableKey)) {
+                return this.priceApplier.apply(source, this.priceKey, current);
+            }
+
+            return current;
         }
     }
 
