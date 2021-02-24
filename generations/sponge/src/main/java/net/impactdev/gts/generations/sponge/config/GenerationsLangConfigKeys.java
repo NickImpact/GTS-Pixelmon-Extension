@@ -25,7 +25,6 @@ public class GenerationsLangConfigKeys implements ConfigKeyHolder {
             "  &7Gender: {{gts-generations:gender}}",
             "  &7Nature: &e{{gts-generations:nature}}",
             "  &7Size: &e{{gts-generations:size}}",
-            "  &7Breed Status: {{gts-generations:unbreedable}}",
             "",
             "&aStats:",
             "  &7EVs: &e{{gts-generations:ev_hp}}&7/&e{{gts-generations:ev_attack}}&7/&e{{gts-generations:ev_defence}}&7/&e{{gts-generations:ev_specialattack}}&7/&e{{gts-generations:ev_specialdefence}}&7/&e{{gts-generations:ev_speed}} &7(&b{{gts-generations:ev_percentage}}&7)",

@@ -72,7 +72,7 @@ public class GenerationsPlaceholder {
                     TextColor color = gender == Gender.Male ? TextColors.AQUA :
                             gender == Gender.Female ? TextColors.LIGHT_PURPLE : TextColors.GRAY;
 
-                    return Text.of(color, pokemon.getGender().getProperName());
+                    return Text.of(color, gender == Gender.None ? "No Gender" : pokemon.getGender().getProperName());
                 }
         ));
         event.register(new PokemonPlaceholder(
@@ -153,7 +153,7 @@ public class GenerationsPlaceholder {
                 "A Pokemon's Held Item",
                 pokemon -> {
                     ItemStack item = pokemon.heldItem;
-                    if(item == ItemStack.EMPTY) {
+                    if(item == ItemStack.EMPTY || item == null) {
                         return Text.EMPTY;
                     }
 
