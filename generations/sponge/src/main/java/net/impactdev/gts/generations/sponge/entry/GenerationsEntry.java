@@ -1,6 +1,7 @@
 package net.impactdev.gts.generations.sponge.entry;
 
 import com.google.common.collect.Lists;
+import com.pixelmongenerations.common.battle.BattleRegistry;
 import com.pixelmongenerations.common.entity.pixelmon.EntityPixelmon;
 import com.pixelmongenerations.common.item.ItemPixelmonSprite;
 import com.pixelmongenerations.core.Pixelmon;
@@ -8,17 +9,30 @@ import com.pixelmongenerations.core.config.PixelmonEntityList;
 import com.pixelmongenerations.core.config.PixelmonItems;
 import com.pixelmongenerations.core.enums.EnumSpecies;
 import com.pixelmongenerations.core.storage.NbtKeys;
+import com.pixelmongenerations.core.storage.PixelmonStorage;
+import com.pixelmongenerations.core.storage.PlayerStorage;
+import net.impactdev.gts.api.blacklist.Blacklist;
+import net.impactdev.gts.api.data.registry.GTSKeyMarker;
 import net.impactdev.gts.api.listings.Listing;
 import net.impactdev.gts.api.listings.makeup.Display;
 import net.impactdev.gts.api.listings.prices.PriceControlled;
+import net.impactdev.gts.api.util.TriFunction;
+import net.impactdev.gts.common.config.ConfigKeys;
+import net.impactdev.gts.common.config.MsgConfigKeys;
+import net.impactdev.gts.common.plugin.GTSPlugin;
 import net.impactdev.gts.generations.sponge.GTSSpongeGenerationsPlugin;
+import net.impactdev.gts.generations.sponge.config.GenerationsConfigKeys;
 import net.impactdev.gts.generations.sponge.config.GenerationsLangConfigKeys;
+import net.impactdev.gts.generations.sponge.config.mappings.GenerationsPriceControls;
 import net.impactdev.gts.generations.sponge.converter.JObjectConverter;
 import net.impactdev.gts.sponge.listings.makeup.SpongeDisplay;
 import net.impactdev.gts.sponge.listings.makeup.SpongeEntry;
 import net.impactdev.impactor.api.Impactor;
+import net.impactdev.impactor.api.configuration.Config;
+import net.impactdev.impactor.api.configuration.ConfigKey;
 import net.impactdev.impactor.api.json.factory.JObject;
 import net.impactdev.impactor.api.services.text.MessageService;
+import net.impactdev.pixelmonbridge.details.SpecKeys;
 import net.impactdev.pixelmonbridge.generations.GenerationsPokemon;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -26,6 +40,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 
@@ -33,7 +48,9 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+@GTSKeyMarker("generations-pokemon")
 public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements PriceControlled {
 
     private GenerationsPokemon pokemon;
@@ -77,22 +94,68 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
 
     @Override
     public boolean give(UUID receiver) {
-        return false;
+        PixelmonStorage.pokeBallManager.getPlayerStorageFromUUID(receiver).get().addToParty(this.pokemon.getOrCreate());
+        return true;
     }
 
     @Override
     public boolean take(UUID depositor) {
-        return false;
+        Optional<Player> user = Sponge.getServer().getPlayer(depositor);
+        Config mainLang = GTSPlugin.getInstance().getMsgConfig();
+        Config gensLang = GTSSpongeGenerationsPlugin.getInstance().getMsgConfig();
+
+        MessageService<Text> parser = Impactor.getInstance().getRegistry().get(MessageService.class);
+
+        PlayerStorage party = PixelmonStorage.pokeBallManager.getPlayerStorageFromUUID(depositor).get();
+        if(BattleRegistry.getBattle(party.getPlayer()) != null) {
+            user.ifPresent(player -> player.sendMessages(parser.parse(gensLang.get(GenerationsLangConfigKeys.ERROR_IN_BATTLE))));
+            return false;
+        }
+
+        boolean blacklisted = Impactor.getInstance().getRegistry()
+                .get(Blacklist.class)
+                .isBlacklisted(EnumSpecies.class, this.pokemon.getOrCreate().getSpecies().name);
+        if(blacklisted) {
+            user.ifPresent(player -> player.sendMessages(parser.parse(mainLang.get(MsgConfigKeys.GENERAL_FEEDBACK_BLACKLISTED))));
+            return false;
+        }
+
+        // Check party size. Ensure we aren't less than 1 because who knows whether Reforged or another plugin
+        // will break something
+        if(party.getTeam().size() <= 1) {
+            user.ifPresent(player -> player.sendMessages(parser.parse(gensLang.get(GenerationsLangConfigKeys.ERROR_LAST_ABLE_MEMBER))));
+            return false;
+        }
+
+        party.recallAllPokemon();
+        party.removeFromPartyPlayer(party.getPosition(this.pokemon.getOrCreate().getPokemonId()));
+        return true;
     }
 
     @Override
     public Optional<String> getThumbnailURL() {
-        return Optional.empty();
+        StringBuilder url = new StringBuilder("https://projectpokemon.org/images/");
+        if(this.pokemon.get(SpecKeys.SHINY).orElse(false)) {
+            url.append("shiny");
+        } else {
+            url.append("normal");
+        }
+
+        url.append("-sprite/");
+        url.append(this.pokemon.getOrCreate().getSpecies().name.toLowerCase());
+        url.append(".gif");
+        return Optional.of(url.toString());
     }
 
     @Override
     public List<String> getDetails() {
-        return null;
+        MessageService<Text> parser = Impactor.getInstance().getRegistry().get(MessageService.class);
+        Config reforgedLang = GTSSpongeGenerationsPlugin.getInstance().getMsgConfig();
+
+        return parser.parse(reforgedLang.get(GenerationsLangConfigKeys.DISCORD_DETAILS), Lists.newArrayList(this::getOrCreateElement))
+                .stream()
+                .map(Text::toPlain)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -115,12 +178,39 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
 
     @Override
     public double getMin() {
-        return 0;
+        Optional<GenerationsPriceControls.Control> control = GTSSpongeGenerationsPlugin.getInstance().getConfiguration()
+                .get(GenerationsConfigKeys.PRICE_CONTROLS)
+                .get(this.getOrCreateElement().getOrCreate().getSpecies());
+
+        double calculated = control.map(GenerationsPriceControls.Control::getMin)
+                .orElseGet(() -> {
+                    if(GTSSpongeGenerationsPlugin.getInstance().getConfiguration().get(GenerationsConfigKeys.MIN_PRICING_USE_CUSTOM_BASE)) {
+                        return GTSSpongeGenerationsPlugin.getInstance().getConfiguration().get(GenerationsConfigKeys.MIN_PRICING_CUSTOM_BASE);
+                    }
+
+                    return 0.0;
+                });
+
+        for(MinimumPriceCalculator calculator : MinimumPriceCalculator.values()) {
+            calculated = calculator.calculate(this.getOrCreateElement().getOrCreate(), calculated);
+        }
+
+        return Math.max(1, Math.max(
+                GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LISTINGS_MIN_PRICE),
+                calculated
+        ));
     }
 
     @Override
     public double getMax() {
-        return 0;
+        Optional<GenerationsPriceControls.Control> control = GTSSpongeGenerationsPlugin.getInstance().getConfiguration()
+                .get(GenerationsConfigKeys.PRICE_CONTROLS)
+                .get(this.getOrCreateElement().getOrCreate().getSpecies());
+
+        return Math.max(1, Math.min(
+                GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LISTINGS_MAX_PRICE),
+                control.map(GenerationsPriceControls.Control::getMax).orElse(Double.MAX_VALUE)
+        ));
     }
 
     private ItemStack getPicture(EntityPixelmon pokemon) {
@@ -149,6 +239,58 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
         } else {
             World world = (World) (Object) Sponge.getServer().getWorlds().iterator().next();
             return (ItemStack) (Object) (aprilFools ? ItemPixelmonSprite.getPhoto((EntityPixelmon) PixelmonEntityList.createEntityByName(EnumSpecies.Bidoof.name, world)) : ItemPixelmonSprite.getPhoto(pokemon));
+        }
+    }
+
+    private enum MinimumPriceCalculator {
+        LEGENDARY(GenerationsConfigKeys.MIN_PRICING_LEGEND_ENABLED, GenerationsConfigKeys.MIN_PRICING_LEGEND_PRICE, (pokemon, key, current) -> {
+            if(EnumSpecies.legendaries.contains(pokemon.getSpecies().getPokemonName())) {
+                return GTSSpongeGenerationsPlugin.getInstance().getConfiguration().get(key) + current;
+            }
+
+            return current;
+        }),
+        SHINY(GenerationsConfigKeys.MIN_PRICING_SHINY_ENABLED, GenerationsConfigKeys.MIN_PRICING_SHINY_PRICE, (pokemon, key, current) -> {
+            if(pokemon.isShiny()) {
+                return GTSSpongeGenerationsPlugin.getInstance().getConfiguration().get(key) + current;
+            }
+
+            return current;
+        }),
+        HIDDEN_ABILITY(GenerationsConfigKeys.MIN_PRICING_HA_ENABLED, GenerationsConfigKeys.MIN_PRICING_HA_PRICE, (pokemon, key, current) -> {
+            if(pokemon.getAbilitySlot() == 2) {
+                return GTSSpongeGenerationsPlugin.getInstance().getConfiguration().get(key) + current;
+            }
+
+            return current;
+        }),
+        IV(GenerationsConfigKeys.MIN_PRICING_IVS_ENABLED, GenerationsConfigKeys.MIN_PRICING_IVS_PRICE, (pokemon, key, current) -> {
+            int required = GTSSpongeGenerationsPlugin.getInstance().getConfiguration().get(GenerationsConfigKeys.MIN_PRICING_IVS_REQUIRE);
+            for(int iv : pokemon.stats.IVs.getArray()) {
+                if(iv >= required) {
+                    current += GTSSpongeGenerationsPlugin.getInstance().getConfiguration().get(key);
+                }
+            }
+
+            return current;
+        }),;
+
+        private final ConfigKey<Boolean> enableKey;
+        private final ConfigKey<Double> priceKey;
+        private final TriFunction<EntityPixelmon, ConfigKey<Double>, Double, Double> priceApplier;
+
+        MinimumPriceCalculator(ConfigKey<Boolean> enableKey, ConfigKey<Double> priceKey, TriFunction<EntityPixelmon, ConfigKey<Double>, Double, Double> priceApplier) {
+            this.enableKey = enableKey;
+            this.priceKey = priceKey;
+            this.priceApplier = priceApplier;
+        }
+
+        public double calculate(EntityPixelmon source, double current) {
+            if(GTSSpongeGenerationsPlugin.getInstance().getConfiguration().get(this.enableKey)) {
+                return this.priceApplier.apply(source, this.priceKey, current);
+            }
+
+            return current;
         }
     }
 

@@ -5,6 +5,7 @@ import net.impactdev.gts.api.data.Storable;
 import net.impactdev.gts.api.listings.entries.EntryManager;
 import net.impactdev.gts.api.listings.ui.EntryUI;
 import net.impactdev.gts.generations.sponge.entry.GenerationsEntry;
+import net.impactdev.gts.generations.sponge.ui.GenerationsEntryMenu;
 import net.impactdev.pixelmonbridge.generations.GenerationsDataManager;
 import org.spongepowered.api.entity.living.player.Player;
 
@@ -25,7 +26,7 @@ public class GenerationsPokemonDataManager implements EntryManager<GenerationsEn
 
     @Override
     public Supplier<EntryUI<?, ?, ?>> getSellingUI(Player player) {
-        return () -> null; //new ReforgedEntryMenu(player);
+        return () -> new GenerationsEntryMenu(player);
     }
 
     @Override
