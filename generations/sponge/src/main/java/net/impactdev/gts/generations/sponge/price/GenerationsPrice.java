@@ -45,7 +45,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-@GTSKeyMarker("generations-price")
+@GTSKeyMarker("pokemon")
 public class GenerationsPrice implements SpongePrice<GenerationsPrice.PokemonPriceSpecs, EntityPixelmon>
 {
     private PokemonPriceSpecs price;
