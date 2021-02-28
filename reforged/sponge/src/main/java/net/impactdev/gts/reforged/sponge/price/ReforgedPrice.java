@@ -45,7 +45,7 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-@GTSKeyMarker("pokemon")
+@GTSKeyMarker({"pokemon", "reforged-price"})
 public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpecs, StoragePosition> {
 
     private PokemonPriceSpecs price;
