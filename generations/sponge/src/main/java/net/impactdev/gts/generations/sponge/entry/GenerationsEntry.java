@@ -50,7 +50,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@GTSKeyMarker("pokemon")
+@GTSKeyMarker({"pokemon", "reforged-pokemon"})
 public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements PriceControlled {
 
     private GenerationsPokemon pokemon;
