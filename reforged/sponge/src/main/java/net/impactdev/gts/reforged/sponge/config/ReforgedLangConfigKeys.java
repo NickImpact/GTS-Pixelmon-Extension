@@ -46,6 +46,9 @@ public class ReforgedLangConfigKeys implements ConfigKeyHolder {
             "EVs: {{gts-reforged:iv_hp}}/{{gts-reforged:iv_attack}}/{{gts-reforged:iv_defence}}/{{gts-reforged:iv_specialattack}}/{{gts-reforged:iv_specialdefence}}/{{gts-reforged:iv_speed}} ({{gts-reforged:iv_percentage}})"
     ));
 
+    public static final ConfigKey<String> ABILITY = stringKey("ability.normal", "%ability%");
+    public static final ConfigKey<String> ABILITY_HIDDEN = stringKey("ability.normal", "%ability% &7(&6HA&7)");
+
     //------------------------------------------------------------------------------------------------------------------
     //
     //  UI Based Language Options

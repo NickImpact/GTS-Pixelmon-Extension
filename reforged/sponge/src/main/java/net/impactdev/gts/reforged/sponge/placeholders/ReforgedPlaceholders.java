@@ -6,9 +6,13 @@ import com.pixelmonmod.pixelmon.entities.pixelmon.stats.EVStore;
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.Gender;
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.IVStore;
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.StatsType;
+import net.impactdev.gts.reforged.sponge.GTSSpongeReforgedPlugin;
+import net.impactdev.gts.reforged.sponge.config.ReforgedLangConfigKeys;
+import net.impactdev.impactor.api.Impactor;
+import net.impactdev.impactor.api.configuration.Config;
+import net.impactdev.impactor.api.services.text.MessageService;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.api.event.game.GameRegistryEvent;
-import org.spongepowered.api.text.LiteralText;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
@@ -16,6 +20,7 @@ import org.spongepowered.api.text.placeholder.PlaceholderParser;
 
 import java.text.DecimalFormat;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class ReforgedPlaceholders {
 
@@ -61,10 +66,18 @@ public class ReforgedPlaceholders {
         event.register(new PokemonPlaceholder(
                 "ability",
                 "Pokemon's Ability",
-                pokemon -> Text.of(pokemon.getAbility().getLocalizedName()
-                        .replaceAll("[\u00a7][r]", "")
-                        .replaceAll("[\u00a7][k].", "")
-                )
+                pokemon -> {
+                    MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
+                    Function<String, String> replacer = in -> in.replaceAll("[\u00a7][r]", "")
+                            .replaceAll("[\u00a7][k]", "");
+                    Config config = GTSSpongeReforgedPlugin.getInstance().getMsgConfig();
+
+                    if(pokemon.getAbilitySlot() == 2) {
+                        return service.parse(replacer.apply(config.get(ReforgedLangConfigKeys.ABILITY_HIDDEN)));
+                    } else {
+                        return service.parse(replacer.apply(config.get(ReforgedLangConfigKeys.ABILITY)));
+                    }
+                }
         ));
         event.register(new PokemonPlaceholder(
                 "gender",

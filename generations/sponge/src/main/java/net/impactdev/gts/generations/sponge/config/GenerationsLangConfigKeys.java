@@ -45,6 +45,9 @@ public class GenerationsLangConfigKeys implements ConfigKeyHolder {
             "EVs: {{gts-generations:iv_hp}}/{{gts-generations:iv_attack}}/{{gts-generations:iv_defence}}/{{gts-generations:iv_specialattack}}/{{gts-generations:iv_specialdefence}}/{{gts-generations:iv_speed}} ({{gts-generations:iv_percentage}})"
     ));
 
+    public static final ConfigKey<String> ABILITY = stringKey("ability.normal", "%ability%");
+    public static final ConfigKey<String> ABILITY_HIDDEN = stringKey("ability.normal", "%ability% &7(&6HA&7)");
+
     //------------------------------------------------------------------------------------------------------------------
     //
     //  UI Based Language Options
