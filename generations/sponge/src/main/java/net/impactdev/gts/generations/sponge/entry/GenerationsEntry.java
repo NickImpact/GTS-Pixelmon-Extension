@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.pixelmongenerations.common.battle.BattleRegistry;
 import com.pixelmongenerations.common.entity.pixelmon.EntityPixelmon;
 import com.pixelmongenerations.common.item.ItemPixelmonSprite;
-import com.pixelmongenerations.core.Pixelmon;
 import com.pixelmongenerations.core.config.PixelmonEntityList;
 import com.pixelmongenerations.core.config.PixelmonItems;
 import com.pixelmongenerations.core.enums.EnumSpecies;

@@ -47,7 +47,7 @@ public class ReforgedLangConfigKeys implements ConfigKeyHolder {
     ));
 
     public static final ConfigKey<String> ABILITY = stringKey("ability.normal", "%ability%");
-    public static final ConfigKey<String> ABILITY_HIDDEN = stringKey("ability.normal", "%ability% &7(&6HA&7)");
+    public static final ConfigKey<String> ABILITY_HIDDEN = stringKey("ability.hidden", "%ability% &7(&6HA&7)");
 
     //------------------------------------------------------------------------------------------------------------------
     //

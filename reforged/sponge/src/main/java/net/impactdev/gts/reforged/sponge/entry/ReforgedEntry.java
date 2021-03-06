@@ -1,7 +1,9 @@
 package net.impactdev.gts.reforged.sponge.entry;
 
 import com.google.common.collect.Lists;
+import com.pixelmonmod.pixelmon.api.pokemon.PokemonSpec;
 import com.pixelmonmod.pixelmon.api.storage.PCStorage;
+import com.pixelmonmod.pixelmon.entities.pixelmon.stats.extraStats.MiniorStats;
 import net.impactdev.gts.api.listings.prices.PriceControlled;
 import net.impactdev.gts.api.util.TriFunction;
 import net.impactdev.gts.common.config.ConfigKeys;
@@ -9,7 +11,6 @@ import net.impactdev.gts.common.config.MsgConfigKeys;
 import net.impactdev.gts.reforged.sponge.config.ReforgedConfigKeys;
 import net.impactdev.gts.reforged.sponge.config.mappings.ReforgedPriceControls;
 import net.impactdev.gts.reforged.sponge.flags.ReforgedSpecFlags;
-import net.impactdev.gts.sponge.utils.Utilities;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
 import net.impactdev.impactor.api.configuration.ConfigKey;
@@ -212,6 +213,13 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
             item.setTagCompound(nbt);
             return (ItemStack) (Object) item;
         } else {
+            if(pokemon.getSpecies() == EnumSpecies.Minior) {
+                byte color = ((MiniorStats) pokemon.getExtraStats()).color;
+
+                Pokemon result = Pixelmon.pokemonFactory.create(PokemonSpec.from("minior", "f:" + (color + 1)));
+                return (ItemStack) (Object) (aprilFools ? ItemPixelmonSprite.getPhoto(Pixelmon.pokemonFactory.create(EnumSpecies.Bidoof)) : ItemPixelmonSprite.getPhoto(result));
+            }
+
             return (ItemStack) (Object) (aprilFools ? ItemPixelmonSprite.getPhoto(Pixelmon.pokemonFactory.create(EnumSpecies.Bidoof)) : ItemPixelmonSprite.getPhoto(pokemon));
         }
     }

@@ -4,6 +4,8 @@ import com.pixelmonmod.pixelmon.enums.EnumSpecies;
 import net.impactdev.gts.api.data.Storable;
 import net.impactdev.gts.api.listings.entries.EntryManager;
 import net.impactdev.gts.api.listings.ui.EntryUI;
+import net.impactdev.gts.api.util.PrettyPrinter;
+import net.impactdev.gts.reforged.sponge.GTSSpongeReforgedPlugin;
 import net.impactdev.gts.reforged.sponge.entry.ReforgedEntry;
 import net.impactdev.gts.reforged.sponge.ui.ReforgedEntryMenu;
 import net.impactdev.pixelmonbridge.reforged.ReforgedDataManager;

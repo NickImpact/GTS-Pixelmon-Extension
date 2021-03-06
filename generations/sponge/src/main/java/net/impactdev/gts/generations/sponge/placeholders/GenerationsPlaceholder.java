@@ -68,7 +68,8 @@ public class GenerationsPlaceholder {
                 pokemon -> {
                     MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
                     Function<String, String> replacer = in -> in.replaceAll("[\u00a7][r]", "")
-                            .replaceAll("[\u00a7][k]", "");
+                            .replaceAll("[\u00a7][k]", "")
+                            .replaceAll("[%]ability[%]", pokemon.getAbility().getLocalizedName());
                     Config config = GTSSpongeGenerationsPlugin.getInstance().getMsgConfig();
 
                     if(pokemon.getAbilitySlot() == 2) {

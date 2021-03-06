@@ -4,6 +4,8 @@ import com.pixelmongenerations.core.enums.EnumSpecies;
 import net.impactdev.gts.api.data.Storable;
 import net.impactdev.gts.api.listings.entries.EntryManager;
 import net.impactdev.gts.api.listings.ui.EntryUI;
+import net.impactdev.gts.api.util.PrettyPrinter;
+import net.impactdev.gts.generations.sponge.GTSSpongeGenerationsPlugin;
 import net.impactdev.gts.generations.sponge.entry.GenerationsEntry;
 import net.impactdev.gts.generations.sponge.ui.GenerationsEntryMenu;
 import net.impactdev.pixelmonbridge.generations.GenerationsDataManager;
