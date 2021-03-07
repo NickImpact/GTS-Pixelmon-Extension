@@ -10,6 +10,7 @@ import net.impactdev.gts.common.config.ConfigKeys;
 import net.impactdev.gts.common.config.MsgConfigKeys;
 import net.impactdev.gts.reforged.sponge.config.ReforgedConfigKeys;
 import net.impactdev.gts.reforged.sponge.config.mappings.ReforgedPriceControls;
+import net.impactdev.gts.reforged.sponge.entry.description.ContextualDetails;
 import net.impactdev.gts.reforged.sponge.flags.ReforgedSpecFlags;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
@@ -81,6 +82,7 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
         List<Text> lore = Lists.newArrayList();
         lore.addAll(service.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig().get(ReforgedLangConfigKeys.POKEMON_DETAILS), Lists.newArrayList(() -> this.pokemon)));
+        lore.addAll(ContextualDetails.receive(this.getOrCreateElement().getOrCreate()));
 
         ItemStack rep = ItemStack.builder()
                 .from(this.getPicture(this.pokemon.getOrCreate()))

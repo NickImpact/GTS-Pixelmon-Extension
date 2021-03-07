@@ -40,7 +40,6 @@ public class ReforgedLangConfigKeys implements ConfigKeyHolder {
             "Ability: {{gts-reforged:ability}}",
             "Gender: {{gts-reforged:gender}}",
             "Nature: {{gts-reforged:nature}}",
-            "Held Item: {{gts-reforged:held_item}}",
             "",
             "EVs: {{gts-reforged:ev_hp}}/{{gts-reforged:ev_attack}}/{{gts-reforged:ev_defence}}/{{gts-reforged:ev_specialattack}}/{{gts-reforged:ev_specialdefence}}/{{gts-reforged:ev_speed}} ({{gts-reforged:ev_percentage}})",
             "EVs: {{gts-reforged:iv_hp}}/{{gts-reforged:iv_attack}}/{{gts-reforged:iv_defence}}/{{gts-reforged:iv_specialattack}}/{{gts-reforged:iv_specialdefence}}/{{gts-reforged:iv_speed}} ({{gts-reforged:iv_percentage}})"
@@ -48,6 +47,11 @@ public class ReforgedLangConfigKeys implements ConfigKeyHolder {
 
     public static final ConfigKey<String> ABILITY = stringKey("ability.normal", "%ability%");
     public static final ConfigKey<String> ABILITY_HIDDEN = stringKey("ability.hidden", "%ability% &7(&6HA&7)");
+
+    public static final ConfigKey<String> MEW_CLONES = stringKey("contextual.extras.mew-clones", "&7Cloned &e{{gts-reforged:clones}} &7times");
+    public static final ConfigKey<String> LAKE_TRIO_ENCHANTS = stringKey("contextual.extras.lake-trio-enchants", "&7Enchanted &e{{gts-reforged:enchantments}} &7times");
+    public static final ConfigKey<String> EGG_INFO = stringKey("contextual.egg-info", "&7Hatch Progress: &e{{gts-reforged:egg-steps}}");
+    public static final ConfigKey<String> POKERUS = stringKey("contextual.pokerus", "&dInflicted with Pokerus");
 
     //------------------------------------------------------------------------------------------------------------------
     //

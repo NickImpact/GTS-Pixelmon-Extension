@@ -1,11 +1,16 @@
 package net.impactdev.gts.reforged.sponge.placeholders;
 
 import com.google.common.collect.Lists;
+import com.pixelmonmod.pixelmon.battles.attacks.specialAttacks.basic.HiddenPower;
+import com.pixelmonmod.pixelmon.config.PixelmonConfig;
 import com.pixelmonmod.pixelmon.entities.pixelmon.specs.UnbreedableFlag;
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.EVStore;
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.Gender;
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.IVStore;
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.StatsType;
+import com.pixelmonmod.pixelmon.entities.pixelmon.stats.extraStats.LakeTrioStats;
+import com.pixelmonmod.pixelmon.entities.pixelmon.stats.extraStats.MewStats;
+import com.pixelmonmod.pixelmon.enums.EnumSpecies;
 import net.impactdev.gts.reforged.sponge.GTSSpongeReforgedPlugin;
 import net.impactdev.gts.reforged.sponge.config.ReforgedLangConfigKeys;
 import net.impactdev.impactor.api.Impactor;
@@ -19,6 +24,7 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.placeholder.PlaceholderParser;
 
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -190,6 +196,52 @@ public class ReforgedPlaceholders {
                 pokemon -> Optional.ofNullable(pokemon.getCustomTexture())
                         .map(Text::of)
                         .orElse(Text.of("N/A"))
+        ));
+        event.register(new PokemonPlaceholder(
+                "clones",
+                "Number of Mew Clones",
+                pokemon -> {
+                    if(pokemon.getSpecies() == EnumSpecies.Mew) {
+                        MewStats stats = (MewStats) pokemon.getExtraStats();
+
+                        return Text.of(stats.numCloned);
+                    }
+
+                    return Text.EMPTY;
+                }
+        ));
+        event.register(new PokemonPlaceholder(
+                "enchantments",
+                "Number of Lake Trio Enchantments",
+                pokemon -> {
+                    List<EnumSpecies> options = Lists.newArrayList(EnumSpecies.Azelf, EnumSpecies.Mesprit, EnumSpecies.Uxie);
+                    if(options.contains(pokemon.getSpecies())) {
+                        LakeTrioStats stats = (LakeTrioStats) pokemon.getExtraStats();
+
+                        return Text.of(stats.numEnchanted);
+                    }
+
+                    return Text.EMPTY;
+                }
+        ));
+        event.register(new PokemonPlaceholder(
+                "hidden_power",
+                "A Pokemon's Hidden Power",
+                pokemon -> Text.of(HiddenPower.getHiddenPowerType(pokemon.getIVs()))
+        ));
+        event.register(new PokemonPlaceholder(
+                "egg-steps",
+                "Amount of steps remaining for an egg",
+                pokemon -> {
+                    if(pokemon.isEgg()) {
+                        int total = (pokemon.getBaseStats().eggCycles + 1) * PixelmonConfig.stepsPerEggCycle;
+                        int walked = pokemon.getEggSteps() + ((pokemon.getBaseStats().eggCycles - pokemon.getEggCycles()) * PixelmonConfig.stepsPerEggCycle);
+
+                        return Text.of(walked, "/", total);
+                    }
+
+                    return Text.EMPTY;
+                }
         ));
     }
 

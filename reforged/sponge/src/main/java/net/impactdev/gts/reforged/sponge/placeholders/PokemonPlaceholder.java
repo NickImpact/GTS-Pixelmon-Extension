@@ -44,4 +44,5 @@ public class PokemonPlaceholder implements PlaceholderParser {
     public String getName() {
         return this.name;
     }
+
 }
