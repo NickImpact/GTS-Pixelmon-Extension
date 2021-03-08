@@ -3,8 +3,8 @@ dependencies {
     shadow 'net.impactdev.impactor:sponge:3.1.2'
     shadow 'org.slf4j:slf4j-api:1.7.25'
 
-    compile 'net.impactdev:pixelmonbridge:1.0.2'
-    compile 'net.impactdev.pixelmonbridge:generations:1.0.2'
+    compile 'net.impactdev:pixelmonbridge:1.0.3-SNAPSHOT'
+    compile 'net.impactdev.pixelmonbridge:generations:1.0.3-SNAPSHOT'
 }
 
 shadowJar {
