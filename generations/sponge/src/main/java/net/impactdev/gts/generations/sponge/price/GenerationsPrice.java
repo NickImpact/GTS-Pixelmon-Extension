@@ -125,12 +125,13 @@ public class GenerationsPrice implements SpongePrice<GenerationsPrice.PokemonPri
     }
 
     @Override
-    public void pay(UUID payer, Object source)
-    {
-        PlayerStorage storage = PixelmonStorage.pokeBallManager.getPlayerStorageFromUUID(payer).get();
-        EntityPixelmon pokemon = storage.getPokemon(this.getSourceType().cast(source).getPokemonId(), FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld());
-        this.payment = GenerationsPokemon.from(pokemon);
-        storage.removeFromPartyPlayer(storage.getPosition(pokemon.getPokemonId()));
+    public void pay(UUID payer, Object source) {
+        Impactor.getInstance().getScheduler().executeSync(() -> {
+            PlayerStorage storage = PixelmonStorage.pokeBallManager.getPlayerStorageFromUUID(payer).get();
+            EntityPixelmon pokemon = storage.getPokemon(this.getSourceType().cast(source).getPokemonId(), FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld());
+            this.payment = GenerationsPokemon.from(pokemon);
+            storage.removeFromPartyPlayer(storage.getPosition(pokemon.getPokemonId()));
+        });
     }
 
     @Override
