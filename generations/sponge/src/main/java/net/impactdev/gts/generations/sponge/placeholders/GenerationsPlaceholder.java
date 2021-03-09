@@ -95,7 +95,7 @@ public class GenerationsPlaceholder {
                 "Pokemon's Nature",
                 pokemon -> {
                     Text result = Text.of(pokemon.getNature().getLocalizedName());
-                    if(pokemon.getPseudoNature() != null) {
+                    if(pokemon.getPseudoNature() != null && !pokemon.getNature().equals(pokemon.getPseudoNature())) {
                         result = Text.of(result, TextColors.GRAY, " (", TextColors.GOLD,
                                 pokemon.getPseudoNature().getLocalizedName(), TextColors.GRAY, ")");
                     }

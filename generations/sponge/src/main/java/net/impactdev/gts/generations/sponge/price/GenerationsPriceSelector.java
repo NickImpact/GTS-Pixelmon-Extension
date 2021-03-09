@@ -175,7 +175,7 @@ public class GenerationsPriceSelector implements PriceManager.PriceSelectorUI<Sp
 
                 confirmer.addListener(c -> {
                     this.display.close(this.viewer);
-                    this.callback.accept(this.selection.getPosition());
+                    this.callback.accept(this.selection);
                 });
 
                 this.display.setSlot(51, confirmer);
