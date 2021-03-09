@@ -11,16 +11,6 @@ buildscript {
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
-
-minecraft {
-    version = "1.12.2-14.23.5.2838"
-    runDir = "run"
-    mappings = "snapshot_20171007"
-    useDepAts = true
-    makeObfSourceJar = false
-}
-
 repositories {
     mavenCentral()
 }
