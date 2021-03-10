@@ -11,6 +11,7 @@ import net.impactdev.gts.generations.sponge.config.GenerationsConfigKeys;
 import net.impactdev.gts.generations.sponge.config.GenerationsLangConfigKeys;
 import net.impactdev.gts.generations.sponge.entry.GenerationsEntry;
 import net.impactdev.gts.generations.sponge.entry.GenerationsListingSearcher;
+import net.impactdev.gts.generations.sponge.legacy.LegacyGenerationsPokemonDeserializer;
 import net.impactdev.gts.generations.sponge.manager.GenerationsPokemonDataManager;
 import net.impactdev.gts.generations.sponge.placeholders.GenerationsPlaceholder;
 import net.impactdev.gts.generations.sponge.price.GenerationsPrice;
@@ -67,6 +68,7 @@ public class GTSSpongeGenerationsPlugin implements Extension, ImpactorEventListe
         this.extended = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("generations").resolve("generations.conf").toFile()), new GenerationsConfigKeys());
         this.lang = new SpongeConfig(new SpongeConfigAdapter(this, dataDir.resolve("generations").resolve("lang").resolve(GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LANGUAGE) + ".conf").toFile(), true), new GenerationsLangConfigKeys());
 
+        service.getGTSComponentManager().registerLegacyEntryDeserializer("Pokemon", new LegacyGenerationsPokemonDeserializer());
         service.getGTSComponentManager().registerEntryManager(GenerationsEntry.class, this.manager = new GenerationsPokemonDataManager());
         service.getGTSComponentManager().registerPriceManager(GenerationsPrice.class, new GenerationsPrice.GenerationsPriceManager());
         service.addSearcher(new GenerationsListingSearcher());
