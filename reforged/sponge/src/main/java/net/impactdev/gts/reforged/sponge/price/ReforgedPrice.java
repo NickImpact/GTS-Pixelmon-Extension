@@ -32,6 +32,7 @@ import net.impactdev.pixelmonbridge.details.components.Level;
 import net.impactdev.pixelmonbridge.reforged.ReforgedPokemon;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -42,6 +43,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -118,11 +120,12 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
     }
 
     @Override
-    public void pay(UUID payer, Object source) {
+    public void pay(UUID payer, @NonNull Object source, @NonNull AtomicBoolean marker) {
         PlayerPartyStorage storage = Pixelmon.storageManager.getParty(payer);
         Pokemon pokemon = storage.get(this.getSourceType().cast(source));
         this.payment = ReforgedPokemon.from(pokemon);
         storage.set(pokemon.getPosition(), null);
+        marker.set(true);
     }
 
     @Override

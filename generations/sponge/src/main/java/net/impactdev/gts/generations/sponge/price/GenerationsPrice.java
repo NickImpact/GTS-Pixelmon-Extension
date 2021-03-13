@@ -36,12 +36,14 @@ import net.kyori.adventure.text.TextComponent;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -125,25 +127,28 @@ public class GenerationsPrice implements SpongePrice<GenerationsPrice.PokemonPri
     }
 
     @Override
-    public void pay(UUID payer, Object source) {
+    public void pay(UUID payer, @NonNull Object source, @NonNull AtomicBoolean marker) {
         Impactor.getInstance().getScheduler().executeSync(() -> {
             PlayerStorage storage = PixelmonStorage.pokeBallManager.getPlayerStorageFromUUID(payer).get();
             EntityPixelmon pokemon = storage.getPokemon(this.getSourceType().cast(source).getPokemonId(), FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld());
             this.payment = GenerationsPokemon.from(pokemon);
             storage.removeFromPartyPlayer(storage.getPosition(pokemon.getPokemonId()));
+            marker.set(true);
         });
     }
 
     @Override
     public boolean reward(UUID recipient) {
-        PlayerStorage storage = PixelmonStorage.pokeBallManager.getPlayerStorageFromUUID(recipient).get();
-        if(storage.hasSpace()) {
-            storage.addToParty(this.payment.getOrCreate());
-            return true;
-        }
+        Impactor.getInstance().getScheduler().executeSync(() -> {
+            PlayerStorage storage = PixelmonStorage.pokeBallManager.getPlayerStorageFromUUID(recipient).get();
+            if(storage.hasSpace()) {
+                storage.addToParty(this.payment.getOrCreate());
+                return;
+            }
 
-        PlayerComputerStorage pc = PixelmonStorage.computerManager.getPlayerStorageOffline(FMLCommonHandler.instance().getMinecraftServerInstance(), recipient);
-        pc.addToComputer(this.payment.getOrCreate());
+            PlayerComputerStorage pc = PixelmonStorage.computerManager.getPlayerStorageOffline(FMLCommonHandler.instance().getMinecraftServerInstance(), recipient);
+            pc.addToComputer(this.payment.getOrCreate());
+        });
         return true;
     }
 
