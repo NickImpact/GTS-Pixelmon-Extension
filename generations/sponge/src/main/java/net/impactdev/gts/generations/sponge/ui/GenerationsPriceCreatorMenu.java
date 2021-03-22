@@ -239,7 +239,7 @@ public class GenerationsPriceCreatorMenu
 
     public SpongeIcon formSelector() {
         ItemStack display = ItemStack.builder()
-                .itemType(this.resolve("pixelmon:reassembly_unit"))
+                .itemType(this.resolve("pixelmon:lucarionite"))
                 .add(Keys.DISPLAY_NAME, this.translate(GenerationsLangConfigKeys.UI_PRICE_FORM_SELECT_TITLE))
                 .add(Keys.ITEM_LORE, this.translateList(GenerationsLangConfigKeys.UI_PRICE_FORM_SELECT_LORE))
                 .build();
