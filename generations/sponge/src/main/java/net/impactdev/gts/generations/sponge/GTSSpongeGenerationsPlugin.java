@@ -2,6 +2,7 @@ package net.impactdev.gts.generations.sponge;
 
 import com.google.common.collect.Lists;
 import net.impactdev.gts.api.GTSService;
+import net.impactdev.gts.api.commands.GTSCommandExecutor;
 import net.impactdev.gts.api.events.extension.PlaceholderRegistryEvent;
 import net.impactdev.gts.api.events.extension.PluginReloadEvent;
 import net.impactdev.gts.api.extension.Extension;
@@ -34,7 +35,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class GTSSpongeGenerationsPlugin implements Extension, ImpactorEventListener {
 
@@ -84,6 +87,11 @@ public class GTSSpongeGenerationsPlugin implements Extension, ImpactorEventListe
     @Override
     public List<Dependency> getRequiredDependencies() {
         return Lists.newArrayList();
+    }
+
+    @Override
+    public Set<GTSCommandExecutor<?, ?>> getExecutors() {
+        return Collections.EMPTY_SET;
     }
 
     @Override

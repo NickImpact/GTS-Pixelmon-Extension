@@ -1,6 +1,7 @@
 package net.impactdev.gts.reforged.sponge;
 
 import com.google.common.collect.Lists;
+import net.impactdev.gts.api.commands.GTSCommandExecutor;
 import net.impactdev.gts.api.events.extension.PluginReloadEvent;
 import net.impactdev.gts.reforged.sponge.entry.ReforgedEntry;
 import net.impactdev.gts.reforged.sponge.entry.ReforgedListingSearcher;
@@ -34,7 +35,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -91,6 +94,11 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
     @Override
     public List<Dependency> getRequiredDependencies() {
         return Lists.newArrayList();
+    }
+
+    @Override
+    public Set<GTSCommandExecutor<?, ?>> getExecutors() {
+        return Collections.EMPTY_SET;
     }
 
     @Override

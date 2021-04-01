@@ -18,6 +18,7 @@ import net.impactdev.gts.api.listings.prices.Price;
 import net.impactdev.gts.api.listings.prices.PriceManager;
 import net.impactdev.gts.api.listings.ui.EntryUI;
 import net.impactdev.gts.api.util.TriConsumer;
+import net.impactdev.gts.common.plugin.GTSPlugin;
 import net.impactdev.gts.generations.sponge.GTSSpongeGenerationsPlugin;
 import net.impactdev.gts.generations.sponge.config.GenerationsLangConfigKeys;
 import net.impactdev.gts.generations.sponge.converter.JObjectConverter;
@@ -147,6 +148,7 @@ public class GenerationsPrice implements SpongePrice<GenerationsPrice.PokemonPri
             }
 
             PlayerComputerStorage pc = PixelmonStorage.computerManager.getPlayerStorageOffline(FMLCommonHandler.instance().getMinecraftServerInstance(), recipient);
+            pc.playerStorage = storage;
             pc.addToComputer(this.payment.getOrCreate());
         });
         return true;
