@@ -2,8 +2,6 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
 
-    group = "me.nickimpact.gts.pixelmon"
-
     repositories {
         mavenCentral()
         maven {
