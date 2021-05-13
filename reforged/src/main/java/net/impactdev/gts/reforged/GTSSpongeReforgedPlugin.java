@@ -1,11 +1,14 @@
 package net.impactdev.gts.reforged;
 
 import com.google.common.collect.Lists;
+import com.pixelmonmod.pixelmon.config.RemapHandler;
 import net.impactdev.gts.api.commands.GTSCommandExecutor;
 import net.impactdev.gts.api.events.extension.PluginReloadEvent;
+import net.impactdev.gts.api.util.PrettyPrinter;
 import net.impactdev.gts.reforged.entry.ReforgedEntry;
 import net.impactdev.gts.reforged.entry.ReforgedListingSearcher;
 import net.impactdev.gts.reforged.price.ReforgedPrice;
+import net.impactdev.gts.sponge.data.NBTTranslator;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
 import net.impactdev.impactor.api.dependencies.Dependency;
@@ -26,8 +29,11 @@ import net.impactdev.gts.reforged.config.ReforgedLangConfigKeys;
 import net.impactdev.gts.reforged.legacy.LegacyReforgedPokemonDeserializer;
 import net.impactdev.gts.reforged.manager.ReforgedPokemonDataManager;
 import net.impactdev.gts.reforged.placeholders.ReforgedPlaceholders;
+import net.minecraft.nbt.NBTTagCompound;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.event.game.GameRegistryEvent;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.placeholder.PlaceholderParser;
 
 import java.io.IOException;
@@ -37,6 +43,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -84,6 +91,16 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
         service.addSearcher(new ReforgedListingSearcher());
 
         Impactor.getInstance().getEventBus().subscribe(this);
+
+        GTSService.getInstance().getDataTranslatorManager().register(NBTTagCompound.class, in -> {
+            String id = in.getString("ItemType");
+            if((id.startsWith("pixelmon:tm") || id.startsWith("pixelmon:tr")) && !id.contains("gen")) {
+                ItemStack sponge = (ItemStack) (Object) RemapHandler.findNewTMFor(id);
+                return Optional.of(NBTTranslator.getInstance().translate(sponge.toContainer()));
+            }
+
+            return Optional.empty();
+        });
     }
 
     @Override

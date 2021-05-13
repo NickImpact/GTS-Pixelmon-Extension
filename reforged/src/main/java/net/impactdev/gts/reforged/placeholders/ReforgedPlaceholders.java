@@ -1,6 +1,8 @@
 package net.impactdev.gts.reforged.placeholders;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.pixelmonmod.pixelmon.battles.attacks.Attack;
 import com.pixelmonmod.pixelmon.battles.attacks.specialAttacks.basic.HiddenPower;
 import com.pixelmonmod.pixelmon.config.PixelmonConfig;
 import com.pixelmonmod.pixelmon.entities.pixelmon.specs.UnbreedableFlag;
@@ -24,6 +26,7 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.placeholder.PlaceholderParser;
 
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -134,10 +137,10 @@ public class ReforgedPlaceholders {
                         "A Pokemon's " + type.getLocalizedName() + " " + stat.toUpperCase() + " Stat",
                         pokemon -> {
                             if(stat.equals("ev")) {
-                                return Text.of(pokemon.getStats().evs.get(type));
+                                return Text.of(pokemon.getStats().evs.getStat(type));
                             } else {
                                 boolean hyper = pokemon.getStats().ivs.isHyperTrained(type);
-                                Text result = Text.of(pokemon.getStats().ivs.get(type));
+                                Text result = Text.of(pokemon.getStats().ivs.getStat(type));
                                 if(hyper) {
                                     return Text.of(TextColors.AQUA, result);
                                 }
@@ -234,14 +237,34 @@ public class ReforgedPlaceholders {
                 "Amount of steps remaining for an egg",
                 pokemon -> {
                     if(pokemon.isEgg()) {
-                        int total = (pokemon.getBaseStats().eggCycles + 1) * PixelmonConfig.stepsPerEggCycle;
-                        int walked = pokemon.getEggSteps() + ((pokemon.getBaseStats().eggCycles - pokemon.getEggCycles()) * PixelmonConfig.stepsPerEggCycle);
+                        int total = (pokemon.getBaseStats().getEggCycles() + 1) * PixelmonConfig.stepsPerEggCycle;
+                        int walked = pokemon.getEggSteps() + ((pokemon.getBaseStats().getEggCycles() - pokemon.getEggCycles()) * PixelmonConfig.stepsPerEggCycle);
 
                         return Text.of(walked, "/", total);
                     }
 
                     return Text.EMPTY;
                 }
+        ));
+        for(int i = 0; i < 4; i++) {
+            final int index = i;
+            event.register(new PokemonPlaceholder(
+                    "move" + (i + 1),
+                    "Pokemon's Move at index: " + (i + 1),
+                    pokemon -> {
+                        Attack attack = pokemon.getMoveset().get(index);
+                        if(attack != null) {
+                            return Text.of(attack.getActualMove().getLocalizedName());
+                        } else {
+                            return Text.EMPTY;
+                        }
+                    }
+            ));
+        }
+        event.register(new PokemonPlaceholder(
+                "can_gmax",
+                "Pokemon G-Max Potential",
+                pokemon -> Text.of(pokemon.hasGigantamaxFactor())
         ));
     }
 

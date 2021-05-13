@@ -27,6 +27,7 @@ public enum ContextualDetails {
     }),
     EGG(ReforgedLangConfigKeys.EGG_INFO, Pokemon::isEgg),
     POKERUS(ReforgedLangConfigKeys.POKERUS, pokemon -> pokemon.getPokerus() != null && pokemon.getPokerus().type != EnumPokerusType.UNINFECTED),
+    GIGANTAMAX(ReforgedLangConfigKeys.GIGAMAX, Pokemon::canGigantamax)
     ;
 
     private ConfigKey<String> key;

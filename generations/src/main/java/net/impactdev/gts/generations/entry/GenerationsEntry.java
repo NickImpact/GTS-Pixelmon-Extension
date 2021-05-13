@@ -24,6 +24,7 @@ import net.impactdev.gts.generations.config.GenerationsConfigKeys;
 import net.impactdev.gts.generations.config.GenerationsLangConfigKeys;
 import net.impactdev.gts.generations.config.mappings.GenerationsPriceControls;
 import net.impactdev.gts.generations.converter.JObjectConverter;
+import net.impactdev.gts.generations.entry.description.ContextualDetails;
 import net.impactdev.gts.sponge.listings.makeup.SpongeDisplay;
 import net.impactdev.gts.sponge.listings.makeup.SpongeEntry;
 import net.impactdev.impactor.api.Impactor;
@@ -79,6 +80,7 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
 
         List<Text> lore = Lists.newArrayList();
         lore.addAll(service.parse(GTSSpongeGenerationsPlugin.getInstance().getMsgConfig().get(GenerationsLangConfigKeys.POKEMON_DETAILS), Lists.newArrayList(() -> this.pokemon)));
+        lore.addAll(ContextualDetails.receive(this.getOrCreateElement().getOrCreate()));
 
         ItemStack rep = ItemStack.builder()
                 .from(this.getPicture(this.pokemon.getOrCreate()))

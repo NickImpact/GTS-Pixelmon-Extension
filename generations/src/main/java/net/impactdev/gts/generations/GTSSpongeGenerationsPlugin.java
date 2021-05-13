@@ -14,7 +14,7 @@ import net.impactdev.gts.generations.entry.GenerationsEntry;
 import net.impactdev.gts.generations.entry.GenerationsListingSearcher;
 import net.impactdev.gts.generations.legacy.LegacyGenerationsPokemonDeserializer;
 import net.impactdev.gts.generations.manager.GenerationsPokemonDataManager;
-import net.impactdev.gts.generations.placeholders.GenerationsPlaceholder;
+import net.impactdev.gts.generations.placeholders.GenerationsPlaceholders;
 import net.impactdev.gts.generations.price.GenerationsPrice;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
@@ -134,7 +134,7 @@ public class GTSSpongeGenerationsPlugin implements Extension, ImpactorEventListe
 
     @Subscribe
     public void onPlaceholderRegistrationEvent(PlaceholderRegistryEvent<GameRegistryEvent.Register<PlaceholderParser>> event) {
-        GenerationsPlaceholder placeholders = new GenerationsPlaceholder();
+        GenerationsPlaceholders placeholders = new GenerationsPlaceholders();
         placeholders.register(event.getManager());
     }
 
