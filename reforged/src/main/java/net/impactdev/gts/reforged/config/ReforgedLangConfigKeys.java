@@ -52,7 +52,7 @@ public class ReforgedLangConfigKeys implements ConfigKeyHolder {
     public static final ConfigKey<String> LAKE_TRIO_ENCHANTS = stringKey("contextual.extras.lake-trio-enchants", "&7Enchanted &e{{gts-reforged:enchantments}} &7times");
     public static final ConfigKey<String> EGG_INFO = stringKey("contextual.egg-info", "&7Hatch Progress: &e{{gts-reforged:egg-steps}}");
     public static final ConfigKey<String> POKERUS = stringKey("contextual.pokerus", "&dInflicted with Pokerus");
-    public static final ConfigKey<String> GIGAMAX = stringKey("contextual.gigamax", "&eGigantamax Capable");
+    public static final ConfigKey<String> GIGAMAX = stringKey("contextual.gigamax", "&aGigantamax Capable");
 
     //------------------------------------------------------------------------------------------------------------------
     //

@@ -193,11 +193,7 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
     private ItemStack getPicture(Pokemon pokemon) {
         Calendar calendar = Calendar.getInstance();
-
-        boolean aprilFools = false;
-        if(calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
-            aprilFools = true;
-        }
+        boolean aprilFools = calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1;
 
         if(pokemon.isEgg()) {
             net.minecraft.item.ItemStack item = new net.minecraft.item.ItemStack(PixelmonItems.itemPixelmonSprite);
