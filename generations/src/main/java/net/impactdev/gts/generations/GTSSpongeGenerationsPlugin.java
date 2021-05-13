@@ -1,8 +1,10 @@
 package net.impactdev.gts.generations;
 
 import com.google.common.collect.Lists;
+import com.pixelmongenerations.core.Pixelmon;
 import net.impactdev.gts.api.GTSService;
 import net.impactdev.gts.api.commands.GTSCommandExecutor;
+import net.impactdev.gts.api.environment.Environment;
 import net.impactdev.gts.api.events.extension.PlaceholderRegistryEvent;
 import net.impactdev.gts.api.events.extension.PluginReloadEvent;
 import net.impactdev.gts.api.extension.Extension;
@@ -92,6 +94,11 @@ public class GTSSpongeGenerationsPlugin implements Extension, ImpactorEventListe
     @Override
     public Set<GTSCommandExecutor<?, ?>> getExecutors() {
         return Collections.EMPTY_SET;
+    }
+
+    @Override
+    public void getExtendedEnvironmentInformation(Environment environment) {
+        environment.append("Pixelmon Version", Pixelmon.VERSION);
     }
 
     @Override

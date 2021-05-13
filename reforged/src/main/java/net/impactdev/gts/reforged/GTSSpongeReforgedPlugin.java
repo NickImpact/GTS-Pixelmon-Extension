@@ -1,10 +1,11 @@
 package net.impactdev.gts.reforged;
 
 import com.google.common.collect.Lists;
+import com.pixelmonmod.pixelmon.Pixelmon;
 import com.pixelmonmod.pixelmon.config.RemapHandler;
 import net.impactdev.gts.api.commands.GTSCommandExecutor;
+import net.impactdev.gts.api.environment.Environment;
 import net.impactdev.gts.api.events.extension.PluginReloadEvent;
-import net.impactdev.gts.api.util.PrettyPrinter;
 import net.impactdev.gts.reforged.entry.ReforgedEntry;
 import net.impactdev.gts.reforged.entry.ReforgedListingSearcher;
 import net.impactdev.gts.reforged.price.ReforgedPrice;
@@ -33,7 +34,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.event.game.GameRegistryEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.placeholder.PlaceholderParser;
 
 import java.io.IOException;
@@ -95,7 +95,7 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
         GTSService.getInstance().getDataTranslatorManager().register(NBTTagCompound.class, in -> {
             String id = in.getString("ItemType");
             if((id.startsWith("pixelmon:tm") || id.startsWith("pixelmon:tr")) && !id.contains("gen")) {
-                ItemStack sponge = (ItemStack) (Object) RemapHandler.findNewTMFor(id);
+                ItemStack sponge = (ItemStack) (Object) RemapHandler.findNewTMFor(id, in.getInteger("Count"));
                 return Optional.of(NBTTranslator.getInstance().translate(sponge.toContainer()));
             }
 
@@ -116,6 +116,11 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
     @Override
     public Set<GTSCommandExecutor<?, ?>> getExecutors() {
         return Collections.EMPTY_SET;
+    }
+
+    @Override
+    public void getExtendedEnvironmentInformation(Environment environment) {
+        environment.append("Pixelmon Version", Pixelmon.VERSION);
     }
 
     @Override
