@@ -5,6 +5,9 @@ repositories {
         patternLayout {
             artifact "/[organisation]/[module]/release/[revision]/[ext]"
         }
+        metadataSources {
+            artifact()
+        }
     }
 
     maven {
@@ -18,7 +21,7 @@ dependencies {
     shadow project(":sponge")
 
     shadow 'net.impactdev.impactor:sponge:3.1.2'
-    compileOnly 'reforged:server:8.2.0@Pixelmon-1.12.2-8.2.0-server.jar'
+    shadow 'reforged:server:8.2.0@Pixelmon-1.12.2-8.2.0-server.jar'
     shadow 'org.spongepowered:spongeapi:7.3.0'
     shadow 'net.kyori:adventure-api:4.3.0'
     shadow 'net.kyori:adventure-text-serializer-legacy:4.3.0'
