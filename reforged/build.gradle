@@ -2,7 +2,7 @@ repositories {
     mavenCentral()
     ivy {
         url "https://download.nodecdn.net/containers"
-        layout "pattern", {
+        patternLayout {
             artifact "/[organisation]/[module]/release/[revision]/[ext]"
         }
     }
@@ -17,9 +17,8 @@ dependencies {
     shadow project(":api")
     shadow project(":sponge")
 
-    compile fileTree(dir: 'libs', include: '*.jar')
     shadow 'net.impactdev.impactor:sponge:3.1.2'
-    //shadow 'reforged:server:8.2.0@Pixelmon-1.12.2-8.2.0-server.jar'
+    compileOnly 'reforged:server:8.2.0@Pixelmon-1.12.2-8.2.0-server.jar'
     shadow 'org.spongepowered:spongeapi:7.3.0'
     shadow 'net.kyori:adventure-api:4.3.0'
     shadow 'net.kyori:adventure-text-serializer-legacy:4.3.0'
