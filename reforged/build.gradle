@@ -1,28 +1,3 @@
-buildscript {
-    repositories {
-        jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-    }
-}
-
-apply plugin: 'java'
-apply plugin: 'maven'
-apply plugin: 'net.minecraftforge.gradle.forge'
-
-minecraft {
-    version = "1.12.2-14.23.5.2838"
-    runDir = "run"
-    mappings = "snapshot_20171007"
-    useDepAts = true
-    makeObfSourceJar = false
-}
-
 repositories {
     mavenCentral()
     ivy {
@@ -42,8 +17,9 @@ dependencies {
     shadow project(":api")
     shadow project(":sponge")
 
+    compile fileTree(dir: 'libs', include: '*.jar')
     shadow 'net.impactdev.impactor:sponge:3.1.2'
-    shadow 'reforged:server:8.2.0@Pixelmon-1.12.2-8.2.0-server.jar'
+    //shadow 'reforged:server:8.2.0@Pixelmon-1.12.2-8.2.0-server.jar'
     shadow 'org.spongepowered:spongeapi:7.3.0'
     shadow 'net.kyori:adventure-api:4.3.0'
     shadow 'net.kyori:adventure-text-serializer-legacy:4.3.0'
@@ -57,19 +33,26 @@ dependencies {
 shadowJar {
     archiveName = "GTS-Extension-Reforged-${project.version}.jar"
 
+    dependencies {
+        include project(':api')
+        include project(':sponge')
+        include dependency('net.impactdev:pixelmonbridge:.*')
+        include dependency('net.impactdev.pixelmonbridge:reforged:.*')
+    }
+
     relocate ('net.impactdev.pixelmonbridge', 'net.impactdev.gts.relocations.pixelmonbridge')
     relocate ('net.kyori.adventure', 'net.impactdev.impactor.relocations.adventure')
     relocate ('net.kyori.examination', 'net.impactdev.impactor.relocations.examination')
+
+    exclude 'Pixelmon*.jar'
+    exclude '*wget*'
 }
 
-sourceMainJava.finalizedBy(blossomSourceReplacementJava)
 blossom {
-    blossomSourceReplacementJava.output = file("$buildDir/sources/main/java")
+    blossomSourceReplacementJava.output = file("$buildDir/sources/java")
     replaceToken '@version@', version
 }
 
 reobf {
-    shadowJar {
-        mappingType = 'SEARGE'
-    }
+    shadowJar {}
 }
