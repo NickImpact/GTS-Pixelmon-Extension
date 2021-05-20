@@ -45,6 +45,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -92,11 +93,12 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
 
         Impactor.getInstance().getEventBus().subscribe(this);
 
+        Pattern pattern = Pattern.compile("t[mr](8_)?([0-9]{1,3})");
         GTSService.getInstance().getDataTranslatorManager().register(NBTTagCompound.class, in -> {
             String id = in.getString("ItemType");
-            if((id.startsWith("pixelmon:tm") || id.startsWith("pixelmon:tr")) && !id.contains("gen")) {
+            if(pattern.matcher(id).find()) {
                 ItemStack sponge = (ItemStack) (Object) RemapHandler.findNewTMFor(id, in.getInteger("Count"));
-                return Optional.of(NBTTranslator.getInstance().translate(sponge.toContainer()));
+                return Optional.ofNullable(sponge).map(item -> NBTTranslator.getInstance().translate(item.toContainer()));
             }
 
             return Optional.empty();
