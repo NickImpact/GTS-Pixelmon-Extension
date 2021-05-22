@@ -254,6 +254,10 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
                     return false;
                 }
             }
+            
+            if (pokemon.hasSpecFlag( "untradeable" )) {
+                return false;
+            }
 
             return pokemon.getSpecies().equals(this.species) &&
                     pokemon.getSpecies().getFormEnum(pokemon.getForm()).equals(this.species.getFormEnum(this.form)) &&
