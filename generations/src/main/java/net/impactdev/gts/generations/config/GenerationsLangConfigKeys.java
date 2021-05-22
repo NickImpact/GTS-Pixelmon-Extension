@@ -48,9 +48,9 @@ public class GenerationsLangConfigKeys implements ConfigKeyHolder {
     public static final ConfigKey<String> ABILITY = stringKey("ability.normal", "%ability%");
     public static final ConfigKey<String> ABILITY_HIDDEN = stringKey("ability.hidden", "%ability% &7(&6HA&7)");
 
-    public static final ConfigKey<String> MEW_CLONES = stringKey("contextual.extras.mew-clones", "&7Cloned &e{{gts-reforged:clones}} &7times");
-    public static final ConfigKey<String> LAKE_TRIO_ENCHANTS = stringKey("contextual.extras.lake-trio-enchants", "&7Enchanted &e{{gts-reforged:enchantments}} &7times");
-    public static final ConfigKey<String> EGG_INFO = stringKey("contextual.egg-info", "&7Hatch Progress: &e{{gts-reforged:egg-steps}}");
+    public static final ConfigKey<String> MEW_CLONES = stringKey("contextual.extras.mew-clones", "&7Cloned &e{{gts-generations:clones}} &7times");
+    public static final ConfigKey<String> LAKE_TRIO_ENCHANTS = stringKey("contextual.extras.lake-trio-enchants", "&7Enchanted &e{{gts-generations:enchantments}} &7times");
+    public static final ConfigKey<String> EGG_INFO = stringKey("contextual.egg-info", "&7Hatch Progress: &e{{gts-generations:egg-steps}}");
     public static final ConfigKey<String> POKERUS = stringKey("contextual.pokerus", "&dInflicted with Pokerus");
     public static final ConfigKey<String> GIGAMAX = stringKey("contextual.gigamax", "&eGigantamax Capable");
 
