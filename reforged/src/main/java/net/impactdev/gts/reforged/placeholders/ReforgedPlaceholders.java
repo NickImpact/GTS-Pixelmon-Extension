@@ -196,9 +196,16 @@ public class ReforgedPlaceholders {
         event.register(new PokemonPlaceholder(
                 "texture",
                 "A Pokemon's Custom Texture",
-                pokemon -> Optional.ofNullable(pokemon.getCustomTexture())
-                        .map(Text::of)
-                        .orElse(Text.of("N/A"))
+                pokemon -> {
+                    String texture = pokemon.getCustomTexture();
+                    if (!texture.isEmpty()) {
+                        String firstChar = String.valueOf(texture.charAt(0)).toUpperCase();
+                        String subTexture = texture.substring(1);
+                        return Text.of(firstChar+subTexture);
+                    }
+                    return Text.of("N/A");
+                }
+
         ));
         event.register(new PokemonPlaceholder(
                 "clones",
