@@ -97,15 +97,19 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
     @Override
     public boolean give(UUID receiver) {
-        PlayerPartyStorage storage = Pixelmon.storageManager.getParty(receiver);
-        if(!storage.hasSpace()) {
-            PCStorage pc = Pixelmon.storageManager.getPCForPlayer(receiver);
-            if(!pc.hasSpace()) {
-                return false;
+        if(Sponge.getServer().getPlayer(receiver).isPresent()) {
+            PlayerPartyStorage storage = Pixelmon.storageManager.getParty(receiver);
+            if (!storage.hasSpace()) {
+                PCStorage pc = Pixelmon.storageManager.getPCForPlayer(receiver);
+                if (!pc.hasSpace()) {
+                    return false;
+                }
             }
+
+            return storage.add(this.pokemon.getOrCreate());
         }
 
-        return storage.add(this.pokemon.getOrCreate());
+        return false;
     }
 
     @Override

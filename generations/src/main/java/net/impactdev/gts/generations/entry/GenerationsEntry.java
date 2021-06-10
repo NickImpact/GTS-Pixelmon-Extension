@@ -1,6 +1,7 @@
 package net.impactdev.gts.generations.entry;
 
 import com.google.common.collect.Lists;
+import com.pixelmongenerations.api.pokemon.specs.UntradeableSpec;
 import com.pixelmongenerations.common.battle.BattleRegistry;
 import com.pixelmongenerations.common.entity.pixelmon.EntityPixelmon;
 import com.pixelmongenerations.common.item.ItemPixelmonSprite;
@@ -25,6 +26,7 @@ import net.impactdev.gts.generations.config.GenerationsLangConfigKeys;
 import net.impactdev.gts.generations.config.mappings.GenerationsPriceControls;
 import net.impactdev.gts.generations.converter.JObjectConverter;
 import net.impactdev.gts.generations.entry.description.ContextualDetails;
+import net.impactdev.gts.generations.flags.GenerationsSpecFlags;
 import net.impactdev.gts.sponge.listings.makeup.SpongeDisplay;
 import net.impactdev.gts.sponge.listings.makeup.SpongeEntry;
 import net.impactdev.impactor.api.Impactor;
@@ -95,8 +97,12 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
 
     @Override
     public boolean give(UUID receiver) {
-        PixelmonStorage.pokeBallManager.getPlayerStorageFromUUID(receiver).get().addToParty(this.pokemon.getOrCreate());
-        return true;
+        if(Sponge.getServer().getPlayer(receiver).isPresent()) {
+            PixelmonStorage.pokeBallManager.getPlayerStorageFromUUID(receiver).get().addToParty(this.pokemon.getOrCreate());
+            return true;
+        }
+
+        return false;
     }
 
     @Override
@@ -118,6 +124,11 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
                 .isBlacklisted(EnumSpecies.class, this.pokemon.getOrCreate().getSpecies().name);
         if(blacklisted) {
             user.ifPresent(player -> player.sendMessages(parser.parse(mainLang.get(MsgConfigKeys.GENERAL_FEEDBACK_BLACKLISTED))));
+            return false;
+        }
+
+        if(GenerationsSpecFlags.UNTRADABLE.matches(this.getOrCreateElement().getOrCreate())) {
+            user.ifPresent(player -> player.sendMessages(parser.parse(gensLang.get(GenerationsLangConfigKeys.ERROR_UNTRADEABLE))));
             return false;
         }
 

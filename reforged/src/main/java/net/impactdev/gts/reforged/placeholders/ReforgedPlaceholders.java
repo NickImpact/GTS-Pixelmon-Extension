@@ -1,7 +1,6 @@
 package net.impactdev.gts.reforged.placeholders;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.pixelmonmod.pixelmon.battles.attacks.Attack;
 import com.pixelmonmod.pixelmon.battles.attacks.specialAttacks.basic.HiddenPower;
 import com.pixelmonmod.pixelmon.config.PixelmonConfig;
@@ -26,7 +25,6 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.placeholder.PlaceholderParser;
 
 import java.text.DecimalFormat;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
