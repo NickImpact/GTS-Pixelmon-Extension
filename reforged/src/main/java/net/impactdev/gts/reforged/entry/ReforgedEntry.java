@@ -125,6 +125,13 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
             user.ifPresent(player -> player.sendMessages(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_IN_BATTLE))));
             return false;
         }
+        
+        if (pokemon.getOrCreate().isEgg()) {
+             if (!GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(ReforgedConfigKeys.ALLOW_EGG_BASE)) {
+                 user.ifPresent( player -> player.sendMessage(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_ISEGG))));
+                 return false;
+             }
+         }
 
         if(ReforgedSpecFlags.UNTRADABLE.matches(this.getOrCreateElement().getOrCreate())) {
             user.ifPresent(player -> player.sendMessages(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_UNTRADEABLE))));
