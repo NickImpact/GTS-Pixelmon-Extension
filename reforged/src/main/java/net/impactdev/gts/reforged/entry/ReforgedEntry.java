@@ -285,6 +285,13 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
             return current;
         }),
+        CUSTOM_TEXTURE(ReforgedConfigKeys.MIN_PRICING_TEXTURE_ENABLED, ReforgedConfigKeys.MIN_PRICING_TEXTURE_PRICE, (pokemon, key, current) -> {
+            if(!pokemon.getCustomTexture().isEmpty() && pokemon.getCustomTexture() != null) {
+                return GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(key) + current;
+            }
+
+            return current;
+        }),
         HIDDEN_ABILITY(ReforgedConfigKeys.MIN_PRICING_HA_ENABLED, ReforgedConfigKeys.MIN_PRICING_HA_PRICE, (pokemon, key, current) -> {
             if(pokemon.getAbilitySlot() == 2) {
                 return GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(key) + current;
