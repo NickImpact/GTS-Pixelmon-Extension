@@ -73,7 +73,11 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
     @Override
     public TextComponent getDescription() {
-        return this.getName();
+        TextComponent.Builder builder = Component.text();
+        if (this.pokemon.getOrCreate().isShiny()) {
+             builder.append(Component.text("Shiny ", NamedTextColor.GOLD));
+        }
+        return builder.append( this.getName()).build();
     }
 
     @Override
