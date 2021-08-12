@@ -92,6 +92,7 @@ public class ReforgedLangConfigKeys implements ConfigKeyHolder {
             "&eClick to set requested form!"
     ));
 
+    public static ConfigKey<String> POKEMON_SHINY_DETAILS_LABEL = stringKey("general.details.shiny", "&6Shiny");
     public static final ConfigKey<String> ERROR_UNTRADEABLE = stringKey("general.errors.untradeable", "{{gts:error}} That pokemon is marked as &cuntradeable&7, and cannot be sold...");
     public static final ConfigKey<String> ERROR_IN_BATTLE = stringKey("general.errors.in-battle", "{{gts:error}} You are in battle, so you can't sell any pokemon currently...");
      public static final ConfigKey<String> ERROR_ISEGG = stringKey("general.errors.isegg", "{{gts:error}} &cEggs&7 cannot be sold at this time...");
