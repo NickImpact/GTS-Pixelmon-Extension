@@ -73,9 +73,10 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
     @Override
     public TextComponent getDescription() {
+        final MessageService<Text> parser = Impactor.getInstance().getRegistry().get(MessageService.class);
         TextComponent.Builder builder = Component.text();
         if (this.pokemon.getOrCreate().isShiny()) {
-             builder.append(Component.text("Shiny ", NamedTextColor.GOLD));
+             builder.append(Utilities.toComponent(parser.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig().get(ReforgedLangConfigKeys.POKEMON_SHINY_DETAILS_LABEL) + " ")));
         }
         return builder.append( this.getName()).build();
     }
