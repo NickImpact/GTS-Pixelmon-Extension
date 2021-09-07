@@ -74,7 +74,12 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
     @Override
     public TextComponent getDescription() {
-        return this.getName();
+        final MessageService<Text> parser = Impactor.getInstance().getRegistry().get(MessageService.class);
+        TextComponent.Builder builder = Component.text();
+        if (this.pokemon.getOrCreate().isShiny()) {
+             builder.append(Utilities.toComponent(parser.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig().get(ReforgedLangConfigKeys.POKEMON_SHINY_DETAILS_LABEL) + " ")));
+        }
+        return builder.append( this.getName()).build();
     }
 
     @Override
@@ -129,6 +134,13 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
             user.ifPresent(player -> player.sendMessages(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_IN_BATTLE))));
             return false;
         }
+        
+        if (pokemon.getOrCreate().isEgg()) {
+             if (!GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(ReforgedConfigKeys.ALLOW_EGG_BASE)) {
+                 user.ifPresent( player -> player.sendMessage(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_ISEGG))));
+                 return false;
+             }
+         }
 
         if(ReforgedSpecFlags.UNTRADABLE.matches(this.getOrCreateElement().getOrCreate())) {
             user.ifPresent(player -> player.sendMessages(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_UNTRADEABLE))));
@@ -277,6 +289,13 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
         }),
         SHINY(ReforgedConfigKeys.MIN_PRICING_SHINY_ENABLED, ReforgedConfigKeys.MIN_PRICING_SHINY_PRICE, (pokemon, key, current) -> {
             if(pokemon.isShiny()) {
+                return GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(key) + current;
+            }
+
+            return current;
+        }),
+        CUSTOM_TEXTURE(ReforgedConfigKeys.MIN_PRICING_TEXTURE_ENABLED, ReforgedConfigKeys.MIN_PRICING_TEXTURE_PRICE, (pokemon, key, current) -> {
+            if(!pokemon.getCustomTexture().isEmpty() && pokemon.getCustomTexture() != null) {
                 return GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(key) + current;
             }
 

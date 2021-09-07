@@ -31,6 +31,8 @@ public class ReforgedConfigKeys implements ConfigKeyHolder {
         }
         return controller;
     });
+    
+    public static final ConfigKey<Boolean> ALLOW_EGG_BASE = booleanKey("listing-control.allow-eggs", true);
 
     public static final ConfigKey<Boolean> MIN_PRICING_USE_CUSTOM_BASE = booleanKey("price-controls.minimum.use-custom-minimum", false);
     public static final ConfigKey<Double> MIN_PRICING_CUSTOM_BASE = doubleKey("price-controls.minimum.custom-minimum", 2500);
