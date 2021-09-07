@@ -50,6 +50,9 @@ public class ReforgedConfigKeys implements ConfigKeyHolder {
     public static final ConfigKey<Boolean> MIN_PRICING_SHINY_ENABLED = booleanKey("price-controls.minimum.shiny.enabled", true);
     public static final ConfigKey<Double> MIN_PRICING_SHINY_PRICE = doubleKey("price-controls.minimum.shiny.price", 5000);
 
+    public static final ConfigKey<Boolean> MIN_PRICING_TEXTURE_ENABLED = booleanKey("price-controls.minimum.texture.enabled", true);
+    public static final ConfigKey<Double> MIN_PRICING_TEXTURE_PRICE = doubleKey("price-controls.minimum.texture.price", 5000);
+
     private static final Map<String, ConfigKey<?>> KEYS;
     private static final int SIZE;
 
