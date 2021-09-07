@@ -16,7 +16,7 @@ dependencies {
 
     minecraft "net.minecraftforge:forge:1.12.2-14.23.5.2855"
 
-    shadow 'com.pixelmongenerations:main-mod:8.4.2'
+    shadow 'com.pixelmongenerations:main-mod:8.5.0'
     shadow 'org.spongepowered:spongeapi:7.3.0'
     shadow 'net.kyori:adventure-api:4.3.0'
     shadow 'net.kyori:adventure-text-serializer-legacy:4.3.0'

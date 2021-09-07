@@ -7,6 +7,7 @@ import com.pixelmonmod.pixelmon.config.PixelmonItems;
 import com.pixelmonmod.pixelmon.enums.EnumSpecies;
 import com.pixelmonmod.pixelmon.items.ItemPixelmonSprite;
 import com.pixelmonmod.pixelmon.storage.NbtKeys;
+import com.pixelmonmod.pixelmon.storage.PlayerPartyStorage;
 import net.impactdev.gts.api.blacklist.Blacklist;
 import net.impactdev.gts.api.listings.ui.EntrySelection;
 import net.impactdev.gts.common.config.ConfigKeys;
@@ -75,6 +76,9 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.C
 
         builder.slot(this.createNoneChosenIcon(), 13);
 
+        PlayerPartyStorage party = Pixelmon.storageManager.getParty(this.viewer.getUniqueId());
+        party.retrieveAll();
+
         AtomicInteger index = new AtomicInteger(28);
         Runnable increment = () -> {
             index.incrementAndGet();
@@ -82,7 +86,7 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.C
                 index.getAndIncrement();
             }
         };
-        for(Pokemon pokemon : Pixelmon.storageManager.getParty(this.viewer.getUniqueId()).getAll()) {
+        for(Pokemon pokemon : party.getAll()) {
             if(pokemon == null) {
                 increment.run();
                 continue;
@@ -166,7 +170,6 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.C
     private SpongeIcon createIconForPokemon(ReforgedPokemon pokemon, boolean click) {
         Config mainLang = GTSPlugin.getInstance().getMsgConfig();
         MessageService<Text> parser = Impactor.getInstance().getRegistry().get(MessageService.class);
-
 
         ItemStack item = ItemStack.builder()
                 .fromItemStack(this.getPicture(pokemon.getOrCreate()))

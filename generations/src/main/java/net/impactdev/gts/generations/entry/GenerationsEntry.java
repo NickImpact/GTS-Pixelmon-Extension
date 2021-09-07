@@ -56,6 +56,7 @@ import java.util.stream.Collectors;
 public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements PriceControlled {
 
     private GenerationsPokemon pokemon;
+    private transient Display<ItemStack> display;
 
     public GenerationsEntry(GenerationsPokemon pokemon) {
         this.pokemon = pokemon;
@@ -78,21 +79,24 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
 
     @Override
     public Display<ItemStack> getDisplay(UUID viewer, Listing listing) {
-        final MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
+        if(this.display == null) {
+            final MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
 
-        List<Text> lore = Lists.newArrayList();
-        lore.addAll(service.parse(GTSSpongeGenerationsPlugin.getInstance().getMsgConfig().get(GenerationsLangConfigKeys.POKEMON_DETAILS), Lists.newArrayList(() -> this.pokemon)));
-        lore.addAll(ContextualDetails.receive(this.getOrCreateElement().getOrCreate()));
+            List<Text> lore = Lists.newArrayList();
+            lore.addAll(service.parse(GTSSpongeGenerationsPlugin.getInstance().getMsgConfig().get(GenerationsLangConfigKeys.POKEMON_DETAILS), Lists.newArrayList(() -> this.pokemon)));
+            lore.addAll(ContextualDetails.receive(this.getOrCreateElement().getOrCreate()));
 
-        ItemStack rep = ItemStack.builder()
-                .from(this.getPicture(this.pokemon.getOrCreate()))
-                .add(Keys.DISPLAY_NAME, service.parse(GTSSpongeGenerationsPlugin.getInstance().getMsgConfig()
-                        .get(GenerationsLangConfigKeys.POKEMON_TITLE), Lists.newArrayList(() -> this.pokemon))
-                )
-                .add(Keys.ITEM_LORE, lore)
-                .build();
+            ItemStack rep = ItemStack.builder()
+                    .from(getPicture(this.pokemon.getOrCreate()))
+                    .add(Keys.DISPLAY_NAME, service.parse(GTSSpongeGenerationsPlugin.getInstance().getMsgConfig()
+                            .get(GenerationsLangConfigKeys.POKEMON_TITLE), Lists.newArrayList(() -> this.pokemon))
+                    )
+                    .add(Keys.ITEM_LORE, lore)
+                    .build();
+            this.display = new SpongeDisplay(rep);
+        }
 
-        return new SpongeDisplay(rep);
+        return this.display;
     }
 
     @Override
@@ -134,7 +138,7 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
 
         // Check party size. Ensure we aren't less than 1 because who knows whether Reforged or another plugin
         // will break something
-        if(party.getTeam().size() <= 1) {
+        if(party.getTeam().size() <= 1 && !this.pokemon.getOrCreate().isEgg) {
             user.ifPresent(player -> player.sendMessages(parser.parse(gensLang.get(GenerationsLangConfigKeys.ERROR_LAST_ABLE_MEMBER))));
             return false;
         }
@@ -225,13 +229,10 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
         ));
     }
 
-    private ItemStack getPicture(EntityPixelmon pokemon) {
+    public static ItemStack getPicture(EntityPixelmon pokemon) {
         Calendar calendar = Calendar.getInstance();
 
-        boolean aprilFools = false;
-        if(calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
-            aprilFools = true;
-        }
+        boolean aprilFools = calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1;
 
         if(pokemon.isEgg) {
             net.minecraft.item.ItemStack item = new net.minecraft.item.ItemStack(PixelmonItems.itemPixelmonSprite);

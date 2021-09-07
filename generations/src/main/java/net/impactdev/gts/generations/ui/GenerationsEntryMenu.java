@@ -153,9 +153,8 @@ public class GenerationsEntryMenu extends AbstractSpongeEntryUI<GenerationsEntry
         Config mainLang = GTSPlugin.getInstance().getMsgConfig();
         MessageService<Text> parser = Impactor.getInstance().getRegistry().get(MessageService.class);
 
-        net.minecraft.item.ItemStack forgeItem = ItemPixelmonSprite.getPhoto(pokemon.getOrCreate());
         ItemStack item = ItemStack.builder()
-                .fromItemStack((ItemStack) (Object) forgeItem)
+                .fromItemStack(GenerationsEntry.getPicture(pokemon.getOrCreate()))
                 .add(Keys.DISPLAY_NAME, PARSER.parse(GTSSpongeGenerationsPlugin.getInstance().getMsgConfig()
                         .get(GenerationsLangConfigKeys.POKEMON_TITLE), Lists.newArrayList(() -> pokemon)))
                 .add(Keys.ITEM_LORE, PARSER.parse(GTSSpongeGenerationsPlugin.getInstance().getMsgConfig()

@@ -56,6 +56,7 @@ import java.util.stream.Collectors;
 public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements PriceControlled {
 
     public ReforgedPokemon pokemon;
+    private transient Display<ItemStack> display;
 
     public ReforgedEntry(ReforgedPokemon pokemon) {
         this.pokemon = pokemon;
@@ -78,21 +79,24 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
     @Override
     public Display<ItemStack> getDisplay(UUID viewer, Listing listing) {
-        final MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
+        if(this.display == null) {
+            final MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
 
-        List<Text> lore = Lists.newArrayList();
-        lore.addAll(service.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig().get(ReforgedLangConfigKeys.POKEMON_DETAILS), Lists.newArrayList(() -> this.pokemon)));
-        lore.addAll(ContextualDetails.receive(this.getOrCreateElement().getOrCreate()));
+            List<Text> lore = Lists.newArrayList();
+            lore.addAll(service.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig().get(ReforgedLangConfigKeys.POKEMON_DETAILS), Lists.newArrayList(() -> this.pokemon)));
+            lore.addAll(ContextualDetails.receive(this.getOrCreateElement().getOrCreate()));
 
-        ItemStack rep = ItemStack.builder()
-                .from(this.getPicture(this.pokemon.getOrCreate()))
-                .add(Keys.DISPLAY_NAME, service.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig()
-                        .get(ReforgedLangConfigKeys.POKEMON_TITLE), Lists.newArrayList(() -> this.pokemon))
-                )
-                .add(Keys.ITEM_LORE, lore)
-                .build();
+            ItemStack rep = ItemStack.builder()
+                    .from(this.getPicture(this.pokemon.getOrCreate()))
+                    .add(Keys.DISPLAY_NAME, service.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig()
+                            .get(ReforgedLangConfigKeys.POKEMON_TITLE), Lists.newArrayList(() -> this.pokemon))
+                    )
+                    .add(Keys.ITEM_LORE, lore)
+                    .build();
+            this.display = new SpongeDisplay(rep);
+        }
 
-        return new SpongeDisplay(rep);
+        return this.display;
     }
 
     @Override
