@@ -23,8 +23,8 @@ public class ReforgedConfigKeys implements ConfigKeyHolder {
         for(String key : adapter.getKeys("price-controls.overrides", Lists.newArrayList())) {
             Optional<EnumSpecies> species = EnumSpecies.getFromName(key);
             if(species.isPresent()) {
-                double min = adapter.getDouble("price-controls.overrides" + key + ".min", -1);
-                double max = adapter.getDouble("price-controls.overrides" + key + ".max", -1);
+                double min = adapter.getDouble("price-controls.overrides." + key + ".min", -1);
+                double max = adapter.getDouble("price-controls.overrides." + key + ".max", -1);
 
                 controller.createFor(species.get(), min, max);
             }
