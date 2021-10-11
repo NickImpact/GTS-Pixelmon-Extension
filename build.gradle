@@ -14,7 +14,7 @@ subprojects {
         shadow project(":api")
         shadow project(":common")
         shadow "net.impactdev.impactor:api:3.1.2"
-        shadow 'net.impactdev:pixelmonbridge:1.0.2'
+        shadow 'net.impactdev:pixelmonbridge:1.0.3-SNAPSHOT'
         testCompile group: 'junit', name: 'junit', version: '4.12'
     }
 }

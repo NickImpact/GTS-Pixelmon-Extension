@@ -122,7 +122,7 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
 
     @Override
     public void getExtendedEnvironmentInformation(Environment environment) {
-        environment.append("Pixelmon Version", Pixelmon.VERSION);
+        environment.append("Pixelmon Version", Pixelmon.getVersion());
     }
 
     @Override

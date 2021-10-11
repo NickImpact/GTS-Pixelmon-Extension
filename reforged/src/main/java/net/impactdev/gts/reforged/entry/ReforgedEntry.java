@@ -5,6 +5,7 @@ import com.pixelmonmod.pixelmon.api.pokemon.PokemonSpec;
 import com.pixelmonmod.pixelmon.api.storage.PCStorage;
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.extraStats.MiniorStats;
 import net.impactdev.gts.api.listings.prices.PriceControlled;
+import net.impactdev.gts.api.util.PrettyPrinter;
 import net.impactdev.gts.api.util.TriFunction;
 import net.impactdev.gts.common.config.ConfigKeys;
 import net.impactdev.gts.common.config.MsgConfigKeys;
@@ -36,6 +37,7 @@ import net.impactdev.gts.reforged.GTSSpongeReforgedPlugin;
 import net.impactdev.gts.reforged.config.ReforgedLangConfigKeys;
 import net.impactdev.gts.reforged.converter.JObjectConverter;
 import net.impactdev.gts.sponge.listings.makeup.SpongeDisplay;
+import net.impactdev.pixelmonbridge.details.SpecKey;
 import net.impactdev.pixelmonbridge.details.SpecKeys;
 import net.impactdev.pixelmonbridge.reforged.ReforgedPokemon;
 import net.kyori.adventure.text.Component;
@@ -136,7 +138,7 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
             return false;
         }
         
-        if (pokemon.getOrCreate().isEgg()) {
+        if (this.pokemon.getOrCreate().isEgg()) {
              if (!GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(ReforgedConfigKeys.ALLOW_EGG_BASE)) {
                  user.ifPresent( player -> player.sendMessage(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_ISEGG))));
                  return false;
