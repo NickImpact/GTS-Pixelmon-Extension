@@ -52,6 +52,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Represents a pokemon compatible with Generations.
+ *
+ * NOTE: The "reforged-pokemon" tag is intentional here. This is a legacy flag for helping data conversion
+ * on data that was tagged in a manner that caused cross-conversion to be much more complicated. New versions
+ * don't have this issue, but the tag remains as a fallback for any possible old datasets.
+ */
 @GTSKeyMarker({"pokemon", "reforged-pokemon"})
 public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements PriceControlled {
 
@@ -78,7 +85,7 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
     }
 
     @Override
-    public Display<ItemStack> getDisplay(UUID viewer, Listing listing) {
+    public Display<ItemStack> getDisplay(UUID viewer) {
         if(this.display == null) {
             final MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
 

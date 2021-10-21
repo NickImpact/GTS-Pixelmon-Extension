@@ -86,7 +86,7 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
     }
 
     @Override
-    public Display<ItemStack> getDisplay(UUID viewer, Listing listing) {
+    public Display<ItemStack> getDisplay(UUID viewer) {
         if(this.display == null) {
             final MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
 
