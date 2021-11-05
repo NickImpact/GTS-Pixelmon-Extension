@@ -284,7 +284,7 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
     private enum MinimumPriceCalculator {
         LEGENDARY(ReforgedConfigKeys.MIN_PRICING_LEGEND_ENABLED, ReforgedConfigKeys.MIN_PRICING_LEGEND_PRICE, (pokemon, key, current) -> {
-            if(EnumSpecies.legendaries.contains(pokemon.getSpecies().getPokemonName())) {
+            if(EnumSpecies.legendaries.toString().contains(pokemon.getSpecies().getPokemonName())) {
                 return GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(key) + current;
             }
 
