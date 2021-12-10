@@ -20,11 +20,13 @@ dependencies {
     shadow project(":api")
     shadow project(":sponge")
 
+    compile fileTree(dir: 'libs', include: '*.jar')
+
     shadow 'net.impactdev.impactor:sponge:3.1.2'
-    shadow 'reforged:server:8.3.1@Pixelmon-1.12.2-8.3.1-server.jar'
+    shadow 'reforged:server:8.3.4@Pixelmon-1.12.2-8.3.4-server.jar'
     shadow 'org.spongepowered:spongeapi:7.3.0'
-    shadow 'net.kyori:adventure-api:4.9.2'
-    shadow 'net.kyori:adventure-text-serializer-legacy:4.9.2'
+    shadow 'net.kyori:adventure-api:4.9.3'
+    shadow 'net.kyori:adventure-text-serializer-legacy:4.9.3'
 
     compile 'net.impactdev:pixelmonbridge:1.0.3-SNAPSHOT'
     compile 'net.impactdev.pixelmonbridge:reforged:1.0.3-SNAPSHOT'
