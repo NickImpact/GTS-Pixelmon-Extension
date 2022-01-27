@@ -8,10 +8,10 @@ import com.pixelmongenerations.common.entity.pixelmon.EntityPixelmon;
 import com.pixelmongenerations.common.item.ItemPixelmonSprite;
 import com.pixelmongenerations.core.enums.EnumSpecies;
 import com.pixelmongenerations.core.enums.forms.IEnumForm;
-import com.pixelmongenerations.core.storage.ComputerBox;
 import com.pixelmongenerations.core.storage.PixelmonStorage;
 import com.pixelmongenerations.core.storage.PlayerComputerStorage;
 import com.pixelmongenerations.core.storage.PlayerStorage;
+import net.impactdev.gts.api.commands.CommandGenerator;
 import net.impactdev.gts.api.data.registry.GTSKeyMarker;
 import net.impactdev.gts.api.listings.makeup.Display;
 import net.impactdev.gts.api.listings.prices.Price;
@@ -34,7 +34,6 @@ import net.impactdev.pixelmonbridge.generations.GenerationsPokemon;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.spongepowered.api.data.key.Keys;
@@ -215,10 +214,9 @@ public class GenerationsPrice implements SpongePrice<GenerationsPrice.PokemonPri
     public static ItemStack getPicture(EnumSpecies species, IEnumForm form) {
         Calendar calendar = Calendar.getInstance();
 
-        boolean aprilFools = false;
-        if(calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
-            aprilFools = true;
-        }
+        boolean aprilFools = (calendar.get(Calendar.MONTH) == Calendar.APRIL || calendar.get(Calendar.MONTH) == Calendar.JULY)
+                && calendar.get(Calendar.DAY_OF_MONTH) == 1;
+
         EntityPixelmon tmp = new PokemonSpec(species.name, form.getFormSuffix()).create(FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld());
         return (ItemStack) (Object) (ItemPixelmonSprite.getPhoto(
                 aprilFools ? new PokemonSpec(EnumSpecies.Bidoof.name).create(FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld()) : tmp
@@ -290,6 +288,11 @@ public class GenerationsPrice implements SpongePrice<GenerationsPrice.PokemonPri
 
             PriceSelectorUI<U> selector = (PriceSelectorUI<U>) new GenerationsPriceSelector(viewer, ((GenerationsPrice) price).price, callback);
             return Optional.of(selector);
+        }
+
+        @Override
+        public CommandGenerator.PriceGenerator<? extends Price<?, ?, ?>> getPriceCommandCreator() {
+            return null;
         }
 
         @Override

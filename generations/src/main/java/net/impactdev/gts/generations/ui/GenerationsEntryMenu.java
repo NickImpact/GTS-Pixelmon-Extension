@@ -13,6 +13,7 @@ import net.impactdev.gts.common.plugin.GTSPlugin;
 import net.impactdev.gts.common.ui.Historical;
 import net.impactdev.gts.generations.GTSSpongeGenerationsPlugin;
 import net.impactdev.gts.generations.config.GenerationsLangConfigKeys;
+import net.impactdev.gts.generations.entry.ChosenGenerationsEntry;
 import net.impactdev.gts.generations.entry.GenerationsEntry;
 import net.impactdev.gts.sponge.listings.makeup.SpongeEntry;
 import net.impactdev.gts.sponge.listings.ui.AbstractSpongeEntryUI;
@@ -43,7 +44,7 @@ import java.util.function.Supplier;
 import static net.impactdev.gts.sponge.utils.Utilities.PARSER;
 import static net.impactdev.gts.sponge.utils.Utilities.readMessageConfigOption;
 
-public class GenerationsEntryMenu extends AbstractSpongeEntryUI<GenerationsEntryMenu.Chosen> implements Historical<SpongeMainPageProvider> {
+public class GenerationsEntryMenu extends AbstractSpongeEntryUI<ChosenGenerationsEntry> implements Historical<SpongeMainPageProvider> {
 
     public GenerationsEntryMenu(Player viewer) {
         super(viewer);
@@ -111,7 +112,7 @@ public class GenerationsEntryMenu extends AbstractSpongeEntryUI<GenerationsEntry
         builder.slot(back, 45);
 
         builder.slot(this.createPriceIcon(), 47);
-        builder.slot(GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.BINS_ENABLED).get() ? this.createBINIcon() : this.createAuctionIcon(), 49);
+        builder.slot(GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.BINS_ENABLED) ? this.createBINIcon() : this.createAuctionIcon(), 49);
         builder.slot(this.createTimeIcon(), 51);
         builder.slot(this.generateWaitingIcon(false), 53);
 
@@ -121,6 +122,11 @@ public class GenerationsEntryMenu extends AbstractSpongeEntryUI<GenerationsEntry
     @Override
     protected EntrySelection<? extends SpongeEntry<?>> getSelection() {
         return this.chosen;
+    }
+
+    @Override
+    protected int getChosenSlot() {
+        return 13;
     }
 
     @Override
@@ -139,13 +145,18 @@ public class GenerationsEntryMenu extends AbstractSpongeEntryUI<GenerationsEntry
     }
 
     @Override
-    protected double getMinimumMonetaryPrice(Chosen chosen) {
+    protected int getConfirmSlot() {
+        return 53;
+    }
+
+    @Override
+    protected double getMinimumMonetaryPrice(ChosenGenerationsEntry chosen) {
         return new GenerationsEntry(chosen.getSelection()).getMin();
     }
 
     @Override
     public SpongeIcon createChosenIcon() {
-        return this.createIconForPokemon(this.chosen.selection, false);
+        return this.createIconForPokemon(this.chosen.getSelection(), false);
     }
 
 
@@ -170,7 +181,7 @@ public class GenerationsEntryMenu extends AbstractSpongeEntryUI<GenerationsEntry
                     return;
                 }
 
-                this.setChosen(new Chosen(pokemon));
+                this.setChosen(new ChosenGenerationsEntry(pokemon));
                 this.getDisplay().setSlot(13, this.createChosenIcon());
                 this.getDisplay().setSlot(this.getPriceSlot(), this.createPriceIcon());
                 this.getDisplay().setSlot(53, this.generateConfirmIcon());
@@ -180,23 +191,6 @@ public class GenerationsEntryMenu extends AbstractSpongeEntryUI<GenerationsEntry
         return icon;
     }
 
-    protected static class Chosen implements EntrySelection<GenerationsEntry> {
 
-        private final GenerationsPokemon selection;
-
-        public Chosen(GenerationsPokemon selection) {
-            this.selection = selection;
-        }
-
-        public GenerationsPokemon getSelection() {
-            return this.selection;
-        }
-
-        @Override
-        public GenerationsEntry createFromSelection() {
-            return new GenerationsEntry(this.selection);
-        }
-
-    }
 
 }

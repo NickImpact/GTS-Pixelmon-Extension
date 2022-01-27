@@ -16,6 +16,7 @@ import net.impactdev.gts.common.plugin.GTSPlugin;
 import net.impactdev.gts.reforged.GTSSpongeReforgedPlugin;
 import net.impactdev.gts.reforged.config.ReforgedLangConfigKeys;
 import net.impactdev.gts.common.ui.Historical;
+import net.impactdev.gts.reforged.entry.ChosenReforgedEntry;
 import net.impactdev.gts.reforged.entry.ReforgedEntry;
 import net.impactdev.gts.sponge.listings.makeup.SpongeEntry;
 import net.impactdev.gts.sponge.listings.ui.AbstractSpongeEntryUI;
@@ -46,7 +47,7 @@ import java.util.function.Supplier;
 import static net.impactdev.gts.sponge.utils.Utilities.PARSER;
 import static net.impactdev.gts.sponge.utils.Utilities.readMessageConfigOption;
 
-public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.Chosen> implements Historical<SpongeMainPageProvider> {
+public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ChosenReforgedEntry> implements Historical<SpongeMainPageProvider> {
 
     public ReforgedEntryMenu(Player viewer) {
         super(viewer);
@@ -108,7 +109,7 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.C
         builder.slot(back, 45);
 
         builder.slot(this.createPriceIcon(), 47);
-        builder.slot(GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.BINS_ENABLED).get() ? this.createBINIcon() : this.createAuctionIcon(), 49);
+        builder.slot(GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.BINS_ENABLED) ? this.createBINIcon() : this.createAuctionIcon(), 49);
         builder.slot(this.createTimeIcon(), 51);
         builder.slot(this.generateWaitingIcon(false), 53);
 
@@ -118,6 +119,11 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.C
     @Override
     protected EntrySelection<? extends SpongeEntry<?>> getSelection() {
         return this.chosen;
+    }
+
+    @Override
+    protected int getChosenSlot() {
+        return 13;
     }
 
     @Override
@@ -136,35 +142,23 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.C
     }
 
     @Override
-    protected double getMinimumMonetaryPrice(Chosen chosen) {
+    protected int getConfirmSlot() {
+        return 53;
+    }
+
+    @Override
+    protected double getMinimumMonetaryPrice(ChosenReforgedEntry chosen) {
         return new ReforgedEntry(chosen.getSelection()).getMin();
     }
 
     @Override
     public SpongeIcon createChosenIcon() {
-        return this.createIconForPokemon(this.chosen.selection, false);
+        return this.createIconForPokemon(this.chosen.getSelection(), false);
     }
 
     @Override
     public Optional<Supplier<SpongeMainPageProvider>> getParent() {
         return Optional.of(() -> SpongeMainPageProvider.creator().viewer(this.viewer).build());
-    }
-
-    protected static class Chosen implements EntrySelection<ReforgedEntry> {
-        private final ReforgedPokemon selection;
-
-        public Chosen(ReforgedPokemon selection) {
-            this.selection = selection;
-        }
-
-        public ReforgedPokemon getSelection() {
-            return this.selection;
-        }
-
-        @Override
-        public ReforgedEntry createFromSelection() {
-            return new ReforgedEntry(this.selection);
-        }
     }
 
     private SpongeIcon createIconForPokemon(ReforgedPokemon pokemon, boolean click) {
@@ -186,7 +180,7 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.C
                     return;
                 }
 
-                this.setChosen(new Chosen(pokemon));
+                this.setChosen(new ChosenReforgedEntry(pokemon));
                 this.getDisplay().setSlot(13, this.createChosenIcon());
                 this.getDisplay().setSlot(this.getPriceSlot(), this.createPriceIcon());
                 this.getDisplay().setSlot(53, this.generateConfirmIcon());
@@ -199,10 +193,8 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ReforgedEntryMenu.C
     private ItemStack getPicture(Pokemon pokemon) {
         Calendar calendar = Calendar.getInstance();
 
-        boolean aprilFools = false;
-        if(calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
-            aprilFools = true;
-        }
+        boolean aprilFools = (calendar.get(Calendar.MONTH) == Calendar.APRIL || calendar.get(Calendar.MONTH) == Calendar.JULY)
+                && calendar.get(Calendar.DAY_OF_MONTH) == 1;
 
         if(pokemon.isEgg()) {
             net.minecraft.item.ItemStack item = new net.minecraft.item.ItemStack(PixelmonItems.itemPixelmonSprite);

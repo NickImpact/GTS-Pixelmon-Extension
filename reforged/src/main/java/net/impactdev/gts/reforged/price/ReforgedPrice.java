@@ -11,6 +11,7 @@ import com.pixelmonmod.pixelmon.enums.EnumSpecies;
 import com.pixelmonmod.pixelmon.enums.forms.IEnumForm;
 import com.pixelmonmod.pixelmon.items.ItemPixelmonSprite;
 import com.pixelmonmod.pixelmon.storage.PlayerPartyStorage;
+import net.impactdev.gts.api.commands.CommandGenerator;
 import net.impactdev.gts.api.data.registry.GTSKeyMarker;
 import net.impactdev.gts.api.listings.makeup.Display;
 import net.impactdev.gts.api.listings.prices.Price;
@@ -18,6 +19,7 @@ import net.impactdev.gts.api.listings.prices.PriceManager;
 import net.impactdev.gts.api.listings.ui.EntryUI;
 import net.impactdev.gts.api.util.TriConsumer;
 import net.impactdev.gts.reforged.GTSSpongeReforgedPlugin;
+import net.impactdev.gts.reforged.commands.ReforgedPriceCommandCreator;
 import net.impactdev.gts.reforged.config.ReforgedLangConfigKeys;
 import net.impactdev.gts.reforged.converter.JObjectConverter;
 import net.impactdev.gts.reforged.ui.ReforgedPriceCreatorMenu;
@@ -202,10 +204,8 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
     public static ItemStack getPicture(EnumSpecies species, IEnumForm form) {
         Calendar calendar = Calendar.getInstance();
 
-        boolean aprilFools = false;
-        if(calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
-            aprilFools = true;
-        }
+        boolean aprilFools = (calendar.get(Calendar.MONTH) == Calendar.APRIL || calendar.get(Calendar.MONTH) == Calendar.JULY)
+                && calendar.get(Calendar.DAY_OF_MONTH) == 1;
 
         Pokemon rep = Pixelmon.pokemonFactory.create(species);
         rep.setForm(form);
@@ -282,6 +282,11 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
 
             PriceSelectorUI<U> selector = (PriceSelectorUI<U>) new ReforgedPriceSelector(viewer, ((ReforgedPrice) price).price, callback);
             return Optional.of(selector);
+        }
+
+        @Override
+        public CommandGenerator.PriceGenerator<? extends Price<?, ?, ?>> getPriceCommandCreator() {
+            return new ReforgedPriceCommandCreator();
         }
 
         @Override

@@ -239,7 +239,8 @@ public class GenerationsEntry extends SpongeEntry<GenerationsPokemon> implements
     public static ItemStack getPicture(EntityPixelmon pokemon) {
         Calendar calendar = Calendar.getInstance();
 
-        boolean aprilFools = calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1;
+        boolean aprilFools = (calendar.get(Calendar.MONTH) == Calendar.APRIL || calendar.get(Calendar.MONTH) == Calendar.JULY)
+                && calendar.get(Calendar.DAY_OF_MONTH) == 1;
 
         if(pokemon.isEgg) {
             net.minecraft.item.ItemStack item = new net.minecraft.item.ItemStack(PixelmonItems.itemPixelmonSprite);

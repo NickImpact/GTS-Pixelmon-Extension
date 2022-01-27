@@ -1,9 +1,13 @@
 package net.impactdev.gts.reforged.manager;
 
 import com.pixelmonmod.pixelmon.enums.EnumSpecies;
+import net.impactdev.gts.api.commands.CommandGenerator;
 import net.impactdev.gts.api.data.Storable;
+import net.impactdev.gts.api.listings.entries.Entry;
 import net.impactdev.gts.api.listings.entries.EntryManager;
+import net.impactdev.gts.api.listings.ui.EntrySelection;
 import net.impactdev.gts.api.listings.ui.EntryUI;
+import net.impactdev.gts.reforged.commands.ReforgedEntryCommandCreator;
 import net.impactdev.gts.reforged.entry.ReforgedEntry;
 import net.impactdev.gts.reforged.ui.ReforgedEntryMenu;
 import net.impactdev.pixelmonbridge.reforged.ReforgedDataManager;
@@ -31,6 +35,11 @@ public final class ReforgedPokemonDataManager implements EntryManager<ReforgedEn
 
     @Override
     public void supplyDeserializers() {}
+
+    @Override
+    public CommandGenerator.EntryGenerator<? extends EntrySelection<? extends Entry<?, ?>>> getEntryCommandCreator() {
+        return new ReforgedEntryCommandCreator();
+    }
 
     @Override
     public String getName() {
