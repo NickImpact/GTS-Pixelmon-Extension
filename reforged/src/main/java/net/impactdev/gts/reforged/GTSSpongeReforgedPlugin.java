@@ -6,7 +6,6 @@ import com.pixelmonmod.pixelmon.config.RemapHandler;
 import net.impactdev.gts.api.commands.GTSCommandExecutor;
 import net.impactdev.gts.api.environment.Environment;
 import net.impactdev.gts.api.events.extension.PluginReloadEvent;
-import net.impactdev.gts.reforged.commands.dev.Test;
 import net.impactdev.gts.reforged.entry.ReforgedEntry;
 import net.impactdev.gts.reforged.entry.ReforgedListingSearcher;
 import net.impactdev.gts.reforged.price.ReforgedPrice;
