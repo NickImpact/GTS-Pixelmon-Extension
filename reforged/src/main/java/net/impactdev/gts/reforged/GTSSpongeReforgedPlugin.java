@@ -109,7 +109,6 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
     @Override
     public void enable(GTSService service) {
         this.logger.debug("Enabling...");
-        new Test().register();
     }
 
     @Override
