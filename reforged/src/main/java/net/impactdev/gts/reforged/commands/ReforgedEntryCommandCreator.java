@@ -46,7 +46,7 @@ public class ReforgedEntryCommandCreator implements CommandGenerator.EntryGenera
             throw new IllegalArgumentException("Target slot is empty!");
         }
 
-        if(storage.getTeam().size() == 1) {
+        if(storage.getTeam().size() == 1 && !target.filter(Pokemon::isEgg).isPresent()) {
             throw new IllegalArgumentException("Cannot sell your last pokemon in your party!");
         }
 
