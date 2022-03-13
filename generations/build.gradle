@@ -18,8 +18,8 @@ dependencies {
 
     shadow 'com.pixelmongenerations:main-mod:8.5.0'
     shadow 'org.spongepowered:spongeapi:7.4.0'
-    shadow 'net.kyori:adventure-api:4.9.2'
-    shadow 'net.kyori:adventure-text-serializer-legacy:4.9.2'
+    shadow 'net.kyori:adventure-api:4.10.1'
+    shadow 'net.kyori:adventure-text-serializer-legacy:4.10.1'
     shadow 'net.impactdev.impactor:sponge:3.1.2'
     shadow 'org.slf4j:slf4j-api:1.7.32'
 
