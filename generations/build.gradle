@@ -14,8 +14,6 @@ dependencies {
     shadow project(":api")
     shadow project(":sponge")
 
-    minecraft "net.minecraftforge:forge:1.12.2-14.23.5.2855"
-
     shadow 'com.pixelmongenerations:main-mod:8.5.0'
     shadow 'org.spongepowered:spongeapi:7.4.0'
     shadow 'net.kyori:adventure-api:4.10.1'
