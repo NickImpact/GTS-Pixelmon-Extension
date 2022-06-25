@@ -1,53 +1,51 @@
 package net.impactdev.gts.reforged.entry;
 
 import com.google.common.collect.Lists;
-import com.pixelmonmod.pixelmon.api.pokemon.PokemonSpec;
+import com.pixelmonmod.api.Flags;
+import com.pixelmonmod.pixelmon.api.pokemon.PokemonFactory;
+import com.pixelmonmod.pixelmon.api.pokemon.species.Species;
+import com.pixelmonmod.pixelmon.api.registries.PixelmonItems;
+import com.pixelmonmod.pixelmon.api.registries.PixelmonPalettes;
+import com.pixelmonmod.pixelmon.api.registries.PixelmonSpecies;
+import com.pixelmonmod.pixelmon.api.storage.NbtKeys;
 import com.pixelmonmod.pixelmon.api.storage.PCStorage;
-import com.pixelmonmod.pixelmon.entities.pixelmon.stats.extraStats.MiniorStats;
+import com.pixelmonmod.pixelmon.api.storage.PlayerPartyStorage;
+import com.pixelmonmod.pixelmon.api.storage.StorageProxy;
+import com.pixelmonmod.pixelmon.items.SpriteItem;
 import net.impactdev.gts.api.listings.prices.PriceControlled;
-import net.impactdev.gts.api.util.PrettyPrinter;
 import net.impactdev.gts.api.util.TriFunction;
 import net.impactdev.gts.common.config.ConfigKeys;
 import net.impactdev.gts.common.config.MsgConfigKeys;
+import net.impactdev.gts.common.plugin.GTSPlugin;
 import net.impactdev.gts.reforged.config.ReforgedConfigKeys;
+import net.impactdev.gts.reforged.config.ReforgedLangConfigKeys;
 import net.impactdev.gts.reforged.config.mappings.ReforgedPriceControls;
+import net.impactdev.gts.reforged.converter.JObjectConverter;
 import net.impactdev.gts.reforged.entry.description.ContextualDetails;
-import net.impactdev.gts.reforged.flags.ReforgedSpecFlags;
+import net.impactdev.gts.sponge.listings.makeup.SpongeDisplay;
 import net.impactdev.gts.sponge.listings.makeup.SpongeEntry;
-import net.impactdev.gts.sponge.utils.Utilities;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
 import net.impactdev.impactor.api.configuration.ConfigKey;
 import net.impactdev.impactor.api.json.factory.JObject;
+import net.impactdev.impactor.api.placeholders.PlaceholderSources;
 import net.impactdev.impactor.api.services.text.MessageService;
-import com.pixelmonmod.pixelmon.Pixelmon;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import com.pixelmonmod.pixelmon.battles.BattleRegistry;
-import com.pixelmonmod.pixelmon.config.PixelmonItems;
-import com.pixelmonmod.pixelmon.enums.EnumSpecies;
-import com.pixelmonmod.pixelmon.items.ItemPixelmonSprite;
-import com.pixelmonmod.pixelmon.storage.NbtKeys;
-import com.pixelmonmod.pixelmon.storage.PlayerPartyStorage;
 import net.impactdev.gts.api.blacklist.Blacklist;
 import net.impactdev.gts.api.data.registry.GTSKeyMarker;
-import net.impactdev.gts.api.listings.Listing;
 import net.impactdev.gts.api.listings.makeup.Display;
-import net.impactdev.gts.common.plugin.GTSPlugin;
 import net.impactdev.gts.reforged.GTSSpongeReforgedPlugin;
-import net.impactdev.gts.reforged.config.ReforgedLangConfigKeys;
-import net.impactdev.gts.reforged.converter.JObjectConverter;
-import net.impactdev.gts.sponge.listings.makeup.SpongeDisplay;
-import net.impactdev.pixelmonbridge.details.SpecKey;
 import net.impactdev.pixelmonbridge.details.SpecKeys;
 import net.impactdev.pixelmonbridge.reforged.ReforgedPokemon;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.minecraft.nbt.NBTTagCompound;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.minecraft.nbt.CompoundNBT;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.text.Text;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
@@ -78,10 +76,10 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
     @Override
     public TextComponent getDescription() {
-        final MessageService<Text> parser = Impactor.getInstance().getRegistry().get(MessageService.class);
+        final MessageService parser = Impactor.getInstance().getRegistry().get(MessageService.class);
         TextComponent.Builder builder = Component.text();
         if (this.pokemon.getOrCreate().isShiny()) {
-             builder.append(Utilities.toComponent(parser.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig().get(ReforgedLangConfigKeys.POKEMON_SHINY_DETAILS_LABEL) + " ")));
+             builder.append(parser.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig().get(ReforgedLangConfigKeys.POKEMON_SHINY_DETAILS_LABEL) + " "));
         }
         return builder.append( this.getName()).build();
     }
@@ -89,18 +87,22 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
     @Override
     public Display<ItemStack> getDisplay(UUID viewer) {
         if(this.display == null) {
-            final MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
+            final MessageService service = Impactor.getInstance().getRegistry().get(MessageService.class);
 
-            List<Text> lore = Lists.newArrayList();
-            lore.addAll(service.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig().get(ReforgedLangConfigKeys.POKEMON_DETAILS), Lists.newArrayList(() -> this.pokemon)));
+            List<Component> lore = Lists.newArrayList();
+            PlaceholderSources sources = PlaceholderSources.builder()
+                    .append(ReforgedPokemon.class, () -> this.pokemon)
+                    .build();
+
+            lore.addAll(service.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig().get(ReforgedLangConfigKeys.POKEMON_DETAILS), sources));
             lore.addAll(ContextualDetails.receive(this.getOrCreateElement().getOrCreate()));
 
             ItemStack rep = ItemStack.builder()
                     .from(this.getPicture(this.pokemon.getOrCreate()))
-                    .add(Keys.DISPLAY_NAME, service.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig()
-                            .get(ReforgedLangConfigKeys.POKEMON_TITLE), Lists.newArrayList(() -> this.pokemon))
+                    .add(Keys.CUSTOM_NAME, service.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig()
+                            .get(ReforgedLangConfigKeys.POKEMON_TITLE), sources)
                     )
-                    .add(Keys.ITEM_LORE, lore)
+                    .add(Keys.LORE, lore)
                     .build();
             this.display = new SpongeDisplay(rep);
         }
@@ -110,10 +112,14 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
     @Override
     public boolean give(UUID receiver) {
-        if(Sponge.getServer().getPlayer(receiver).isPresent()) {
-            PlayerPartyStorage storage = Pixelmon.storageManager.getParty(receiver);
+        if(Sponge.server().player(receiver).isPresent()) {
+            PlayerPartyStorage storage = StorageProxy.getParty(receiver);
+            if(storage.inTemporaryMode()) {
+                return false;
+            }
+
             if (!storage.hasSpace()) {
-                PCStorage pc = Pixelmon.storageManager.getPCForPlayer(receiver);
+                PCStorage pc = StorageProxy.getPCForPlayer(receiver);
                 if (!pc.hasSpace()) {
                     return false;
                 }
@@ -127,15 +133,19 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
     @Override
     public boolean take(UUID depositor) {
-        Optional<Player> user = Sponge.getServer().getPlayer(depositor);
-        Config mainLang = GTSPlugin.getInstance().getMsgConfig();
+        Optional<ServerPlayer> user = Sponge.server().player(depositor);
+        Config mainLang = GTSPlugin.instance().configuration().language();
         Config reforgedLang = GTSSpongeReforgedPlugin.getInstance().getMsgConfig();
 
-        MessageService<Text> parser = Impactor.getInstance().getRegistry().get(MessageService.class);
+        MessageService parser = Impactor.getInstance().getRegistry().get(MessageService.class);
 
-        PlayerPartyStorage party = Pixelmon.storageManager.getParty(depositor);
+        PlayerPartyStorage party = StorageProxy.getParty(depositor);
+        if(party.inTemporaryMode()) {
+            return false;
+        }
+
         if(BattleRegistry.getBattle(party.getPlayer()) != null) {
-            user.ifPresent(player -> player.sendMessages(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_IN_BATTLE))));
+            user.ifPresent(player -> player.sendMessage(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_IN_BATTLE))));
             return false;
         }
 
@@ -152,23 +162,23 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
              }
          }
 
-        if(ReforgedSpecFlags.UNTRADABLE.matches(this.getOrCreateElement().getOrCreate())) {
-            user.ifPresent(player -> player.sendMessages(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_UNTRADEABLE))));
+        if(this.getOrCreateElement().getOrCreate().hasFlag(Flags.UNTRADEABLE)) {
+            user.ifPresent(player -> player.sendMessage(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_UNTRADEABLE))));
             return false;
         }
 
         boolean blacklisted = Impactor.getInstance().getRegistry()
                 .get(Blacklist.class)
-                .isBlacklisted(EnumSpecies.class, this.pokemon.getOrCreate().getSpecies().name);
+                .isBlacklisted(Species.class, this.pokemon.getOrCreate().getSpecies().getName());
         if(blacklisted) {
-            user.ifPresent(player -> player.sendMessages(parser.parse(mainLang.get(MsgConfigKeys.GENERAL_FEEDBACK_BLACKLISTED))));
+            user.ifPresent(player -> player.sendMessage(parser.parse(mainLang.get(MsgConfigKeys.GENERAL_FEEDBACK_BLACKLISTED))));
             return false;
         }
 
         // Check party size. Ensure we aren't less than 1 because who knows whether Reforged or another plugin
         // will break something
         if(party.getTeam().size() <= 1 && !this.getOrCreateElement().get(SpecKeys.EGG_INFO).isPresent()) {
-            user.ifPresent(player -> player.sendMessages(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_LAST_ABLE_MEMBER))));
+            user.ifPresent(player -> player.sendMessage(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_LAST_ABLE_MEMBER))));
             return false;
         }
 
@@ -187,19 +197,22 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
         }
 
         url.append("-sprite/");
-        url.append(this.pokemon.getOrCreate().getSpecies().name.toLowerCase());
+        url.append(this.pokemon.getOrCreate().getSpecies().getName().toLowerCase());
         url.append(".gif");
         return Optional.of(url.toString());
     }
 
     @Override
     public List<String> getDetails() {
-        MessageService<Text> parser = Impactor.getInstance().getRegistry().get(MessageService.class);
+        MessageService parser = Impactor.getInstance().getRegistry().get(MessageService.class);
         Config reforgedLang = GTSSpongeReforgedPlugin.getInstance().getMsgConfig();
+        PlaceholderSources sources = PlaceholderSources.builder()
+                .append(ReforgedPokemon.class, this::getOrCreateElement)
+                .build();
 
-        return parser.parse(reforgedLang.get(ReforgedLangConfigKeys.DISCORD_DETAILS), Lists.newArrayList(this::getOrCreateElement))
+        return parser.parse(reforgedLang.get(ReforgedLangConfigKeys.DISCORD_DETAILS), sources)
                 .stream()
-                .map(Text::toPlain)
+                .map(PlainTextComponentSerializer.plainText()::serialize)
                 .collect(Collectors.toList());
     }
 
@@ -223,33 +236,23 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
     private ItemStack getPicture(Pokemon pokemon) {
         Calendar calendar = Calendar.getInstance();
-        boolean aprilFools = (calendar.get(Calendar.MONTH) == Calendar.APRIL || calendar.get(Calendar.MONTH) == Calendar.JULY)
+
+        boolean aprilFools = (calendar.get(Calendar.MONTH) == Calendar.APRIL
+                || calendar.get(Calendar.MONTH) == Calendar.JULY)
                 && calendar.get(Calendar.DAY_OF_MONTH) == 1;
 
         if(pokemon.isEgg()) {
-            net.minecraft.item.ItemStack item = new net.minecraft.item.ItemStack(PixelmonItems.itemPixelmonSprite);
-            NBTTagCompound nbt = new NBTTagCompound();
-            switch (pokemon.getSpecies()) {
-                case Manaphy:
-                case Togepi:
-                    nbt.setString(NbtKeys.SPRITE_NAME,
-                            String.format("pixelmon:sprites/eggs/%s1", pokemon.getSpecies().name.toLowerCase()));
-                    break;
-                default:
-                    nbt.setString(NbtKeys.SPRITE_NAME, "pixelmon:sprites/eggs/egg1");
-                    break;
+            net.minecraft.item.ItemStack item = new net.minecraft.item.ItemStack(PixelmonItems.pixelmon_sprite);
+            CompoundNBT nbt = new CompoundNBT();
+            if(pokemon.getSpecies().is(PixelmonSpecies.MANAPHY, PixelmonSpecies.TOGEPI)) {
+                nbt.putString(NbtKeys.SPRITE_NAME, String.format("pixelmon:sprites/eggs/%s1", pokemon.getSpecies().getName().toLowerCase()));
+            } else {
+                nbt.putString(NbtKeys.SPRITE_NAME, "pixelmon:sprites/eggs/egg1");
             }
-            item.setTagCompound(nbt);
+
             return (ItemStack) (Object) item;
         } else {
-            if(pokemon.getSpecies() == EnumSpecies.Minior) {
-                byte color = ((MiniorStats) pokemon.getExtraStats()).color;
-
-                Pokemon result = Pixelmon.pokemonFactory.create(PokemonSpec.from("minior", "f:" + (color + 1)));
-                return (ItemStack) (Object) (aprilFools ? ItemPixelmonSprite.getPhoto(Pixelmon.pokemonFactory.create(EnumSpecies.Bidoof)) : ItemPixelmonSprite.getPhoto(result));
-            }
-
-            return (ItemStack) (Object) (aprilFools ? ItemPixelmonSprite.getPhoto(Pixelmon.pokemonFactory.create(EnumSpecies.Bidoof)) : ItemPixelmonSprite.getPhoto(pokemon));
+            return (ItemStack) (Object) (aprilFools ? SpriteItem.getPhoto(PokemonFactory.create(PixelmonSpecies.BIDOOF.getValueUnsafe())) : SpriteItem.getPhoto(pokemon));
         }
     }
 
@@ -257,7 +260,7 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
     public double getMin() {
         Optional<ReforgedPriceControls.Control> control = GTSSpongeReforgedPlugin.getInstance().getConfiguration()
                 .get(ReforgedConfigKeys.PRICE_CONTROLS)
-                .get(this.getOrCreateElement().getOrCreate().getSpecies());
+                .get(this.getOrCreateElement().getOrCreate().getSpecies().getRegistryValue());
 
         double calculated = control.map(ReforgedPriceControls.Control::getMin)
                 .orElseGet(() -> {
@@ -273,7 +276,7 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
         }
 
         return Math.max(1, Math.max(
-                GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LISTINGS_MIN_PRICE),
+                GTSPlugin.instance().configuration().main().get(ConfigKeys.LISTINGS_MIN_PRICE),
                 calculated
         ));
     }
@@ -282,17 +285,17 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
     public double getMax() {
         Optional<ReforgedPriceControls.Control> control = GTSSpongeReforgedPlugin.getInstance().getConfiguration()
                 .get(ReforgedConfigKeys.PRICE_CONTROLS)
-                .get(this.getOrCreateElement().getOrCreate().getSpecies());
+                .get(this.getOrCreateElement().getOrCreate().getSpecies().getRegistryValue());
 
         return Math.max(1, Math.min(
-                GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.LISTINGS_MAX_PRICE),
+                GTSPlugin.instance().configuration().main().get(ConfigKeys.LISTINGS_MAX_PRICE),
                 control.map(ReforgedPriceControls.Control::getMax).orElse(Double.MAX_VALUE)
         ));
     }
 
     private enum MinimumPriceCalculator {
         LEGENDARY(ReforgedConfigKeys.MIN_PRICING_LEGEND_ENABLED, ReforgedConfigKeys.MIN_PRICING_LEGEND_PRICE, (pokemon, key, current) -> {
-            if(EnumSpecies.legendaries.contains(pokemon.getSpecies().getPokemonName())) {
+            if(PixelmonSpecies.getLegendaries().contains(pokemon.getSpecies().getDex())) {
                 return GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(key) + current;
             }
 
@@ -306,14 +309,14 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
             return current;
         }),
         CUSTOM_TEXTURE(ReforgedConfigKeys.MIN_PRICING_TEXTURE_ENABLED, ReforgedConfigKeys.MIN_PRICING_TEXTURE_PRICE, (pokemon, key, current) -> {
-            if(!pokemon.getCustomTexture().isEmpty() && pokemon.getCustomTexture() != null) {
+            if(!pokemon.getPalette().is(PixelmonPalettes.NONE)) {
                 return GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(key) + current;
             }
 
             return current;
         }),
         HIDDEN_ABILITY(ReforgedConfigKeys.MIN_PRICING_HA_ENABLED, ReforgedConfigKeys.MIN_PRICING_HA_PRICE, (pokemon, key, current) -> {
-            if(pokemon.getAbilitySlot() == 2) {
+            if(pokemon.getForm().getAbilities().isHiddenAbility(pokemon.getAbility())) {
                 return GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(key) + current;
             }
 
@@ -321,7 +324,7 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
         }),
         IV(ReforgedConfigKeys.MIN_PRICING_IVS_ENABLED, ReforgedConfigKeys.MIN_PRICING_IVS_PRICE, (pokemon, key, current) -> {
             int required = GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(ReforgedConfigKeys.MIN_PRICING_IVS_REQUIRE);
-            for(int iv : pokemon.getStats().ivs.getArray()) {
+            for(int iv : pokemon.getStats().getIVs().getArray()) {
                 if(iv >= required) {
                     current += GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(key);
                 }

@@ -1,276 +1,282 @@
 package net.impactdev.gts.reforged.placeholders;
 
 import com.google.common.collect.Lists;
+import com.google.gson.reflect.TypeToken;
+import com.pixelmonmod.api.Flags;
+import com.pixelmonmod.pixelmon.api.config.PixelmonConfigProxy;
+import com.pixelmonmod.pixelmon.api.pokemon.Element;
+import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
+import com.pixelmonmod.pixelmon.api.pokemon.species.gender.Gender;
+import com.pixelmonmod.pixelmon.api.pokemon.species.palette.Palette;
+import com.pixelmonmod.pixelmon.api.pokemon.species.palette.PaletteProperties;
+import com.pixelmonmod.pixelmon.api.pokemon.stats.BattleStatsType;
+import com.pixelmonmod.pixelmon.api.pokemon.stats.EVStore;
+import com.pixelmonmod.pixelmon.api.pokemon.stats.IVStore;
+import com.pixelmonmod.pixelmon.api.pokemon.stats.extraStats.LakeTrioStats;
+import com.pixelmonmod.pixelmon.api.pokemon.stats.extraStats.MewStats;
+import com.pixelmonmod.pixelmon.api.registries.PixelmonForms;
+import com.pixelmonmod.pixelmon.api.registries.PixelmonPalettes;
 import com.pixelmonmod.pixelmon.battles.attacks.Attack;
 import com.pixelmonmod.pixelmon.battles.attacks.specialAttacks.basic.HiddenPower;
-import com.pixelmonmod.pixelmon.config.PixelmonConfig;
-import com.pixelmonmod.pixelmon.entities.pixelmon.specs.UnbreedableFlag;
-import com.pixelmonmod.pixelmon.entities.pixelmon.stats.EVStore;
-import com.pixelmonmod.pixelmon.entities.pixelmon.stats.Gender;
-import com.pixelmonmod.pixelmon.entities.pixelmon.stats.IVStore;
-import com.pixelmonmod.pixelmon.entities.pixelmon.stats.StatsType;
-import com.pixelmonmod.pixelmon.entities.pixelmon.stats.extraStats.LakeTrioStats;
-import com.pixelmonmod.pixelmon.entities.pixelmon.stats.extraStats.MewStats;
-import com.pixelmonmod.pixelmon.enums.EnumSpecies;
+import net.impactdev.gts.common.adventure.processors.gradients.NumberBasedGradientProcessor;
 import net.impactdev.gts.reforged.GTSSpongeReforgedPlugin;
 import net.impactdev.gts.reforged.config.ReforgedLangConfigKeys;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
 import net.impactdev.impactor.api.services.text.MessageService;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.minecraft.item.ItemStack;
-import org.spongepowered.api.event.game.GameRegistryEvent;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColor;
-import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.placeholder.PlaceholderParser;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent;
+import org.spongepowered.api.placeholder.PlaceholderParser;
 
 import java.text.DecimalFormat;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static com.pixelmonmod.pixelmon.api.registries.PixelmonSpecies.AZELF;
+import static com.pixelmonmod.pixelmon.api.registries.PixelmonSpecies.MESPRIT;
+import static com.pixelmonmod.pixelmon.api.registries.PixelmonSpecies.MEW;
+import static com.pixelmonmod.pixelmon.api.registries.PixelmonSpecies.UXIE;
+import static net.kyori.adventure.text.Component.text;
+
 public class ReforgedPlaceholders {
 
-    private static final DecimalFormat PERCENTAGE = new DecimalFormat("#0.##");
+    private static final DecimalFormat PERCENTAGE_FORMAT = new DecimalFormat("#0.##");
+    private static final NumberBasedGradientProcessor<Integer> IVS = NumberBasedGradientProcessor.<Integer>builder()
+            .type(new TypeToken<Integer>() {})
+            .min(0)
+            .max(31)
+            .translator(Component::text)
+            .factor(x -> x.floatValue() * 0.1f / 3)
+            .colors(NamedTextColor.RED, NamedTextColor.YELLOW, NamedTextColor.GREEN)
+            .build();
+    private static final NumberBasedGradientProcessor<Double> PERCENTAGE = NumberBasedGradientProcessor.<Integer>builder()
+            .type(new TypeToken<Double>() {})
+            .min(0)
+            .max(100)
+            .translator(value -> text(PERCENTAGE_FORMAT.format(value)).append(text("%")))
+            .factor(x -> x.floatValue() * 0.1f / 10)
+            .colors(NamedTextColor.RED, NamedTextColor.YELLOW, NamedTextColor.GREEN)
+            .build();
 
-    public void register(GameRegistryEvent.Register<PlaceholderParser> event) {
-        event.register(new PokemonPlaceholder(
-                "species",
-                "Pokemon's Species",
-                pokemon -> Text.of(pokemon.getSpecies().getLocalizedName()))
+    public void register(Object populator) {
+        RegisterRegistryValueEvent.RegistryStep<PlaceholderParser> registry = (RegisterRegistryValueEvent.RegistryStep<PlaceholderParser>) populator;
+
+        this.register(registry, "species", pokemon -> text(pokemon.getSpecies().getLocalizedName()));
+        this.register(registry, "level", pokemon -> text(pokemon.getPokemonLevel()));
+        this.register(registry, "form", pokemon -> Optional.ofNullable(pokemon.getForm())
+                .filter(form -> !form.getName().equals(PixelmonForms.NONE))
+                .map(form -> text(form.getLocalizedName()))
+                .orElse(text("N/A"))
         );
-        event.register(new PokemonPlaceholder(
-                "level",
-                "Pokemon's Level",
-                pokemon -> Text.of(pokemon.getLevel())
-        ));
-        event.register(new PokemonPlaceholder(
-                "form",
-                "Pokemon's Form",
-                pokemon -> {
-                    return Optional.ofNullable(pokemon.getFormEnum())
-                            .filter(form -> form.getForm() != 0)
-                            .map(form -> (Text) Text.of(form.getLocalizedName()))
-                            .orElse(Text.of("N/A"));
-                }
-        ));
-        event.register(new PokemonPlaceholder(
-                "shiny_special",
-                "A Preformatted Representation of Shiny State",
-                pokemon -> {
-                    if(pokemon.isShiny()) {
-                        return Text.of(TextColors.GRAY, "(", TextColors.GOLD, "Shiny", TextColors.GRAY, ")");
-                    }
+        this.register(registry, "shiny", pokemon -> text(pokemon.isShiny()));
+        this.register(registry, "ability", pokemon -> {
+            MessageService service = Impactor.getInstance().getRegistry().get(MessageService.class);
+            Function<String, String> replacer = in -> in.replaceAll("§r", "")
+                    .replaceAll("§k", "")
+                    .replaceAll("%ability%", pokemon.getAbility().getLocalizedName());
+            Config config = GTSSpongeReforgedPlugin.getInstance().getMsgConfig();
 
-                    return Text.EMPTY;
-                }
-        ));
-        event.register(new PokemonPlaceholder(
-                "shiny",
-                "Pokemon Shiny State",
-                pokemon -> Text.of(pokemon.isShiny())
-        ));
-        event.register(new PokemonPlaceholder(
-                "ability",
-                "Pokemon's Ability",
-                pokemon -> {
-                    MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
-                    Function<String, String> replacer = in -> in.replaceAll("[\u00a7][r]", "")
-                            .replaceAll("[\u00a7][k]", "")
-                            .replaceAll("[%]ability[%]", pokemon.getAbility().getLocalizedName());
-                    Config config = GTSSpongeReforgedPlugin.getInstance().getMsgConfig();
+            boolean hidden = pokemon.getForm().getAbilities().isHiddenAbility(pokemon.getAbility());
+            if(hidden) {
+                return service.parse(replacer.apply(config.get(ReforgedLangConfigKeys.ABILITY_HIDDEN)));
+            } else {
+                return service.parse(replacer.apply(config.get(ReforgedLangConfigKeys.ABILITY)));
+            }
+        });
+        this.register(registry, "gender", pokemon -> {
+            Gender gender = pokemon.getGender();
+            TextColor color = gender == Gender.MALE ? NamedTextColor.AQUA :
+                    gender == Gender.FEMALE ? NamedTextColor.LIGHT_PURPLE : NamedTextColor.GRAY;
 
-                    if(pokemon.getAbilitySlot() == 2) {
-                        return service.parse(replacer.apply(config.get(ReforgedLangConfigKeys.ABILITY_HIDDEN)));
-                    } else {
-                        return service.parse(replacer.apply(config.get(ReforgedLangConfigKeys.ABILITY)));
-                    }
-                }
-        ));
-        event.register(new PokemonPlaceholder(
-                "gender",
-                "Pokemon's Gender",
-                pokemon -> {
-                    Gender gender = pokemon.getGender();
-                    TextColor color = gender == Gender.Male ? TextColors.AQUA :
-                            gender == Gender.Female ? TextColors.LIGHT_PURPLE : TextColors.GRAY;
+            return text(pokemon.getGender().getLocalizedName()).color(color);
+        });
+        this.register(registry, "nature", pokemon -> {
+            Component result = text(pokemon.getBaseNature().getLocalizedName());
+            if(pokemon.getMintNature() != null) {
+                result = result.append(text("(").color(NamedTextColor.GRAY))
+                        .append(text(pokemon.getMintNature().getLocalizedName()).color(NamedTextColor.GOLD))
+                        .append(text(")").color(NamedTextColor.GRAY));
+            }
 
-                    return Text.of(color, pokemon.getGender().getLocalizedName());
-                }
-        ));
-        event.register(new PokemonPlaceholder(
-                "nature",
-                "Pokemon's Nature",
-                pokemon -> {
-                    Text result = Text.of(pokemon.getBaseNature().getLocalizedName());
-                    if(pokemon.getMintNature() != null) {
-                        result = Text.of(result, TextColors.GRAY, " (", TextColors.GOLD,
-                                pokemon.getMintNature().getLocalizedName(), TextColors.GRAY, ")");
-                    }
-
-                    return result;
-                }
-        ));
-        event.register(new PokemonPlaceholder(
-                "size",
-                "Pokemon's Size",
-                pokemon -> Text.of(pokemon.getGrowth().getLocalizedName())
-        ));
-        event.register(new PokemonPlaceholder(
-                "unbreedable",
-                "Whether a Pokemon is Breedable or not",
-                pokemon -> {
-                    if(UnbreedableFlag.UNBREEDABLE.matches(pokemon)) {
-                        return Text.of(TextColors.RED, "Unbreedable");
-                    } else {
-                        return Text.of(TextColors.GREEN, "Breedable");
-                    }
-                }
-        ));
-
+            return result;
+        });
+        this.register(registry, "size", pokemon -> text(pokemon.getGrowth().getLocalizedName()));
+        this.register(registry, "unbreedable", pokemon -> {
+            if(pokemon.hasFlag(Flags.UNBREEDABLE)) {
+                return text("Unbreedable").color(NamedTextColor.RED);
+            } else {
+                return text("Breedable").color(NamedTextColor.GREEN);
+            }
+        });
         for(String stat : Lists.newArrayList("ev", "iv")) {
-            for (StatsType type : Lists.newArrayList(StatsType.HP, StatsType.Attack, StatsType.Defence, StatsType.SpecialAttack, StatsType.SpecialDefence, StatsType.Speed)) {
-                event.register(new PokemonPlaceholder(
-                        stat + "_" + type.name().toLowerCase(),
-                        "A Pokemon's " + type.getLocalizedName() + " " + stat.toUpperCase() + " Stat",
-                        pokemon -> {
-                            if(stat.equals("ev")) {
-                                return Text.of(pokemon.getStats().evs.getStat(type));
+            for(BattleStatsType type : BattleStatsType.getStatValues()) {
+                this.register(registry, stat + "_" + StatNameTranslator.key(type), pokemon -> {
+                    switch (stat) {
+                        case "ev":
+                            return text(pokemon.getEVs().getStat(type));
+                        case "iv":
+                            boolean hyper = pokemon.getIVs().isHyperTrained(type);
+                            int value = pokemon.getIVs().getStat(type);
+                            if(hyper) {
+                                return text(value).color(NamedTextColor.GOLD);
                             } else {
-                                boolean hyper = pokemon.getStats().ivs.isHyperTrained(type);
-                                Text result = Text.of(pokemon.getStats().ivs.getStat(type));
-                                if(hyper) {
-                                    return Text.of(TextColors.AQUA, result);
-                                }
-                                return result;
+                                return IVS.process(value);
                             }
-                        }
-                ));
+                        default:
+                            return text("-1");
+                    }
+                });
             }
         }
-        event.register(new PokemonPlaceholder(
-                "ev_percentage",
-                "A Pokemon's Percentage of Total EVs Gained",
-                pokemon -> {
-                    EVStore evs = pokemon.getEVs();
-                    double sum = 0;
-                    for(int stat : evs.getArray()) {
-                        sum += stat;
-                    }
+        this.register(registry, "ev_percentage", pokemon -> {
+            EVStore evs = pokemon.getEVs();
+            return PERCENTAGE.process((double) evs.getTotal() / EVStore.MAX_TOTAL_EVS * 100);
+        });
+        this.register(registry, "iv_percentage", pokemon -> {
+            IVStore ivs = pokemon.getIVs();
+            return PERCENTAGE.process((double) ivs.getTotal() / (IVStore.MAX_IVS * 6) * 100);
+        });
+        this.register(registry, "dynamax_level", pokemon -> text(pokemon.getDynamaxLevel()));
+        this.register(registry, "held_item", pokemon -> {
+            ItemStack held = pokemon.getHeldItem();
+            if(held.isEmpty()) {
+                return Component.empty();
+            } else {
+                return text(pokemon.getHeldItemAsItemHeld().getLocalizedName());
+            }
+        });
+        this.register(registry, "texture", pokemon -> {
+            PaletteProperties texture = pokemon.getPalette();
+            if(texture.is(PixelmonPalettes.NONE)) {
+                return Component.empty();
+            }
 
-                    return Text.of(PERCENTAGE.format(sum / 510.0 * 100) + "%");
-                }
-        ));
-        event.register(new PokemonPlaceholder(
-                "iv_percentage",
-                "A Pokemon's Percentage of Total IVs Gained",
-                pokemon -> {
-                    IVStore ivs = pokemon.getIVs();
-                    double sum = 0;
-                    for(int stat : ivs.getArray()) {
-                        sum += stat;
-                    }
+            String name = texture.getLocalizedName();
+            return text(String.valueOf(name.charAt(0)).toUpperCase())
+                    .append(text(name.substring(1)));
+        });
+        this.register(registry, "clones", pokemon -> {
+            if(pokemon.getSpecies().is(MEW)) {
+                MewStats stats = (MewStats) pokemon.getExtraStats();
+                return text(stats.numCloned);
+            }
 
-                    return Text.of(PERCENTAGE.format(sum / 186.0 * 100) + "%");
-                }
-        ));
-        event.register(new PokemonPlaceholder(
-                "dynamax_level",
-                "A Pokemon's Dynamax Level",
-                pokemon -> Text.of(pokemon.getDynamaxLevel())
-        ));
-        event.register(new PokemonPlaceholder(
-                "held_item",
-                "A Pokemon's Held Item",
-                pokemon -> {
-                    ItemStack item = pokemon.getHeldItem();
-                    if(item == ItemStack.EMPTY) {
-                        return Text.EMPTY;
-                    }
+            return text("N/A");
+        });
+        this.register(registry,"enchantments", pokemon -> {
+            if(pokemon.getSpecies().is(AZELF, MESPRIT, UXIE)) {
+                LakeTrioStats stats = (LakeTrioStats) pokemon.getExtraStats();
+                return text(stats.numEnchanted);
+            }
 
-                    return Text.of(pokemon.getHeldItem().getDisplayName());
-                }
-        ));
-        event.register(new PokemonPlaceholder(
-                "texture",
-                "A Pokemon's Custom Texture",
-                pokemon -> {
-                    String texture = pokemon.getCustomTexture();
-                    if (!texture.isEmpty()) {
-                        String firstChar = String.valueOf(texture.charAt(0)).toUpperCase();
-                        String subTexture = texture.substring(1);
-                        return Text.of(firstChar+subTexture);
-                    }
-                    return Text.of("N/A");
-                }
+            return text("N/A");
+        });
+        this.register(registry, "hidden_power", pokemon -> {
+            IVStore ivs = pokemon.getIVs();
+            int a = ivs.getStat(BattleStatsType.HP) % 2;
+            int b = ivs.getStat(BattleStatsType.ATTACK) % 2;
+            int c = ivs.getStat(BattleStatsType.DEFENSE) % 2;
+            int d = ivs.getStat(BattleStatsType.SPEED) % 2;
+            int e = ivs.getStat(BattleStatsType.SPECIAL_ATTACK) % 2;
+            int f = ivs.getStat(BattleStatsType.SPECIAL_DEFENSE) % 2;
+            double fedbca = (double) (32 * f + 16 * e + 8 * d + 4 * c + 2 * b + a);
+            int type = (int) Math.floor(fedbca * 15.0 / 63.0);
+            Element element = null;
+            if (type == 0) {
+                element = Element.FIGHTING;
+            } else if (type == 1) {
+                element = Element.FLYING;
+            } else if (type == 2) {
+                element = Element.POISON;
+            } else if (type == 3) {
+                element = Element.GROUND;
+            } else if (type == 4) {
+                element = Element.ROCK;
+            } else if (type == 5) {
+                element = Element.BUG;
+            } else if (type == 6) {
+                element = Element.GHOST;
+            } else if (type == 7) {
+                element = Element.STEEL;
+            } else if (type == 8) {
+                element = Element.FIRE;
+            } else if (type == 9) {
+                element = Element.WATER;
+            } else if (type == 10) {
+                element = Element.GRASS;
+            } else if (type == 11) {
+                element = Element.ELECTRIC;
+            } else if (type == 12) {
+                element = Element.PSYCHIC;
+            } else if (type == 13) {
+                element = Element.ICE;
+            } else if (type == 14) {
+                element = Element.DRAGON;
+            } else {
+                element = Element.DARK;
+            }
 
-        ));
-        event.register(new PokemonPlaceholder(
-                "clones",
-                "Number of Mew Clones",
-                pokemon -> {
-                    if(pokemon.getSpecies() == EnumSpecies.Mew) {
-                        MewStats stats = (MewStats) pokemon.getExtraStats();
+            return text(element.getLocalizedName());
+        });
+        this.register(registry, "egg-steps", pokemon -> {
+            if(pokemon.isEgg()) {
+                int total = (pokemon.getEggCycles() + 1) * PixelmonConfigProxy.getBreeding().getStepsPerEggCycle();
+                int walked = pokemon.getEggSteps() + ((pokemon.getForm().getEggCycles() - pokemon.getEggCycles()) * PixelmonConfigProxy.getBreeding().getStepsPerEggCycle());
 
-                        return Text.of(stats.numCloned);
-                    }
+                return text(walked).append(text("/")).append(text(total));
+            }
 
-                    return Text.EMPTY;
-                }
-        ));
-        event.register(new PokemonPlaceholder(
-                "enchantments",
-                "Number of Lake Trio Enchantments",
-                pokemon -> {
-                    List<EnumSpecies> options = Lists.newArrayList(EnumSpecies.Azelf, EnumSpecies.Mesprit, EnumSpecies.Uxie);
-                    if(options.contains(pokemon.getSpecies())) {
-                        LakeTrioStats stats = (LakeTrioStats) pokemon.getExtraStats();
-
-                        return Text.of(stats.numEnchanted);
-                    }
-
-                    return Text.EMPTY;
-                }
-        ));
-        event.register(new PokemonPlaceholder(
-                "hidden_power",
-                "A Pokemon's Hidden Power",
-                pokemon -> Text.of(HiddenPower.getHiddenPowerType(pokemon.getIVs()))
-        ));
-        event.register(new PokemonPlaceholder(
-                "egg-steps",
-                "Amount of steps remaining for an egg",
-                pokemon -> {
-                    if(pokemon.isEgg()) {
-                        int total = (pokemon.getBaseStats().getEggCycles() + 1) * PixelmonConfig.stepsPerEggCycle;
-                        int walked = pokemon.getEggSteps() + ((pokemon.getBaseStats().getEggCycles() - pokemon.getEggCycles()) * PixelmonConfig.stepsPerEggCycle);
-
-                        return Text.of(walked, "/", total);
-                    }
-
-                    return Text.EMPTY;
-                }
-        ));
+            return text("N/A");
+        });
         for(int i = 0; i < 4; i++) {
             final int index = i;
-            event.register(new PokemonPlaceholder(
-                    "move" + (i + 1),
-                    "Pokemon's Move at index: " + (i + 1),
-                    pokemon -> {
-                        Attack attack = pokemon.getMoveset().get(index);
-                        if(attack != null) {
-                            return Text.of(attack.getActualMove().getLocalizedName());
-                        } else {
-                            return Text.EMPTY;
-                        }
-                    }
-            ));
+            this.register(registry, "move" + (i + 1), pokemon -> {
+                Attack attack = pokemon.getMoveset().get(index);
+                if(attack != null) {
+                    return text(attack.getActualMove().getLocalizedName());
+                }
+
+                return text("---");
+            });
         }
-        event.register(new PokemonPlaceholder(
-                "can_gmax",
-                "Pokemon G-Max Potential",
-                pokemon -> Text.of(pokemon.hasGigantamaxFactor())
-        ));
+        this.register(registry, "can-gmax", pokemon -> text(pokemon.hasGigantamaxFactor()));
+    }
+
+    private void register(RegisterRegistryValueEvent.RegistryStep<PlaceholderParser> registry, String key, Function<Pokemon, Component> translator) {
+        registry.register(this.key(key), new PokemonPlaceholder(translator));
+    }
+
+    private ResourceKey key(String value) {
+        return ResourceKey.of("gts-reforged", value);
+    }
+
+    private enum StatNameTranslator {
+        HP(BattleStatsType.HP, "hp"),
+        ATTACK(BattleStatsType.ATTACK, "attack"),
+        DEFENCE(BattleStatsType.DEFENSE, "defence"),
+        SPECIAL_ATTACK(BattleStatsType.SPECIAL_ATTACK, "specialattack"),
+        SPECIAL_DEFENCE(BattleStatsType.SPECIAL_DEFENSE, "specialdefence"),
+        SPEED(BattleStatsType.SPEED, "speed");
+
+        private final BattleStatsType type;
+        private final String key;
+
+        StatNameTranslator(final BattleStatsType type, final String key) {
+            this.type = type;
+            this.key = key;
+        }
+
+        public static String key(BattleStatsType type) {
+            return Arrays.stream(values()).filter(x -> x.type.equals(type))
+                    .map(x -> x.key)
+                    .findAny()
+                    .orElseThrow(IllegalArgumentException::new);
+        }
     }
 
 }

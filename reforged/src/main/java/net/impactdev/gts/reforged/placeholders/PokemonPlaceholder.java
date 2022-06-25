@@ -2,27 +2,23 @@ package net.impactdev.gts.reforged.placeholders;
 
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import net.impactdev.pixelmonbridge.reforged.ReforgedPokemon;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.placeholder.PlaceholderContext;
-import org.spongepowered.api.text.placeholder.PlaceholderParser;
+import net.kyori.adventure.text.Component;
+import org.spongepowered.api.placeholder.PlaceholderContext;
+import org.spongepowered.api.placeholder.PlaceholderParser;
 
 import java.util.function.Function;
 
 public class PokemonPlaceholder implements PlaceholderParser {
 
-    private final String id;
-    private final String name;
-    private final Function<Pokemon, Text> parser;
+    private final Function<Pokemon, Component> parser;
 
-    public PokemonPlaceholder(String id, String name, Function<Pokemon, Text> parser) {
-        this.id = id;
-        this.name = name;
+    public PokemonPlaceholder(Function<Pokemon, Component> parser) {
         this.parser = parser;
     }
 
     @Override
-    public Text parse(PlaceholderContext context) {
-        return context.getAssociatedObject()
+    public Component parse(PlaceholderContext context) {
+        return context.associatedObject()
                 .filter(source -> source instanceof ReforgedPokemon || source instanceof Pokemon)
                 .map(source -> {
                     if(source instanceof ReforgedPokemon) {
@@ -32,17 +28,6 @@ public class PokemonPlaceholder implements PlaceholderParser {
                     return (Pokemon) source;
                 })
                 .map(this.parser)
-                .orElse(Text.EMPTY);
+                .orElse(Component.empty());
     }
-
-    @Override
-    public String getId() {
-        return "gts-reforged:" + this.id;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
 }

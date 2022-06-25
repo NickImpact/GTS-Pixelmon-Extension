@@ -1,21 +1,22 @@
 package net.impactdev.gts.reforged.manager;
 
-import com.pixelmonmod.pixelmon.enums.EnumSpecies;
+import com.pixelmonmod.pixelmon.api.pokemon.species.Species;
 import net.impactdev.gts.api.commands.CommandGenerator;
 import net.impactdev.gts.api.data.Storable;
 import net.impactdev.gts.api.listings.entries.Entry;
 import net.impactdev.gts.api.listings.entries.EntryManager;
 import net.impactdev.gts.api.listings.ui.EntrySelection;
 import net.impactdev.gts.api.listings.ui.EntryUI;
+import net.impactdev.gts.api.util.Version;
 import net.impactdev.gts.reforged.commands.ReforgedEntryCommandCreator;
 import net.impactdev.gts.reforged.entry.ReforgedEntry;
 import net.impactdev.gts.reforged.ui.ReforgedEntryMenu;
+import net.impactdev.impactor.api.platform.players.PlatformPlayer;
 import net.impactdev.pixelmonbridge.reforged.ReforgedDataManager;
-import org.spongepowered.api.entity.living.player.Player;
 
 import java.util.function.Supplier;
 
-public final class ReforgedPokemonDataManager implements EntryManager<ReforgedEntry, Player> {
+public final class ReforgedPokemonDataManager implements EntryManager<ReforgedEntry> {
 
     private final ReforgedDataManager manager = new ReforgedDataManager();
 
@@ -25,11 +26,11 @@ public final class ReforgedPokemonDataManager implements EntryManager<ReforgedEn
 
     @Override
     public Class<?> getBlacklistType() {
-        return EnumSpecies.class;
+        return Species.class;
     }
 
     @Override
-    public Supplier<EntryUI<?, ?, ?>> getSellingUI(Player player) {
+    public Supplier<EntryUI<?>> getSellingUI(PlatformPlayer player) {
         return () -> new ReforgedEntryMenu(player);
     }
 
@@ -39,6 +40,11 @@ public final class ReforgedPokemonDataManager implements EntryManager<ReforgedEn
     @Override
     public CommandGenerator.EntryGenerator<? extends EntrySelection<? extends Entry<?, ?>>> getEntryCommandCreator() {
         return new ReforgedEntryCommandCreator();
+    }
+
+    @Override
+    public boolean supports(Version game, int content) {
+        return true;
     }
 
     @Override

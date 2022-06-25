@@ -3,21 +3,23 @@ package net.impactdev.gts.reforged.price;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
-import com.pixelmonmod.pixelmon.Pixelmon;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
+import com.pixelmonmod.pixelmon.api.pokemon.PokemonFactory;
+import com.pixelmonmod.pixelmon.api.pokemon.species.Species;
+import com.pixelmonmod.pixelmon.api.pokemon.species.Stats;
+import com.pixelmonmod.pixelmon.api.registries.PixelmonForms;
+import com.pixelmonmod.pixelmon.api.registries.PixelmonSpecies;
 import com.pixelmonmod.pixelmon.api.storage.PCStorage;
+import com.pixelmonmod.pixelmon.api.storage.PlayerPartyStorage;
 import com.pixelmonmod.pixelmon.api.storage.StoragePosition;
-import com.pixelmonmod.pixelmon.enums.EnumSpecies;
-import com.pixelmonmod.pixelmon.enums.forms.IEnumForm;
-import com.pixelmonmod.pixelmon.items.ItemPixelmonSprite;
-import com.pixelmonmod.pixelmon.storage.PlayerPartyStorage;
+import com.pixelmonmod.pixelmon.api.storage.StorageProxy;
+import com.pixelmonmod.pixelmon.items.SpriteItem;
 import net.impactdev.gts.api.commands.CommandGenerator;
 import net.impactdev.gts.api.data.registry.GTSKeyMarker;
 import net.impactdev.gts.api.listings.makeup.Display;
 import net.impactdev.gts.api.listings.prices.Price;
 import net.impactdev.gts.api.listings.prices.PriceManager;
 import net.impactdev.gts.api.listings.ui.EntryUI;
-import net.impactdev.gts.api.util.TriConsumer;
 import net.impactdev.gts.reforged.GTSSpongeReforgedPlugin;
 import net.impactdev.gts.reforged.commands.ReforgedPriceCommandCreator;
 import net.impactdev.gts.reforged.config.ReforgedLangConfigKeys;
@@ -26,8 +28,9 @@ import net.impactdev.gts.reforged.ui.ReforgedPriceCreatorMenu;
 import net.impactdev.gts.sponge.listings.makeup.SpongeDisplay;
 import net.impactdev.gts.sponge.pricing.SpongePrice;
 import net.impactdev.impactor.api.Impactor;
-import net.impactdev.impactor.api.gui.UI;
 import net.impactdev.impactor.api.json.factory.JObject;
+import net.impactdev.impactor.api.placeholders.PlaceholderSources;
+import net.impactdev.impactor.api.platform.players.PlatformPlayer;
 import net.impactdev.impactor.api.services.text.MessageService;
 import net.impactdev.pixelmonbridge.details.SpecKeys;
 import net.impactdev.pixelmonbridge.details.components.Level;
@@ -35,10 +38,8 @@ import net.impactdev.pixelmonbridge.reforged.ReforgedPokemon;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.text.Text;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -76,34 +77,34 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
             }
         });
         this.tryAppend(builder, b -> {
-            IEnumForm form = this.price.getSpecies().getFormEnum(this.price.getForm());
-            if(form.getForm() > 0) {
+            Stats form = this.price.getSpecies().getForm(this.price.getForm());
+            if(!form.getName().equals(PixelmonForms.NONE)) {
                 b.append(Component.text(form.getLocalizedName()).append(Component.space()));
             }
         });
 
-        builder.append(Component.text(this.price.getSpecies().getPokemonName()));
-
+        builder.append(Component.text(this.price.getSpecies().getName()));
         return builder.build();
     }
 
     @Override
     public Display<ItemStack> getDisplay() {
-        final MessageService<Text> service = Impactor.getInstance().getRegistry().get(MessageService.class);
+        final MessageService service = Impactor.getInstance().getRegistry().get(MessageService.class);
         final ReforgedPokemon pokemon = new ReforgedPokemon();
-        pokemon.offer(SpecKeys.SPECIES, this.price.getSpecies().getPokemonName());
+        pokemon.offer(SpecKeys.SPECIES, this.price.getSpecies().getName());
         pokemon.offer(SpecKeys.LEVEL, new Level(this.price.getLevel(), 0, false));
         pokemon.offer(SpecKeys.FORM, this.price.getForm());
 
-        List<Text> lore = Lists.newArrayList();
+        PlaceholderSources sources = PlaceholderSources.builder().append(ReforgedPokemon.class, () -> pokemon).build();
+        List<Component> lore = Lists.newArrayList();
         // TODO - Add lore
 
         ItemStack rep = ItemStack.builder()
-                .from(getPicture(this.price.getSpecies(), this.price.getSpecies().getFormEnum(this.price.getForm())))
-                .add(Keys.DISPLAY_NAME, service.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig()
-                        .get(ReforgedLangConfigKeys.POKEMON_TITLE), Lists.newArrayList(() -> pokemon))
+                .from(getPicture(this.price.getSpecies(), this.price.getSpecies().getForm(this.price.getForm())))
+                .add(Keys.CUSTOM_NAME, service.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig()
+                        .get(ReforgedLangConfigKeys.POKEMON_TITLE), sources)
                 )
-                .add(Keys.ITEM_LORE, lore)
+                .add(Keys.LORE, lore)
                 .build();
 
         return new SpongeDisplay(rep);
@@ -111,7 +112,7 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
 
     @Override
     public boolean canPay(UUID payer) {
-        PlayerPartyStorage storage = Pixelmon.storageManager.getParty(payer);
+        PlayerPartyStorage storage = StorageProxy.getParty(payer);
         for(Pokemon pokemon : this.price.doesAllowEggs() ? storage.getTeam() : Arrays.asList(storage.getAll())) {
             if(this.price.matches(pokemon)) {
                 return true;
@@ -123,7 +124,7 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
 
     @Override
     public void pay(UUID payer, @NonNull Object source, @NonNull AtomicBoolean marker) {
-        PlayerPartyStorage storage = Pixelmon.storageManager.getParty(payer);
+        PlayerPartyStorage storage = StorageProxy.getParty(payer);
         Pokemon pokemon = storage.get(this.getSourceType().cast(source));
         this.payment = ReforgedPokemon.from(pokemon);
         storage.set(pokemon.getPosition(), null);
@@ -132,13 +133,13 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
 
     @Override
     public boolean reward(UUID recipient) {
-        PlayerPartyStorage storage = Pixelmon.storageManager.getParty(recipient);
+        PlayerPartyStorage storage = StorageProxy.getParty(recipient);
         if(storage.hasSpace()) {
             storage.add(this.payment.getOrCreate());
             return true;
         }
 
-        PCStorage pc = Pixelmon.storageManager.getPCForPlayer(recipient);
+        PCStorage pc = StorageProxy.getPCForPlayer(recipient);
         return pc.add(this.payment.getOrCreate());
     }
 
@@ -149,7 +150,7 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
 
     @Override
     public long calculateFee(boolean listingType) {
-        return Math.max(0, 0);
+        return 0;
     }
 
     @Override
@@ -161,7 +162,7 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
     public JObject serialize() {
         return new JObject()
                 .add("price", new JObject()
-                        .add("species", this.price.getSpecies().getPokemonName())
+                        .add("species", this.price.getSpecies().getName())
                         .add("form", this.price.getForm())
                         .add("level", this.price.getLevel())
                         .add("allowEggs", this.price.doesAllowEggs())
@@ -182,8 +183,8 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
         JsonObject price = json.getAsJsonObject("price");
 
         PokemonPriceSpecs specs = new PokemonPriceSpecs(
-                EnumSpecies.getFromNameAnyCase(price.get("species").getAsString()),
-                price.get("form").getAsInt(),
+                PixelmonSpecies.get(price.get("species").getAsString()).get().getValueUnsafe(),
+                price.get("form").getAsString(),
                 price.get("level").getAsInt(),
                 price.get("allowEggs").getAsBoolean()
         );
@@ -201,38 +202,38 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
         consumer.accept(builder);
     }
 
-    public static ItemStack getPicture(EnumSpecies species, IEnumForm form) {
+    public static ItemStack getPicture(Species species, Stats form) {
         Calendar calendar = Calendar.getInstance();
 
         boolean aprilFools = (calendar.get(Calendar.MONTH) == Calendar.APRIL || calendar.get(Calendar.MONTH) == Calendar.JULY)
                 && calendar.get(Calendar.DAY_OF_MONTH) == 1;
 
-        Pokemon rep = Pixelmon.pokemonFactory.create(species);
+        Pokemon rep = PokemonFactory.create(species);
         rep.setForm(form);
-        return (ItemStack) (Object) (ItemPixelmonSprite.getPhoto(
-                aprilFools ? Pixelmon.pokemonFactory.create(EnumSpecies.Bidoof) : rep
+        return (ItemStack) (Object) (SpriteItem.getPhoto(
+                aprilFools ? PokemonFactory.create(PixelmonSpecies.BIDOOF.getValueUnsafe()) : rep
         ));
     }
 
     public static class PokemonPriceSpecs {
 
-        private final EnumSpecies species;
-        private final int form;
+        private final Species species;
+        private final String form;
         private final int level;
         private final boolean allowEggs;
 
-        public PokemonPriceSpecs(EnumSpecies species, int form, int level, boolean allowEggs) {
+        public PokemonPriceSpecs(Species species, String form, int level, boolean allowEggs) {
             this.species = species;
             this.form = form;
             this.level = level;
             this.allowEggs = allowEggs;
         }
 
-        public EnumSpecies getSpecies() {
+        public Species getSpecies() {
             return this.species;
         }
 
-        public int getForm() {
+        public String getForm() {
             return this.form;
         }
 
@@ -255,32 +256,30 @@ public class ReforgedPrice implements SpongePrice<ReforgedPrice.PokemonPriceSpec
                 }
             }
             
-            if (pokemon.hasSpecFlag( "untradeable" )) {
+            if (pokemon.hasFlag("untradeable")) {
                 return false;
             }
 
             return pokemon.getSpecies().equals(this.species) &&
-                    pokemon.getSpecies().getFormEnum(pokemon.getForm()).equals(this.species.getFormEnum(this.form)) &&
-                    pokemon.getLevel() >= this.level;
+                    pokemon.getForm().equals(this.species.getForm(this.form)) &&
+                    pokemon.getPokemonLevel() >= this.level;
         }
 
     }
 
-    public static class ReforgedPriceManager implements PriceManager<ReforgedPrice, Player> {
+    public static class ReforgedPriceManager implements PriceManager<ReforgedPrice> {
 
         @Override
-        public TriConsumer<Player, EntryUI<?, ?, ?>, BiConsumer<EntryUI<?, ?, ?>, Price<?, ?, ?>>> process() {
-            return (viewer, ui, callback) -> {
-                Consumer<ReforgedPrice> processor = price -> callback.accept(ui, price);
-                new ReforgedPriceCreatorMenu(viewer, processor).open();
-            };
+        public void process(PlatformPlayer target, EntryUI<?> source, BiConsumer<EntryUI<?>, Price<?, ?, ?>> callback) {
+            Consumer<ReforgedPrice> processor = price -> callback.accept(source, price);
+            new ReforgedPriceCreatorMenu(target, processor).open();
         }
 
         @Override
-        public <U extends UI<?, ?, ?, ?>> Optional<PriceSelectorUI<U>> getSelector(Player viewer, Price<?, ?, ?> price, Consumer<Object> callback) {
+        public Optional<PriceSelectorUI> getSelector(PlatformPlayer viewer, Price<?, ?, ?> price, Consumer<Object> callback) {
             Preconditions.checkArgument(price instanceof ReforgedPrice, "Received invalid price option");
 
-            PriceSelectorUI<U> selector = (PriceSelectorUI<U>) new ReforgedPriceSelector(viewer, ((ReforgedPrice) price).price, callback);
+            PriceSelectorUI selector = new ReforgedPriceSelector(viewer, ((ReforgedPrice) price).price, callback);
             return Optional.of(selector);
         }
 

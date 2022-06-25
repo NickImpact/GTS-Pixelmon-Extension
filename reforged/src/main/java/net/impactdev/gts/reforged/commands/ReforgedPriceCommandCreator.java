@@ -1,7 +1,12 @@
 package net.impactdev.gts.reforged.commands;
 
-import com.pixelmonmod.pixelmon.api.pokemon.PokemonSpec;
-import com.pixelmonmod.pixelmon.enums.EnumSpecies;
+import com.pixelmonmod.api.pokemon.PokemonSpecification;
+import com.pixelmonmod.api.pokemon.PokemonSpecificationProxy;
+import com.pixelmonmod.api.pokemon.requirement.impl.FormRequirement;
+import com.pixelmonmod.api.pokemon.requirement.impl.LevelRequirement;
+import com.pixelmonmod.api.pokemon.requirement.impl.SpeciesRequirement;
+import com.pixelmonmod.api.registry.RegistryValue;
+import com.pixelmonmod.pixelmon.api.pokemon.species.Species;
 import net.impactdev.gts.api.commands.CommandGenerator;
 import net.impactdev.gts.api.listings.auctions.Auction;
 import net.impactdev.gts.api.listings.buyitnow.BuyItNow;
@@ -10,6 +15,7 @@ import net.impactdev.gts.api.listings.ui.EntrySelection;
 import net.impactdev.gts.reforged.price.ReforgedPrice;
 import net.impactdev.gts.reforged.ui.ReforgedPriceCreatorMenu;
 import net.impactdev.impactor.api.Impactor;
+import net.impactdev.impactor.api.platform.players.PlatformPlayer;
 import org.spongepowered.api.Sponge;
 
 import java.time.LocalDateTime;
@@ -29,11 +35,10 @@ public class ReforgedPriceCommandCreator implements CommandGenerator.PriceGenera
         if(args.isEmpty()) {
             context.redirected();
             new ReforgedPriceCreatorMenu(
-                    Sponge.getServer().getPlayer(source).orElseThrow(() -> new IllegalStateException("Missing player source")),
+                    PlatformPlayer.from(Sponge.server().player(source).orElseThrow(() -> new IllegalStateException("Missing player source"))),
                     price -> {
                         if(context.type().equals(Auction.class)) {
                             throw new IllegalStateException("Price resolution for invalid listing type");
-
                         }
 
                         Impactor.getInstance().getRegistry().get(ListingManager.class)
@@ -50,16 +55,17 @@ public class ReforgedPriceCommandCreator implements CommandGenerator.PriceGenera
         }
 
         String[] remaining = args.toArray(new String[]{});
-        PokemonSpec spec = PokemonSpec.from(remaining);
-        if(spec.name == null) {
+        PokemonSpecification spec = PokemonSpecificationProxy.create(remaining);
+        Optional<RegistryValue<Species>> key = spec.getValue(SpeciesRequirement.class);
+        if(!key.isPresent()) {
             throw new IllegalArgumentException("The species of the pokemon price is required and must be accurate");
         }
 
-        EnumSpecies species = EnumSpecies.getFromName(spec.name).get();
-        int level = this.get(spec.level, -1);
-        byte form = this.get(spec.form, (byte) -1);
-        boolean eggs = this.get(Arrays.stream(spec.args).filter(arg -> arg.equals("false")).map(arg -> true).findAny().orElse(false), false);
-        return new ReforgedPrice(new ReforgedPrice.PokemonPriceSpecs(species, form, level, eggs));
+        Species species = key.get().getValueUnsafe();
+        Integer level = this.get(spec.getValue(LevelRequirement.class).orElse(null), -1);
+        String form = this.get(spec.getValue(FormRequirement.class).orElse(null), "");
+        //boolean eggs = this.get(Arrays.stream(spec.args).filter(arg -> arg.equals("false")).map(arg -> true).findAny().orElse(false), false);
+        return new ReforgedPrice(new ReforgedPrice.PokemonPriceSpecs(species, form, level, false));
     }
 
     private <T> T get(T base, T fallback) {

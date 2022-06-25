@@ -1,13 +1,14 @@
 package net.impactdev.gts.reforged.ui;
 
-import com.google.common.collect.Lists;
-import com.pixelmonmod.pixelmon.Pixelmon;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
-import com.pixelmonmod.pixelmon.config.PixelmonItems;
-import com.pixelmonmod.pixelmon.enums.EnumSpecies;
-import com.pixelmonmod.pixelmon.items.ItemPixelmonSprite;
-import com.pixelmonmod.pixelmon.storage.NbtKeys;
-import com.pixelmonmod.pixelmon.storage.PlayerPartyStorage;
+import com.pixelmonmod.pixelmon.api.pokemon.PokemonFactory;
+import com.pixelmonmod.pixelmon.api.pokemon.species.Species;
+import com.pixelmonmod.pixelmon.api.registries.PixelmonItems;
+import com.pixelmonmod.pixelmon.api.registries.PixelmonSpecies;
+import com.pixelmonmod.pixelmon.api.storage.NbtKeys;
+import com.pixelmonmod.pixelmon.api.storage.PlayerPartyStorage;
+import com.pixelmonmod.pixelmon.api.storage.StorageProxy;
+import com.pixelmonmod.pixelmon.items.SpriteItem;
 import net.impactdev.gts.api.blacklist.Blacklist;
 import net.impactdev.gts.api.listings.ui.EntrySelection;
 import net.impactdev.gts.common.config.ConfigKeys;
@@ -22,22 +23,26 @@ import net.impactdev.gts.sponge.listings.makeup.SpongeEntry;
 import net.impactdev.gts.sponge.listings.ui.AbstractSpongeEntryUI;
 import net.impactdev.gts.sponge.listings.ui.SpongeMainPageProvider;
 import net.impactdev.gts.sponge.utils.Utilities;
+import net.impactdev.gts.sponge.utils.items.ProvidedIcons;
 import net.impactdev.impactor.api.Impactor;
 import net.impactdev.impactor.api.configuration.Config;
+import net.impactdev.impactor.api.placeholders.PlaceholderSources;
+import net.impactdev.impactor.api.platform.players.PlatformPlayer;
 import net.impactdev.impactor.api.services.text.MessageService;
-import net.impactdev.impactor.sponge.ui.SpongeIcon;
-import net.impactdev.impactor.sponge.ui.SpongeLayout;
+import net.impactdev.impactor.api.ui.containers.ImpactorUI;
+import net.impactdev.impactor.api.ui.containers.icons.DisplayProvider;
+import net.impactdev.impactor.api.ui.containers.icons.Icon;
+import net.impactdev.impactor.api.ui.containers.layouts.Layout;
 import net.impactdev.pixelmonbridge.details.SpecKeys;
 import net.impactdev.pixelmonbridge.reforged.ReforgedPokemon;
-import net.minecraft.nbt.NBTTagCompound;
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.type.DyeColors;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.text.Component;
+import net.minecraft.nbt.CompoundNBT;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.effect.sound.SoundTypes;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.inventory.property.InventoryDimension;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.math.vector.Vector2i;
 
 import java.util.Calendar;
 import java.util.Optional;
@@ -49,35 +54,40 @@ import static net.impactdev.gts.sponge.utils.Utilities.readMessageConfigOption;
 
 public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ChosenReforgedEntry> implements Historical<SpongeMainPageProvider> {
 
-    public ReforgedEntryMenu(Player viewer) {
+    public ReforgedEntryMenu(PlatformPlayer viewer) {
         super(viewer);
     }
 
     @Override
-    protected Text getTitle() {
-        return Text.of("Listing Creator - Pokemon");
+    protected ImpactorUI.UIBuilder modifyDisplayBuilder(ImpactorUI.UIBuilder builder) {
+        return builder;
     }
 
     @Override
-    protected InventoryDimension getDimensions() {
-        return new InventoryDimension(9, 6);
+    protected Component getTitle() {
+        return Component.text("Listing Creator - Pokemon");
     }
 
     @Override
-    protected SpongeLayout getDesign() {
-        final MessageService<Text> PARSER = Utilities.PARSER;
+    protected Vector2i getDimensions() {
+        return new Vector2i(9, 6);
+    }
 
-        SpongeLayout.SpongeLayoutBuilder builder = SpongeLayout.builder();
-        builder.dimension(9, 3).border()
-                .dimension(9, 5).border()
-                .dimension(9, 6);
+    @Override
+    protected Layout getDesign() {
+        final MessageService PARSER = Utilities.PARSER;
 
-        builder.slots(this.border(DyeColors.RED), 3, 4, 5, 10, 11, 12, 14, 15, 16, 21, 22, 23);
-        builder.slots(SpongeIcon.BORDER, 19, 20, 24, 25, 31, 46, 52);
+        Layout.LayoutBuilder builder = Layout.builder();
+        builder.size(3).border(ProvidedIcons.BORDER)
+                .size(5).border(ProvidedIcons.BORDER)
+                .size( 6);
+
+        builder.slots(this.border(ItemTypes.RED_STAINED_GLASS_PANE.get()), 3, 4, 5, 10, 11, 12, 14, 15, 16, 21, 22, 23);
+        builder.slots(ProvidedIcons.BORDER, 19, 20, 24, 25, 31, 46, 52);
 
         builder.slot(this.createNoneChosenIcon(), 13);
 
-        PlayerPartyStorage party = Pixelmon.storageManager.getParty(this.viewer.getUniqueId());
+        PlayerPartyStorage party = StorageProxy.getParty(this.viewer.uuid());
         party.retrieveAll();
 
         AtomicInteger index = new AtomicInteger(28);
@@ -93,23 +103,26 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ChosenReforgedEntry
                 continue;
             }
 
-            SpongeIcon icon = this.createIconForPokemon(ReforgedPokemon.from(pokemon), true);
+            Icon<ItemStack> icon = this.createIconForPokemon(ReforgedPokemon.from(pokemon), true);
             builder.slot(icon, index.get());
             increment.run();
         }
 
-        SpongeIcon back = new SpongeIcon(ItemStack.builder()
-                .itemType(ItemTypes.BARRIER)
-                .add(Keys.DISPLAY_NAME, PARSER.parse(readMessageConfigOption(MsgConfigKeys.UI_GENERAL_BACK), Lists.newArrayList(() -> this.viewer)))
-                .build()
-        );
-        back.addListener(clickable -> {
-            this.getParent().ifPresent(parent -> parent.get().open());
-        });
+        Icon<ItemStack> back = Icon.builder(ItemStack.class)
+                .display(new DisplayProvider.Constant<>(ItemStack.builder()
+                    .itemType(ItemTypes.BARRIER)
+                    .add(Keys.CUSTOM_NAME, PARSER.parse(readMessageConfigOption(MsgConfigKeys.UI_GENERAL_BACK)))
+                    .build())
+                )
+                .listener(context -> {
+                    this.getParent().ifPresent(parent -> parent.get().open());
+                    return false;
+                })
+                .build();
         builder.slot(back, 45);
 
         builder.slot(this.createPriceIcon(), 47);
-        builder.slot(GTSPlugin.getInstance().getConfiguration().get(ConfigKeys.BINS_ENABLED) ? this.createBINIcon() : this.createAuctionIcon(), 49);
+        builder.slot(GTSPlugin.instance().configuration().main().get(ConfigKeys.BINS_ENABLED) ? this.createBINIcon() : this.createAuctionIcon(), 49);
         builder.slot(this.createTimeIcon(), 51);
         builder.slot(this.generateWaitingIcon(false), 53);
 
@@ -152,7 +165,7 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ChosenReforgedEntry
     }
 
     @Override
-    public SpongeIcon createChosenIcon() {
+    public Icon<ItemStack> createChosenIcon() {
         return this.createIconForPokemon(this.chosen.getSelection(), false);
     }
 
@@ -161,33 +174,40 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ChosenReforgedEntry
         return Optional.of(() -> SpongeMainPageProvider.creator().viewer(this.viewer).build());
     }
 
-    private SpongeIcon createIconForPokemon(ReforgedPokemon pokemon, boolean click) {
-        Config mainLang = GTSPlugin.getInstance().getMsgConfig();
-        MessageService<Text> parser = Impactor.getInstance().getRegistry().get(MessageService.class);
+    private Icon<ItemStack> createIconForPokemon(ReforgedPokemon pokemon, boolean click) {
+        Config mainLang = GTSPlugin.instance().configuration().language();
+        MessageService parser = Impactor.getInstance().getRegistry().get(MessageService.class);
+        PlaceholderSources sources = PlaceholderSources.builder()
+                .append(ReforgedPokemon.class, () -> pokemon)
+                .build();
 
         ItemStack item = ItemStack.builder()
                 .fromItemStack(this.getPicture(pokemon.getOrCreate()))
-                .add(Keys.DISPLAY_NAME, PARSER.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig().get(ReforgedLangConfigKeys.POKEMON_TITLE), Lists.newArrayList(() -> pokemon)))
-                .add(Keys.ITEM_LORE, PARSER.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig().get(ReforgedLangConfigKeys.POKEMON_DETAILS), Lists.newArrayList(() -> pokemon)))
+                .add(Keys.CUSTOM_NAME, PARSER.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig().get(ReforgedLangConfigKeys.POKEMON_TITLE), sources))
+                .add(Keys.LORE, PARSER.parse(GTSSpongeReforgedPlugin.getInstance().getMsgConfig().get(ReforgedLangConfigKeys.POKEMON_DETAILS), sources))
                 .build();
-        SpongeIcon icon = new SpongeIcon(item);
-        if(click) {
-            icon.addListener(clickable -> {
-                Blacklist blacklist = Impactor.getInstance().getRegistry().get(Blacklist.class);
-                if(blacklist.isBlacklisted(EnumSpecies.class, pokemon.get(SpecKeys.SPECIES).orElseThrow(() -> new RuntimeException("Pokemon data without species")))) {
-                    this.viewer.sendMessage(parser.parse(mainLang.get(MsgConfigKeys.GENERAL_FEEDBACK_BLACKLISTED)));
-                    this.viewer.playSound(SoundTypes.BLOCK_ANVIL_LAND, this.viewer.getPosition(), 1, 1);
-                    return;
-                }
+        return Icon.builder(ItemStack.class)
+                .display(new DisplayProvider.Constant<>(item))
+                .listener(context -> {
+                    if(click) {
+                        Blacklist blacklist = Impactor.getInstance().getRegistry().get(Blacklist.class);
+                        if(blacklist.isBlacklisted(Species.class, pokemon.get(SpecKeys.SPECIES).orElseThrow(() -> new RuntimeException("Pokemon data without species")))) {
+                            this.viewer.sendMessage(parser.parse(mainLang.get(MsgConfigKeys.GENERAL_FEEDBACK_BLACKLISTED)));
+                            this.viewer.playSound(Sound.sound(SoundTypes.BLOCK_ANVIL_LAND.get(), Sound.Source.MASTER, 1, 1));
 
-                this.setChosen(new ChosenReforgedEntry(pokemon));
-                this.getDisplay().setSlot(13, this.createChosenIcon());
-                this.getDisplay().setSlot(this.getPriceSlot(), this.createPriceIcon());
-                this.getDisplay().setSlot(53, this.generateConfirmIcon());
-                this.style(true);
-            });
-        }
-        return icon;
+                            return false;
+                        }
+
+                        this.setChosen(new ChosenReforgedEntry(pokemon));
+                        this.getDisplay().set(this.createChosenIcon(), 13);
+                        this.getDisplay().set(this.createPriceIcon(), this.getPriceSlot());
+                        this.getDisplay().set(this.generateConfirmIcon(), 53);
+                        this.style(true);
+                    }
+
+                    return false;
+                })
+                .build();
     }
 
     private ItemStack getPicture(Pokemon pokemon) {
@@ -197,22 +217,17 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ChosenReforgedEntry
                 && calendar.get(Calendar.DAY_OF_MONTH) == 1;
 
         if(pokemon.isEgg()) {
-            net.minecraft.item.ItemStack item = new net.minecraft.item.ItemStack(PixelmonItems.itemPixelmonSprite);
-            NBTTagCompound nbt = new NBTTagCompound();
-            switch (pokemon.getSpecies()) {
-                case Manaphy:
-                case Togepi:
-                    nbt.setString(NbtKeys.SPRITE_NAME,
-                            String.format("pixelmon:sprites/eggs/%s1", pokemon.getSpecies().name.toLowerCase()));
-                    break;
-                default:
-                    nbt.setString(NbtKeys.SPRITE_NAME, "pixelmon:sprites/eggs/egg1");
-                    break;
+            net.minecraft.item.ItemStack item = new net.minecraft.item.ItemStack(PixelmonItems.pixelmon_sprite);
+            CompoundNBT nbt = new CompoundNBT();
+            if(pokemon.getSpecies().is(PixelmonSpecies.MANAPHY, PixelmonSpecies.TOGEPI)) {
+                nbt.putString(NbtKeys.SPRITE_NAME, String.format("pixelmon:sprites/eggs/%s1", pokemon.getSpecies().getName().toLowerCase()));
+            } else {
+                nbt.putString(NbtKeys.SPRITE_NAME, "pixelmon:sprites/eggs/egg1");
             }
-            item.setTagCompound(nbt);
+
             return (ItemStack) (Object) item;
         } else {
-            return (ItemStack) (Object) (aprilFools ? ItemPixelmonSprite.getPhoto(Pixelmon.pokemonFactory.create(EnumSpecies.Bidoof)) : ItemPixelmonSprite.getPhoto(pokemon));
+            return (ItemStack) (Object) (aprilFools ? SpriteItem.getPhoto(PokemonFactory.create(PixelmonSpecies.BIDOOF.getValueUnsafe())) : SpriteItem.getPhoto(pokemon));
         }
     }
 
