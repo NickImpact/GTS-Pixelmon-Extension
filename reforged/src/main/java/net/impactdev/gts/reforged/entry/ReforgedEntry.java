@@ -11,7 +11,9 @@ import com.pixelmonmod.pixelmon.api.storage.NbtKeys;
 import com.pixelmonmod.pixelmon.api.storage.PCStorage;
 import com.pixelmonmod.pixelmon.api.storage.PlayerPartyStorage;
 import com.pixelmonmod.pixelmon.api.storage.StorageProxy;
+import com.pixelmonmod.pixelmon.client.gui.Resources;
 import com.pixelmonmod.pixelmon.items.SpriteItem;
+import com.pixelmonmod.pixelmon.items.UIElementItem;
 import net.impactdev.gts.api.listings.prices.PriceControlled;
 import net.impactdev.gts.api.util.TriFunction;
 import net.impactdev.gts.common.config.ConfigKeys;
@@ -154,7 +156,7 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
         if(nickname.isPresent()) {
             byte[] bytes = nickname.get().getBytes(StandardCharsets.UTF_8);
         }
-        
+
         if (this.pokemon.getOrCreate().isEgg()) {
              if (!GTSSpongeReforgedPlugin.getInstance().getConfiguration().get(ReforgedConfigKeys.ALLOW_EGG_BASE)) {
                  user.ifPresent( player -> player.sendMessage(parser.parse(reforgedLang.get(ReforgedLangConfigKeys.ERROR_ISEGG))));
@@ -242,18 +244,14 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
                 && calendar.get(Calendar.DAY_OF_MONTH) == 1;
 
         if(pokemon.isEgg()) {
-            net.minecraft.item.ItemStack item = new net.minecraft.item.ItemStack(PixelmonItems.pixelmon_sprite);
-            CompoundNBT nbt = new CompoundNBT();
-            if(pokemon.getSpecies().is(PixelmonSpecies.MANAPHY, PixelmonSpecies.TOGEPI)) {
-                nbt.putString(NbtKeys.SPRITE_NAME, String.format("pixelmon:sprites/eggs/%s1", pokemon.getSpecies().getName().toLowerCase()));
-            } else {
-                nbt.putString(NbtKeys.SPRITE_NAME, "pixelmon:sprites/eggs/egg1");
-            }
-
-            return (ItemStack) (Object) item;
-        } else {
-            return (ItemStack) (Object) (aprilFools ? SpriteItem.getPhoto(PokemonFactory.create(PixelmonSpecies.BIDOOF.getValueUnsafe())) : SpriteItem.getPhoto(pokemon));
+            return (ItemStack) (Object) UIElementItem.builder()
+                    .setImage(Resources.getEggSprite(pokemon.getSpecies(), pokemon.getEggCycles()).toString())
+                    .setSize(32, 32)
+                    .setPosOffset(-7, -12)
+                    .build();
         }
+
+        return (ItemStack) (Object) (aprilFools ? SpriteItem.getPhoto(PokemonFactory.create(PixelmonSpecies.BIDOOF.getValueUnsafe())) : SpriteItem.getPhoto(pokemon));
     }
 
     @Override
