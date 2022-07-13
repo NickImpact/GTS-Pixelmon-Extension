@@ -8,6 +8,7 @@ import com.pixelmonmod.pixelmon.api.registries.PixelmonSpecies;
 import com.pixelmonmod.pixelmon.api.storage.NbtKeys;
 import com.pixelmonmod.pixelmon.api.storage.PlayerPartyStorage;
 import com.pixelmonmod.pixelmon.api.storage.StorageProxy;
+import com.pixelmonmod.pixelmon.api.util.helpers.SpriteItemHelper;
 import com.pixelmonmod.pixelmon.items.SpriteItem;
 import net.impactdev.gts.api.blacklist.Blacklist;
 import net.impactdev.gts.api.listings.ui.EntrySelection;
@@ -227,7 +228,7 @@ public class ReforgedEntryMenu extends AbstractSpongeEntryUI<ChosenReforgedEntry
 
             return (ItemStack) (Object) item;
         } else {
-            return (ItemStack) (Object) (aprilFools ? SpriteItem.getPhoto(PokemonFactory.create(PixelmonSpecies.BIDOOF.getValueUnsafe())) : SpriteItem.getPhoto(pokemon));
+            return (ItemStack) (Object) (aprilFools ? SpriteItemHelper.getPhoto(PokemonFactory.create(PixelmonSpecies.BIDOOF.getValueUnsafe())) : SpriteItemHelper.getPhoto(pokemon));
         }
     }
 

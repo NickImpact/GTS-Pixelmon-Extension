@@ -21,11 +21,12 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: '*.jar')
 
-    shadow 'reforged:server:9.0.2@Pixelmon-1.16.5-9.0.2-server.jar'
+    shadow 'reforged:server:9.0.5@Pixelmon-1.16.5-9.0.5-server.jar'
     shadow 'org.spongepowered:spongeapi:8.1.0'
     shadow 'net.kyori:adventure-api:4.10.1'
     shadow 'net.kyori:adventure-text-serializer-legacy:4.10.1'
 
+    api 'net.impactdev.reforged.mixins:api:1.2.1'
     api 'net.impactdev:pixelmonbridge:1.1.1-SNAPSHOT'
     api 'net.impactdev.pixelmonbridge:reforged:1.1.1-SNAPSHOT'
 

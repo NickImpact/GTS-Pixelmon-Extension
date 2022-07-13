@@ -8,6 +8,7 @@ import com.pixelmonmod.pixelmon.api.registries.PixelmonItems;
 import com.pixelmonmod.pixelmon.api.registries.PixelmonSpecies;
 import com.pixelmonmod.pixelmon.api.storage.NbtKeys;
 import com.pixelmonmod.pixelmon.api.storage.StorageProxy;
+import com.pixelmonmod.pixelmon.api.util.helpers.SpriteItemHelper;
 import com.pixelmonmod.pixelmon.items.SpriteItem;
 import net.impactdev.gts.api.listings.prices.PriceManager;
 import net.impactdev.gts.common.config.MsgConfigKeys;
@@ -221,7 +222,7 @@ public class ReforgedPriceSelector implements PriceManager.PriceSelectorUI {
 
             return (ItemStack) (Object) item;
         } else {
-            return (ItemStack) (Object) (aprilFools ? SpriteItem.getPhoto(PokemonFactory.create(PixelmonSpecies.BIDOOF.getValueUnsafe())) : SpriteItem.getPhoto(pokemon));
+            return (ItemStack) (Object) (aprilFools ? SpriteItemHelper.getPhoto(PokemonFactory.create(PixelmonSpecies.BIDOOF.getValueUnsafe())) : SpriteItemHelper.getPhoto(pokemon));
         }
     }
 }
