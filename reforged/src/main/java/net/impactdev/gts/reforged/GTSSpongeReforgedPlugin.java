@@ -76,6 +76,7 @@ public class GTSSpongeReforgedPlugin implements Extension, ImpactorEventListener
         this.lang = Config.builder()
                 .path(dataDir.resolve("reforged").resolve("lang").resolve(GTSPlugin.instance().configuration().main().get(ConfigKeys.LANGUAGE) + ".conf"))
                 .provider(ReforgedLangConfigKeys.class)
+                .supply(true)
                 .build();
 
         service.getGTSComponentManager().registerLegacyEntryDeserializer("pokemon", new LegacyReforgedPokemonDeserializer());

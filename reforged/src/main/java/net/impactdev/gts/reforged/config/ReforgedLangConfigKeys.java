@@ -16,6 +16,7 @@ public final class ReforgedLangConfigKeys {
     public static final ConfigKey<List<String>> POKEMON_DETAILS = listKey("listing.details.info", Lists.newArrayList(
             "&aGeneric Information:",
             "  &7Form: &e{{gts-reforged:form}}",
+            "  &7Palette: &e{{gts-reforged:palette}}",
             "  &7Ability: &e{{gts-reforged:ability}}",
             "  &7Gender: {{gts-reforged:gender}}",
             "  &7Nature: &e{{gts-reforged:nature}}",
@@ -30,6 +31,7 @@ public final class ReforgedLangConfigKeys {
     public static final ConfigKey<List<String>> DISCORD_DETAILS = listKey("listing.details.discord", Lists.newArrayList(
             "Level: {{gts-reforged:level}}",
             "Form: {{gts-reforged:form}}",
+            "Palette: {{gts-reforged:palette}}",
             "Shiny: {{gts-reforged:shiny}}",
             "",
             "Ability: {{gts-reforged:ability}}",

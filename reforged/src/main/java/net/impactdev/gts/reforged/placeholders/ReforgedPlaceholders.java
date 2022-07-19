@@ -7,7 +7,6 @@ import com.pixelmonmod.pixelmon.api.config.PixelmonConfigProxy;
 import com.pixelmonmod.pixelmon.api.pokemon.Element;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import com.pixelmonmod.pixelmon.api.pokemon.species.gender.Gender;
-import com.pixelmonmod.pixelmon.api.pokemon.species.palette.Palette;
 import com.pixelmonmod.pixelmon.api.pokemon.species.palette.PaletteProperties;
 import com.pixelmonmod.pixelmon.api.pokemon.stats.BattleStatsType;
 import com.pixelmonmod.pixelmon.api.pokemon.stats.EVStore;
@@ -17,7 +16,6 @@ import com.pixelmonmod.pixelmon.api.pokemon.stats.extraStats.MewStats;
 import com.pixelmonmod.pixelmon.api.registries.PixelmonForms;
 import com.pixelmonmod.pixelmon.api.registries.PixelmonPalettes;
 import com.pixelmonmod.pixelmon.battles.attacks.Attack;
-import com.pixelmonmod.pixelmon.battles.attacks.specialAttacks.basic.HiddenPower;
 import net.impactdev.gts.common.adventure.processors.gradients.NumberBasedGradientProcessor;
 import net.impactdev.gts.reforged.GTSSpongeReforgedPlugin;
 import net.impactdev.gts.reforged.config.ReforgedLangConfigKeys;
@@ -71,6 +69,11 @@ public class ReforgedPlaceholders {
         this.register(registry, "form", pokemon -> Optional.ofNullable(pokemon.getForm())
                 .filter(form -> !form.getName().equals(PixelmonForms.NONE))
                 .map(form -> text(form.getLocalizedName()))
+                .orElse(text("N/A"))
+        );
+        this.register(registry, "palette", pokemon -> Optional.ofNullable(pokemon.getPalette())
+                .filter(palette -> !palette.is(PixelmonPalettes.NONE))
+                .map(palette -> text(palette.getLocalizedName()))
                 .orElse(text("N/A"))
         );
         this.register(registry, "shiny", pokemon -> text(pokemon.isShiny()));
