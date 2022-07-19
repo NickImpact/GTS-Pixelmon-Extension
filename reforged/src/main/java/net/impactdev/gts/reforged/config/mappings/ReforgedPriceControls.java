@@ -1,20 +1,21 @@
 package net.impactdev.gts.reforged.config.mappings;
 
 import com.google.common.collect.Maps;
-import com.pixelmonmod.pixelmon.enums.EnumSpecies;
+import com.pixelmonmod.api.registry.RegistryValue;
+import com.pixelmonmod.pixelmon.api.pokemon.species.Species;
 
 import java.util.Map;
 import java.util.Optional;
 
 public class ReforgedPriceControls {
 
-    private final Map<EnumSpecies, Control> controls = Maps.newHashMap();
+    private final Map<RegistryValue<Species>, Control> controls = Maps.newHashMap();
 
-    public Optional<Control> get(EnumSpecies species) {
+    public Optional<Control> get(RegistryValue<Species> species) {
         return Optional.ofNullable(this.controls.get(species));
     }
 
-    public void createFor(EnumSpecies species, double min, double max) {
+    public void createFor(RegistryValue<Species> species, double min, double max) {
         this.controls.put(species, new Control(min, max));
     }
 

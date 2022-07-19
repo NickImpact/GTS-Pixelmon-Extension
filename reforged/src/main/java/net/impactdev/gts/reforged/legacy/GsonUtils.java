@@ -2,24 +2,24 @@ package net.impactdev.gts.reforged.legacy;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagDouble;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.DoubleNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.StringNBT;
 
 import java.util.List;
 import java.util.Map;
 
 public class GsonUtils {
 
-    public static NBTTagCompound deserialize(JsonObject json) {
+    public static CompoundNBT deserialize(JsonObject json) {
         Map<String, Object> map = new GsonBuilder().setPrettyPrinting().create().fromJson(json.get("element").getAsString(), Map.class);
         return nbtFromMap(map);
     }
 
-    private static NBTTagCompound nbtFromMap(Map<String, Object> map) {
-        NBTTagCompound nbt = new NBTTagCompound();
+    private static CompoundNBT nbtFromMap(Map<String, Object> map) {
+        CompoundNBT nbt = new CompoundNBT();
 
         for (String key : map.keySet()) {
             try {
@@ -32,33 +32,33 @@ public class GsonUtils {
         return nbt;
     }
 
-    private static NBTTagList nbtFromList(List<Object> list) {
-        NBTTagList nList = new NBTTagList();
-        list.forEach(entry -> nList.appendTag(read(entry)));
+    private static ListNBT nbtFromList(List<Object> list) {
+        ListNBT nList = new ListNBT();
+        list.forEach(entry -> nList.add(read(entry)));
         return nList;
     }
 
-    private static NBTBase read(Object in) {
+    private static INBT read(Object in) {
         if(in instanceof String) {
-            return new NBTTagString((String) in);
+            return StringNBT.valueOf((String) in);
         } else if(in instanceof Map) {
             return nbtFromMap((Map<String, Object>) in);
         } else if(in instanceof List) {
             return nbtFromList((List<Object>) in);
         } else {
-            return new NBTTagDouble((Double) in);
+            return DoubleNBT.valueOf((double) in);
         }
     }
 
-    private static void apply(NBTTagCompound nbt, String key, Object obj) throws Exception {
+    private static void apply(CompoundNBT nbt, String key, Object obj) throws Exception {
         if (obj instanceof String)
-            nbt.setString(key, (String) obj);
+            nbt.putString(key, (String) obj);
         else if (obj instanceof Map)
-            nbt.setTag(key, nbtFromMap((Map<String, Object>) obj));
+            nbt.put(key, nbtFromMap((Map<String, Object>) obj));
         else if (obj instanceof List)
-            nbt.setTag(key, nbtFromList((List<Object>) obj));
+            nbt.put(key, nbtFromList((List<Object>) obj));
         else
-            nbt.setDouble(key, (Double) obj);
+            nbt.putDouble(key, (Double) obj);
     }
 
 }

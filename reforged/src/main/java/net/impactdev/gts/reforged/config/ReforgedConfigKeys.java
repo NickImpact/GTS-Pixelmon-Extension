@@ -2,26 +2,25 @@ package net.impactdev.gts.reforged.config;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.pixelmonmod.pixelmon.enums.EnumSpecies;
+import com.pixelmonmod.api.registry.RegistryValue;
+import com.pixelmonmod.pixelmon.api.pokemon.species.Species;
+import com.pixelmonmod.pixelmon.api.registries.PixelmonSpecies;
 import net.impactdev.gts.reforged.config.mappings.ReforgedPriceControls;
 import net.impactdev.impactor.api.configuration.ConfigKey;
-import net.impactdev.impactor.api.configuration.ConfigKeyHolder;
 import net.impactdev.impactor.api.configuration.keys.BaseConfigKey;
+import net.impactdev.impactor.api.configuration.loader.KeyProvider;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import static net.impactdev.impactor.api.configuration.ConfigKeyTypes.*;
 
-public class ReforgedConfigKeys implements ConfigKeyHolder {
+@KeyProvider
+public class ReforgedConfigKeys  {
 
     public static final ConfigKey<ReforgedPriceControls> PRICE_CONTROLS = customKey(adapter -> {
         ReforgedPriceControls controller = new ReforgedPriceControls();
         for(String key : adapter.getKeys("price-controls.overrides", Lists.newArrayList())) {
-            Optional<EnumSpecies> species = EnumSpecies.getFromName(key);
+            Optional<RegistryValue<Species>> species = PixelmonSpecies.get(key);
             if(species.isPresent()) {
                 double min = adapter.getDouble("price-controls.overrides." + key + ".min", -1);
                 double max = adapter.getDouble("price-controls.overrides." + key + ".max", -1);
@@ -53,48 +52,4 @@ public class ReforgedConfigKeys implements ConfigKeyHolder {
     public static final ConfigKey<Boolean> MIN_PRICING_TEXTURE_ENABLED = booleanKey("price-controls.minimum.texture.enabled", true);
     public static final ConfigKey<Double> MIN_PRICING_TEXTURE_PRICE = doubleKey("price-controls.minimum.texture.price", 5000);
 
-    private static final Map<String, ConfigKey<?>> KEYS;
-    private static final int SIZE;
-
-    static {
-        Map<String, ConfigKey<?>> keys = new LinkedHashMap<>();
-        Field[] values = ReforgedConfigKeys.class.getFields();
-        int i = 0;
-
-        for (Field f : values) {
-            // ignore non-static fields
-            if (!Modifier.isStatic(f.getModifiers())) {
-                continue;
-            }
-
-            // ignore fields that aren't configkeys
-            if (!ConfigKey.class.equals(f.getType())) {
-                continue;
-            }
-
-            try {
-                // get the key instance
-                BaseConfigKey<?> key = (BaseConfigKey<?>) f.get(null);
-                // set the ordinal value of the key.
-                key.ordinal = i++;
-                // add the key to the return map
-                keys.put(f.getName(), key);
-            } catch (Exception e) {
-                throw new RuntimeException("Exception processing field: " + f, e);
-            }
-        }
-
-        KEYS = ImmutableMap.copyOf(keys);
-        SIZE = i;
-    }
-
-    @Override
-    public Map<String, ConfigKey<?>> getKeys() {
-        return KEYS;
-    }
-
-    @Override
-    public int getSize() {
-        return SIZE;
-    }
 }

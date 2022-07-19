@@ -7,7 +7,7 @@ import net.impactdev.gts.api.commands.GTSCommandExecutor;
 import net.impactdev.gts.api.environment.Environment;
 import net.impactdev.gts.api.events.extension.PlaceholderRegistryEvent;
 import net.impactdev.gts.api.events.extension.PluginReloadEvent;
-import net.impactdev.gts.api.extension.Extension;
+import net.impactdev.gts.api.extensions.Extension;
 import net.impactdev.gts.common.config.ConfigKeys;
 import net.impactdev.gts.common.plugin.GTSPlugin;
 import net.impactdev.gts.generations.config.GenerationsConfigKeys;
