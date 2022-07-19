@@ -13,6 +13,8 @@ import com.pixelmonmod.pixelmon.api.util.helpers.SpriteItemHelper;
 import com.pixelmonmod.pixelmon.client.gui.Resources;
 import com.pixelmonmod.pixelmon.items.SpriteItem;
 import com.pixelmonmod.pixelmon.items.UIElementItem;
+import io.leangen.geantyref.TypeToken;
+import net.impactdev.gts.api.listings.entries.Entry;
 import net.impactdev.gts.api.listings.prices.PriceControlled;
 import net.impactdev.gts.api.util.TriFunction;
 import net.impactdev.gts.common.config.ConfigKeys;
@@ -47,6 +49,7 @@ import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.item.inventory.ItemStack;
 
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.List;
@@ -62,6 +65,11 @@ public class ReforgedEntry extends SpongeEntry<ReforgedPokemon> implements Price
 
     public ReforgedEntry(ReforgedPokemon pokemon) {
         this.pokemon = pokemon;
+    }
+
+    @Override
+    public Class<? extends Entry<ReforgedPokemon, ItemStack>> type() {
+        return ReforgedEntry.class;
     }
 
     @Override

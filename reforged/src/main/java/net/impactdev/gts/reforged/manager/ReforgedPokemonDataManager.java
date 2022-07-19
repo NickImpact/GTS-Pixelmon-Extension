@@ -25,6 +25,11 @@ public final class ReforgedPokemonDataManager implements EntryManager<ReforgedEn
     }
 
     @Override
+    public Class<ReforgedEntry> supported() {
+        return ReforgedEntry.class;
+    }
+
+    @Override
     public Class<?> getBlacklistType() {
         return Species.class;
     }
